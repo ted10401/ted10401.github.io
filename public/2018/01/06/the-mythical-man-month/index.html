@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-tw">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="阿祥, 阿祥的閱讀日常, 阿祥的閱讀筆記, Ted Sie" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="專案的時程、里程碑都進行了完整的規劃，卻總是不斷延期技術持續進步，功能越來越完善，Bug 卻沒有修完的一天時間不斷地流逝，專案始終停滯不前 若是察覺自己正在經歷上述症狀，人月神話能幫助你釐清真相">
+<meta property="og:type" content="article">
+<meta property="og:title" content="人月神話：軟體專案管理之道 The Mythical Man-Month：Essays on Software Engineering">
+<meta property="og:url" content="https://ted10401.github.io/2018/01/06/the-mythical-man-month/index.html">
+<meta property="og:site_name" content="阿祥的閱讀日常">
+<meta property="og:description" content="專案的時程、里程碑都進行了完整的規劃，卻總是不斷延期技術持續進步，功能越來越完善，Bug 卻沒有修完的一天時間不斷地流逝，專案始終停滯不前 若是察覺自己正在經歷上述症狀，人月神話能幫助你釐清真相">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:image" content="https://ted10401.github.io/images/mythical_man_month_title.png">
+<meta property="og:updated_time" content="2018-01-06T03:08:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="人月神話：軟體專案管理之道 The Mythical Man-Month：Essays on Software Engineering">
+<meta name="twitter:description" content="專案的時程、里程碑都進行了完整的規劃，卻總是不斷延期技術持續進步，功能越來越完善，Bug 卻沒有修完的一天時間不斷地流逝，專案始終停滯不前 若是察覺自己正在經歷上述症狀，人月神話能幫助你釐清真相">
+<meta name="twitter:image" content="https://ted10401.github.io/images/mythical_man_month_title.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":true,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://ted10401.github.io/2018/01/06/the-mythical-man-month/"/>
+
+
+
+
+
+  <title>人月神話：軟體專案管理之道 The Mythical Man-Month：Essays on Software Engineering | 阿祥的閱讀日常</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">阿祥的閱讀日常</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://ted10401.github.io/2018/01/06/the-mythical-man-month/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ted Sie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="阿祥的閱讀日常">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">人月神話：軟體專案管理之道 The Mythical Man-Month：Essays on Software Engineering</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-01-06T10:05:08+08:00">
+                2018-01-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/01/06/the-mythical-man-month/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2018/01/06/the-mythical-man-month/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="/images/mythical_man_month_title.png" width="50%"></p>
+<p><strong>專案的時程、里程碑都進行了完整的規劃，卻總是不斷延期</strong><br><strong>技術持續進步，功能越來越完善，Bug 卻沒有修完的一天</strong><br><strong>時間不斷地流逝，專案始終停滯不前</strong></p>
+<p>若是察覺自己正在經歷上述症狀，人月神話能幫助你釐清真相</p>
+<a id="more"></a>
+<p><br></p>
+<p>《人月神話》出版至今已超過四十年，被譽為軟體專案管理領域的聖經，本以為其觀點會隨著時間漸漸地被日新月異的技術所淘汰，沒想到卻如當頭棒喝一般讓我獲得極大的收穫，雖然內容無法程式技術獲得提升，但能改變你對軟體開發的思維以及開啟軟體專案管理的大門。</p>
+<p><br></p>
+<h2 id="焦油坑-The-Tar-Pit"><a href="#焦油坑-The-Tar-Pit" class="headerlink" title="焦油坑 The Tar Pit"></a><font color="ff0000">焦油坑 The Tar Pit</font></h2><p>位於美國洛杉磯的 La Brea 焦油坑，因石油滲出地表，形成一種濃稠的黑色物質，成千上萬的動物試圖橫跨這塊區域，一旦踏入變寸步難行，越是掙扎，越是陷入在焦油之中。<br>作者以焦油坑比喻軟體開發，團隊一旦無法達到既定的目標、時程，就會像踏入焦油坑的動物一樣，從此陷入而無法逃出。</p>
+<p><br></p>
+<h2 id="人月神話-Mythical-Man-Month"><a href="#人月神話-Mythical-Man-Month" class="headerlink" title="人月神話 Mythical Man-Month"></a><font color="ff0000">人月神話 Mythical Man-Month</font></h2><p>人月（Man-Month）是用來衡量工作量的單位，預估專案的時程。舉例來說，當專案的工作量需要一個人投入兩個月製作，就可以說明這個專案需要兩個人月。在理想狀況下，投入兩個人力到上述專案後，專案的時程能夠縮短至一個月，但這種將人力和工時等比例換算的想法是一個相當危險的迷思。在現實中，增加越多人力，並無法保證能使專案的狀況改善，反而有可能踏入焦油坑的負面循環。</p>
+<p><strong>人力與工時無法等比例換算</strong>的原因在於</p>
+<blockquote>
+<ol>
+<li>人與人之間需要溝通，當專案的成員越多，需要花費的<strong>溝通時間會增加並轉化成無形的成本</strong></li>
+<li><strong>時程評估技術不成熟</strong>，一開始所做的時程評估就是不正確的，以至於進度落後無可避免</li>
+<li><strong>沒有做好最壞的假設</strong>，相信事情會進展得很順利，但現實往往有許多複雜的因素交錯影響</li>
+<li><strong>缺乏專案監控</strong>，放心地將專案分配給專案成員，卻沒有落實定期追蹤</li>
+</ol>
+</blockquote>
+<p>當專案進度落後時，往往都是一股腦地增加人力、追趕落後的進度，卻不斷陷入焦油坑中，越掙扎越無法抽離。真正有效的方式，是在專案進度落後時，重新評估專案的時程，將過往的時程評估都視為不正確的，在此條件下進行專案時程的在調整，而不是貿然增加人手。</p>
+<p><br></p>
+<h2 id="外科手術團隊-The-Surgical-Team"><a href="#外科手術團隊-The-Surgical-Team" class="headerlink" title="外科手術團隊 The Surgical Team"></a><font color="ff0000">外科手術團隊 The Surgical Team</font></h2><p>根據研究顯示，高手與庸手的能力往往有著一個數量集的差異。在專案的製作中<strong>取得概念整體性（Conceptual Integrity）與工作效率的平衡</strong>是相當重要的，一個短小精悍的團隊其發展出的概念整體性及工作效率遠超過一個大團隊，卻也存在著致命的缺陷，當需要開發大專案時，小團隊的工作產能會無法趕上現實的快速發展。</p>
+<p>以鑑於此，Harlan Mills 提出了一個概念新穎的解決方案。<br>在典型外科手術團隊中，包含成員有外科醫師、助手、刷手護士、麻醉醫師、流動護士、專業技術人員，其中外科醫師為主要操刀者，其餘成員都扮演支援性角色，來增加操刀者的效率與生產力。<br>利用相同概念，將大專案中的每個小部分（亦或是專案核心）交由一個軟體外科手術團隊負責，首席程式工程師對應外科醫師，負責操刀、定義功能和效能上的規格，並撰寫文件。值得注意的一點，程式設計是「將個人技藝化為團隊合作成果」的轉換過程，所有的專案資料、程式都屬於團隊資產，而非個人的私藏。</p>
+<p><br></p>
+<h2 id="專制、民主與系統設計-Aristocracy-Democracy-and-System-Design"><a href="#專制、民主與系統設計-Aristocracy-Democracy-and-System-Design" class="headerlink" title="專制、民主與系統設計 Aristocracy, Democracy, and System Design"></a><font color="ff0000">專制、民主與系統設計 Aristocracy, Democracy, and System Design</font></h2><p>工程師在設計系統時，保有概念整體性是相當重要的一環，當軟體的功能越多，使用上會越便利，但也需要花更多功夫去熟悉及駕馭。若是一味的開發功能而不審視概念整體性，常常會造成「過度設計」，使系統提供了過多無謂的功能導致使用便利性（Ease of Use）降低，功能概念複雜度比（Ratio of Function to Conceptual Complexity）才是最終測試標準。</p>
+<p>在設計架構時，為了保有概念整體性，勢必需由架構設計師或少數人來設計系統架構，但其餘成員也會希望發揮自己的創意而不是當一個純粹的使用者，兩者的衝突會產生專制與民主的平衡問題。可將工作切分成架構（Architecture）與實作（Implementation）兩部分來取得專制與民主的平衡。此外，還能透過討論架構的外部規格，激發實作者及成員的創意。</p>
+<p><br></p>
+<h2 id="第二系統效應-The-Second-System-Effect"><a href="#第二系統效應-The-Second-System-Effect" class="headerlink" title="第二系統效應 The Second-System Effect"></a><font color="ff0000">第二系統效應 The Second-System Effect</font></h2><p>一般狀況下，系統架構師的處女作都會相當簡便、清爽，在開發同時腦中會不斷地積累許多新想法，這些新構想會在「下一次」的系統設計中進行驗證，進而導致第二個系統有過度設計的可能性。為了讓系統的設計確實的符合需求，架構人員需要和實作人員充分的溝通，釐清各自的責任分工，確保不會因為個人的設計慾望讓過度設計的情況發生。</p>
+<p><br></p>
+<h2 id="意念的傳達-Passing-the-Word"><a href="#意念的傳達-Passing-the-Word" class="headerlink" title="意念的傳達 Passing the Word"></a><font color="ff0000">意念的傳達 Passing the Word</font></h2><p>「溝通」是個很奇妙的領域，即使是經驗老道的架構設計師，也無法確保所有的實作人員都充分了解架構的概念整體性及使用方式。為了造福實作人員，<strong>程式手冊的制定不可或缺</strong>，系統介紹、外部規格、使用範例、操作流程…等，都能夠在手冊中落實記錄。如此一來，不但能<strong>傳達架構的設計概念</strong>，還能夠<strong>改善新進人員的學習時間</strong>。此外，定期召開會議討論架構與外部規格能有效的激發成員們的創意、提升團隊實力，並釐清任何交代不清楚的地方。</p>
+<p><br></p>
+<h2 id="巴別塔為什麼失敗？-Why-did-the-Tower-of-Babel-Fail"><a href="#巴別塔為什麼失敗？-Why-did-the-Tower-of-Babel-Fail" class="headerlink" title="巴別塔為什麼失敗？ Why did the Tower of Babel Fail?"></a><font color="ff0000">巴別塔為什麼失敗？ Why did the Tower of Babel Fail?</font></h2><p>巴別塔源自於「創世紀」，根據記載，人類原本使用同一種語言，並計劃建造一座通天高塔，上帝為了不讓人類為所欲為，打亂了人類的語言，使彼此無法交談，缺乏溝通導致人類分崩瓦解，最終迎接失敗。</p>
+<p>從巴別塔的失敗案例中可以得知，讓團隊能夠有效溝通無比重要，透過非正式方法、會議、工作手冊都能提升溝通效率。<br>在制定工作手冊時，需要保證任何資訊都能夠在適當的地方取得確保資源的分佈，並隨時更新改版摘要（Change Summary），讓成員在第一時間掌握變動的內容。</p>
+<p>此外，當組織規模擴大時，若保持原有的配置或扁平化組織，會使溝通的成本與之增加，這時可以透過人力配置和專業分工來減少溝通量。管理者負責規劃時程、分派工作、爭取並掌握資源，而技術總監則專心構思整個設計，維持概念整體性。</p>
+<p><br></p>
+<h2 id="預估-Calling-the-Shot"><a href="#預估-Calling-the-Shot" class="headerlink" title="預估 Calling the Shot"></a><font color="ff0000">預估 Calling the Shot</font></h2><p><del>寫一個功能，需要一個工作天，所以當有十個功能時，則需要十個工作天，是吧！</del></p>
+<p>在預估人月時，常常會有上述的迷思，用最理想的狀況來進行評估，據研究顯示，<strong>寫程式的費力程度與程式大小之間存在著指數倍數的關係</strong>。</p>
+<p>人力工時是另一個影響預估的關鍵因素，成員在上班時段中，能夠專心寫程式的時間可能只佔了50%，其餘時間都用在規劃、溝通、開會、個人私事…等等，形成不切實際的預估結果。</p>
+<p><br></p>
+<h2 id="地盡其利，物盡其用-Ten-Pounds-in-a-Five-Pound-Sack"><a href="#地盡其利，物盡其用-Ten-Pounds-in-a-Five-Pound-Sack" class="headerlink" title="地盡其利，物盡其用 Ten Pounds in a Five-Pound Sack"></a><font color="ff0000">地盡其利，物盡其用 Ten Pounds in a Five-Pound Sack</font></h2><p><strong>資料結構是程式設計的本質</strong>，無論使用什麼技術、語言，最終都將回歸到取得最短的時間與最少的空間之間的平衡。在處理任務時，若是成員們都只關注局部最佳化，忽略專案的整體，會漸漸的在專案中埋下隱憂。</p>
+<p><br></p>
+<h2 id="文件假說-The-Documentary-Hypothesis"><a href="#文件假說-The-Documentary-Hypothesis" class="headerlink" title="文件假說 The Documentary Hypothesis"></a><font color="ff0000">文件假說 The Documentary Hypothesis</font></h2><p>為了導引出更多細節，將模糊不清的部分整理出清晰且明確的具體方法，文件的制定在本書中不斷被提及。定期審視並修改文件，能確保成員的目標一致，也能確定開發工作是否如預期一般的順利。</p>
+<p><br></p>
+<h2 id="失敗為成功之母-Plan-to-Throw-One-Away"><a href="#失敗為成功之母-Plan-to-Throw-One-Away" class="headerlink" title="失敗為成功之母 Plan to Throw One Away"></a><font color="ff0000">失敗為成功之母 Plan to Throw One Away</font></h2><p>「失敗為成功之母」，從小到大，總是聽到人們引用這句愛迪生的名言，經過不斷的嘗試，最終找到適合製作燈泡的原料。而在軟體的世界中，<strong>「唯一不變的就是改變」</strong>，無論是才華洋溢的社會新鮮人或是經驗十足的資深工程師，每天都在處理、解決各種問題，修改、翻修系統是相當稀鬆平常的。由於軟體本身的需求不斷地改變，等待著開發人員們的將是無窮無盡的改變。<strong>養成正視失敗，勇於嘗試的心態才是邁向成功的唯一道路</strong>。</p>
+<p><br></p>
+<h2 id="化整為零-The-Whole-and-the-Parts"><a href="#化整為零-The-Whole-and-the-Parts" class="headerlink" title="化整為零 The Whole and the Parts"></a><font color="ff0000">化整為零 The Whole and the Parts</font></h2><p>產品的定義相當重要，多數的失敗案例都源自於搞不清楚要做什麼。<br>詳細的功能定義、詳細的規格說明、防錯設施、錯誤處理技術，都有助於減少系統錯誤的可能性。<br>由上而下的設計方式（Top-down Design）是先規劃出需求，在設計架構，接著進行實作，這種設計方式最為直接，並呼應專制與民主的概念，讓架構師與實作成員進行討論，優先定義需求。</p>
+<p><br></p>
+<h2 id="釀成大災難-Hatching-a-Catastrophe"><a href="#釀成大災難-Hatching-a-Catastrophe" class="headerlink" title="釀成大災難 Hatching a Catastrophe"></a><font color="ff0000">釀成大災難 Hatching a Catastrophe</font></h2><p><strong>對專案產生最大影響的往往不是那些顯而易見的事故，而是日積月累的延誤</strong>，如同滴水穿石一般，專案的進度就這樣一天兩天地落後了。<br>掌控專案時，除了一般的時程規劃，還需要制定一連串里程碑（milestone）來明確的將事件具體化，<strong>確保專案進度只有達成與未達成兩種結果</strong>，不可模稜兩可。</p>
+<p>評核圖（PERT chart）與要徑時程表（Critical-path Schedule）能夠使成員釐清專案的延誤底線，防止「<del>反正其他部分也會落後</del>」的消極態度出現，利用上述兩個工具，能夠清楚明白每個任務的優先順序，進而釐清影響里程碑的關鍵任務。</p>
+<p>在組織架構方面，如同阿德勒學說所提倡，<strong>各個角色應各司其職，不隨意跨越權利範圍，干涉他人</strong>。<br>老闆必須克制自己不去干涉部屬的，不能在對情況還不了解之前就動手解決問題。<br>主管必須確保成員的進度是否順利，不要再第一時間就向老闆報告戰況不妙的消息。</p>
+<p><br></p>
+<h2 id="一體兩面-The-Other-Face"><a href="#一體兩面-The-Other-Face" class="headerlink" title="一體兩面 The Other Face"></a><font color="ff0000">一體兩面 The Other Face</font></h2><p><del>設計了一個系統，卻沒有人理解運作原理</del><br><del>完成了一個方法，一個月後連作者本身也不清楚在寫什麼</del></p>
+<p>程式是人與電腦溝通的語言，同時也是寫給其他人看的</p>
+<p>如同前面所提到的，程式手冊是一個溝通媒介，但有時會發現文件寫好之後，卻沒有什麼效用。比起不斷的規範成員觀看文件，取而代之的，將重點放在「如何」使用才能真正的發揮文件的功效。</p>
+<p><br></p>
+<h2 id="沒有銀彈：軟體工程師的本質性與附屬性工作-No-Silver-Bullet-Essence-and-Accident-in-Software-Engineering"><a href="#沒有銀彈：軟體工程師的本質性與附屬性工作-No-Silver-Bullet-Essence-and-Accident-in-Software-Engineering" class="headerlink" title="沒有銀彈：軟體工程師的本質性與附屬性工作 No Silver Bullet - Essence and Accident in Software Engineering"></a><font color="ff0000">沒有銀彈：軟體工程師的本質性與附屬性工作 No Silver Bullet - Essence and Accident in Software Engineering</font></h2><p>狼人，一種傳說中的奇幻生物，平時有著與人類同樣的外表，每逢月圓之夜就能變成狼身，與吸血鬼相同，狼人有著不朽的身軀，只有銀製品能使狼人感到無比痛苦。<strong>銀彈，能夠殺死狼人的致命武器</strong>。</p>
+<p>軟體的本質相當抽象，由許多概念組合而成，但無論有多少種呈現方式，其基本構造都是不變的，可區分為本質性及附屬性，<strong>本質性是去由軟體所組成的複雜概念結構</strong>，<strong>附屬性則是用程式語言來具現化本質性的概念</strong>。</p>
+<p><strong>本質性</strong>，軟體的本質相當複雜抽象，包含複雜性、配合性、易變性、隱匿性。</p>
+<ul>
+<li>複雜性<blockquote>
+<p>軟體無法與硬體一樣能夠產生大量的相同零件來進行產品製造，只能透過方法、類別的方式來增加再利用的效率，隨著開發工作的進行，再利用的情況會呈現非線性成長。</p>
+</blockquote>
+</li>
+<li>配合性<blockquote>
+<p>物理學家們堅信萬物有著一致的原則，但軟體卻需要人與人的配合，<strong>無法歸納出大原則</strong></p>
+</blockquote>
+</li>
+<li>易變性<blockquote>
+<p><strong>唯一不變的就是改變</strong></p>
+</blockquote>
+</li>
+<li>隱匿性<blockquote>
+<p>建築業能利用藍圖來確認空間、動線和景觀，將矛盾之處一覽無遺。而軟體本身是一種抽象的概念，類別之間的相依性、執行的先後順序、資料流和命名空間會隨著專案大小而不斷變化，雖然能透過流程圖改善隱匿性，但卻無法完全消泯隱匿性的存在</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>附屬性</strong>，在現今的軟體開發中，附屬性工作佔據了絕大多數的開發時間。在軟體發展的過程中，大多數的突破都是解決附屬性問題，包含高階語言、分時技術、統一開發環境。</p>
+<ul>
+<li>高階語言<blockquote>
+<p>將抽象程式所表達的構造具體化來大幅降低軟體本質中的複雜性。</p>
+</blockquote>
+</li>
+<li>分時技術<blockquote>
+<p>能有效提升生產力，確保實作者的思維概念不被中斷。</p>
+</blockquote>
+</li>
+<li>統一開發環境<blockquote>
+<p>無論是什麼軟體產業，統一的開發環境絕對是每個專案要開始前的前置作業，能確保專案成員站在相同的基準點，提升軟體開發的配合性。</p>
+</blockquote>
+</li>
+</ul>
+<p>除了上述幾個附屬性改善技術之外，還有許許多多的技術入入續續被提出，像是模組化、抽象資料型態、階層式結構、物件導向設計、人工智慧…等，但<strong>這些技術最終都只解決了軟體開發的附屬性難題</strong>，始終沒有辦法有效的解決本質性問題，也因此使得許多人爭論軟體銀彈是否真的存在。</p>
+<p><br></p>
+<h2 id="結語"><a href="#結語" class="headerlink" title="結語"></a><font color="ff0000">結語</font></h2><p>銀彈的存在與否，是軟體產業的先驅們不斷爭論的議題，綜觀整個軟體產業，現今的確沒有明確的趨勢、資訊證明銀彈真的存在。然而，回歸到遊戲產業，雖然軟體開發的本質性依然沒有數量級的改善，但卻能明顯察覺附屬性問題在這幾年有相當大的進展，從早期的遊戲製作需要親自建構開發引擎抑或購買昂貴的商業引擎，到現今免費商業引擎的出現以及開源概念的興起，讓遊戲開發者節省了無數的時間。在近幾年也興起開發插件的風氣，許多開發者利用各大遊戲引擎的平台分享、販售自己的專業知識，使整個遊戲開發的循環更加便利且方便。</p>
+<p>單就遊戲產業來切入，即便銀彈真的不存在，本質性永遠都無法從複雜抽象的概念中抽離，附屬性的進步依然使遊戲開發者節省了許多時間，能更加方便的站在巨人的肩膀上，利用前人累積的知識、工具改善專案的製作流程、加速專案的人月預估。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+        <div class="post-widgets">
+        
+          <div class="wp_rating">
+            <div id="wpac-rating"></div>
+          </div>
+        
+
+        
+
+        
+        </div>
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/08/how-we-know-what-isnt-so/" rel="prev" title="一無所知的麻煩不大，錯誤認知的麻煩才大！《康乃爾最經典的思考邏輯課》">
+                一無所知的麻煩不大，錯誤認知的麻煩才大！《康乃爾最經典的思考邏輯課》 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="hypercomments_widget"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ted Sie</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ted10401" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/tedsieblog" target="_blank" title="FB Page">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>FB Page</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://tedsieblog.wordpress.com/" target="_blank" title="阿祥的開發日常">
+                      
+                        <i class="fa fa-fw fa-globe"></i>阿祥的開發日常</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#焦油坑-The-Tar-Pit"><span class="nav-text">焦油坑 The Tar Pit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#人月神話-Mythical-Man-Month"><span class="nav-text">人月神話 Mythical Man-Month</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#外科手術團隊-The-Surgical-Team"><span class="nav-text">外科手術團隊 The Surgical Team</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#專制、民主與系統設計-Aristocracy-Democracy-and-System-Design"><span class="nav-text">專制、民主與系統設計 Aristocracy, Democracy, and System Design</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第二系統效應-The-Second-System-Effect"><span class="nav-text">第二系統效應 The Second-System Effect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#意念的傳達-Passing-the-Word"><span class="nav-text">意念的傳達 Passing the Word</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#巴別塔為什麼失敗？-Why-did-the-Tower-of-Babel-Fail"><span class="nav-text">巴別塔為什麼失敗？ Why did the Tower of Babel Fail?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#預估-Calling-the-Shot"><span class="nav-text">預估 Calling the Shot</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#地盡其利，物盡其用-Ten-Pounds-in-a-Five-Pound-Sack"><span class="nav-text">地盡其利，物盡其用 Ten Pounds in a Five-Pound Sack</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件假說-The-Documentary-Hypothesis"><span class="nav-text">文件假說 The Documentary Hypothesis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#失敗為成功之母-Plan-to-Throw-One-Away"><span class="nav-text">失敗為成功之母 Plan to Throw One Away</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#化整為零-The-Whole-and-the-Parts"><span class="nav-text">化整為零 The Whole and the Parts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#釀成大災難-Hatching-a-Catastrophe"><span class="nav-text">釀成大災難 Hatching a Catastrophe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一體兩面-The-Other-Face"><span class="nav-text">一體兩面 The Other Face</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#沒有銀彈：軟體工程師的本質性與附屬性工作-No-Silver-Bullet-Essence-and-Accident-in-Software-Engineering"><span class="nav-text">沒有銀彈：軟體工程師的本質性與附屬性工作 No Silver Bullet - Essence and Accident in Software Engineering</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#結語"><span class="nav-text">結語</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ted Sie</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 99716, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 99716, xid: "2018/01/06/the-mythical-man-month/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/99716/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  <script type="text/javascript">
+  wpac_init = window.wpac_init || [];
+  wpac_init.push({widget: 'Rating', id: ,
+    el: 'wpac-rating',
+    color: 'fc6423'
+  });
+  (function() {
+    if ('WIDGETPACK_LOADED' in window) return;
+    WIDGETPACK_LOADED = true;
+    var mc = document.createElement('script');
+    mc.type = 'text/javascript';
+    mc.async = true;
+    mc.src = '//embed.widgetpack.com/widget.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+  })();
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
