@@ -1,0 +1,102 @@
+<!--
+{
+  "title": "A* Algorithm Eight Ways – 斜向方向優化",
+  "date": "2016-07-10",
+  "category": "Unity · Algorithm",
+  "excerpt": "到目前為止 A* 的基本實作都已經結束了 但我們可以做一些簡單的優化來提高 A* 的運算結果 在上一篇中可以發現 雖然計算出來的路徑的確是最短路徑 但在移動…",
+  "image": "cover-95081691636a67768a88cb23d1981c40.png",
+  "imageAlt": "A* Algorithm Eight Ways – 斜向方向優化 封面",
+  "shortTitle": "A* Algorithm Eight Ways",
+  "heading": "A* Algorithm Eight Ways<br><span>斜向方向優化</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/a-star-algorithm-eight-ways/"
+}
+-->
+<p>到目前為止<br>
+A* 的基本實作都已經結束了<br>
+但我們可以做一些簡單的優化來提高 A* 的運算結果<br>
+ <br>
+在上一篇中可以發現<br>
+雖然計算出來的路徑的確是最短路徑<br>
+但在移動方向上卻只限制於上下左右四個方向<br>
+ <br>
+考慮到優化演算的結果<br>
+我們在這邊加入斜向方向判定<br>
+ <br>
+首先一樣找到 NodeManager.cs 腳本<br>
+找到 GetNeighbours 方法</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">//Get the current node's neighbors
+public void GetNeighbours( Node node, ArrayList neighbors )
+{
+	Vector3 neighborPos = node.position;
+	int row = GetNodeRow( neighborPos );
+	int column = GetNodeColumn( neighborPos );
+
+	//Bottom
+	int leftNodeRow = row - 1;
+	int leftNodeColumn = column;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Top
+	leftNodeRow = row + 1;
+	leftNodeColumn = column;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Right
+	leftNodeRow = row;
+	leftNodeColumn = column + 1;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Left
+	leftNodeRow = row;
+	leftNodeColumn = column - 1;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+}</code></pre>
+<p>在原本的方法中<br>
+我們只有上下左右四個方向<br>
+所以在這邊將斜向方向也一併加入運算</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">//Get the current node's neighbors
+public void GetNeighbours( Node node, ArrayList neighbors )
+{
+	Vector3 neighborPos = node.position;
+	int row = GetNodeRow( neighborPos );
+	int column = GetNodeColumn( neighborPos );
+
+	//Bottom
+	int leftNodeRow = row - 1;
+	int leftNodeColumn = column;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Top
+	leftNodeRow = row + 1;
+	leftNodeColumn = column;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Right
+	leftNodeRow = row;
+	leftNodeColumn = column + 1;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Left
+	leftNodeRow = row;
+	leftNodeColumn = column - 1;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+
+	//Bottom Right
+	leftNodeRow = row - 1;
+	leftNodeColumn = column + 1;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Bottom Left
+	leftNodeRow = row - 1;
+	leftNodeColumn = column - 1;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Top Right
+	leftNodeRow = row + 1;
+	leftNodeColumn = column + 1;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	//Top Left
+	leftNodeRow = row + 1;
+	leftNodeColumn = column - 1;
+	AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+}</code></pre>
+<p>
+再次執行 Unity<br>
+結果如下<br>
+<img alt="A* Algorithm Eight Ways – 斜向方向優化 插圖" decoding="async" height="486" loading="lazy" src="e8c7d78bc5933f733dd989c53c0758d9.png" width="536"><br>
+ <br>
+加入斜向移動後果然移動距離又更短了<br>
+最後附上多個障礙物的模擬<br>
+<img alt="A* Algorithm Eight Ways – 斜向方向優化 插圖" decoding="async" height="664" loading="lazy" src="95081691636a67768a88cb23d1981c40.png" width="693"></p>

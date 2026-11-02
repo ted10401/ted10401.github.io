@@ -1,0 +1,54 @@
+<!--
+{
+  "title": "Comment on UISprite – UISprite 應用",
+  "date": "2016-07-10",
+  "category": "Unity · NGUI",
+  "excerpt": "在前面幾篇中都有提到如何創建 UISprite 但沒有對它多做說明 所以這篇來講解 UISprite 的應用方式",
+  "image": "cover-uisprite.jpg",
+  "imageAlt": "Comment on UISprite – UISprite 應用 封面",
+  "shortTitle": "Comment on UISprite",
+  "heading": "Comment on UISprite<br><span>UISprite 應用</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/ngui-tutorial-comment-on-uisprite/"
+}
+-->
+<p>在前面幾篇中都有提到如何創建 UISprite<br>
+但沒有對它多做說明<br>
+所以這篇來講解 UISprite 的應用方式</p>
+<p>首先我們先新增三個同樣的圖片到場景中<br>
+可以看到在預設的情況下<br>
+UISprit 中的 Type 欄位為 Simple<br>
+<img alt="Comment on UISprite – UISprite 應用 插圖" decoding="async" height="942" loading="lazy" src="cbe2b9c785495b8e1955be9c3b6f34d3.jpg" width="1120"></p>
+<p>可以看到圖片的原始解析度為 13 x 13<br>
+但我刻意將 UISprit 中的 Size 欄位調整為 256 x 256<br>
+顯現出來的結果非常不理想</p>
+<p>接下來將三個圖片的 Type 依序調整為 Simple、Sliced、Tiled<br>
+<img alt="Comment on UISprite – UISprite 應用 插圖" decoding="async" height="942" loading="lazy" src="89b4e4a1f925c0c6f691c1ef5ccc0fdf.jpg" width="1122"></p>
+<p>我們先來看看調整為 Tiled 的情況<br>
+圖片會保持原始解析度顯示 ( 13 x 13 )<br>
+多餘的位置則會依序顯示圖片<br>
+例如：256 / 13 = 19.6923….<br>
+所以顯示出來的圖片會產生19.69個相同圖片</p>
+<p>而再來比較 Sliced 跟 Simple<br>
+乍看之下兩者並沒有什麼差別<br>
+差別只在於 Sliced 圖片比 Simple 大了一點<br>
+不過我們來到 Project 中找到使用的圖集<br>
+選擇該圖片<br>
+<img alt="Comment on UISprite – UISprite 應用 插圖" decoding="async" height="943" loading="lazy" src="08b2c62af0b6b1f7bbab9531ee2554bf.jpg" width="511"></p>
+<p>這裡可以看到在 Sprite Details 選項中<br>
+有 Dimensions、Border、Padding 三個不同的欄位<br>
+<img alt="Comment on UISprite – UISprite 應用 插圖" decoding="async" height="203" loading="lazy" src="b4805e3481e7ffa14bf53b012cbd88d9.jpg" width="241"></p>
+<p>這裡的單位都是 Pixel<br>
+Dimensions：這張圖片在圖集中所包含的位置資料<br>
+Border：設定圖片的邊緣<br>
+Padding：圖片的留白程度</p>
+<p>將 Border 欄位輸入適當參數後<br>
+可以發現 Border 的用處就是將邊緣的 Pixel 單位固定<br>
+顯示結果為<br>
+<img alt="Comment on UISprite – UISprite 應用 插圖" decoding="async" height="947" loading="lazy" src="afd8c3ba53f504124a6bd1a241522189.jpg" width="1122"></p>
+<p>也可以試試將 UISprite 中的 Fill Center 選項取消<br>
+這種情況下圖片只會顯示出邊緣所包含的 Pixel<br>
+<img alt="Comment on UISprite – UISprite 應用 插圖" decoding="async" height="947" loading="lazy" src="d36dfb021b73de3efe11e10ffe1e872e.jpg" width="1122"></p>
+<p>使用這種方法<br>
+可以在某些限定條件下<br>
+利用解析度較小的圖產生大圖<br>
+以降低遊戲中的記憶體用量</p>

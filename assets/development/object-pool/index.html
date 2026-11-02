@@ -1,0 +1,176 @@
+<!--
+{
+  "title": "Object Pool – 物件池",
+  "date": "2016-07-10",
+  "category": "Unity",
+  "excerpt": "這個例子中用常見的子彈發射來講解",
+  "image": "cover-objectpool.jpg",
+  "imageAlt": "Object Pool – 物件池 封面",
+  "shortTitle": "Object Pool",
+  "heading": "Object Pool<br><span>物件池</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/object-pool/"
+}
+-->
+<p>物件池是一種相當有用的方法</p>
+<p>這個例子中用常見的子彈發射來講解</p>
+
+<p>物件池的基本概念是</p>
+<p>如果有某個物體需要經常實例化並進行銷毀</p>
+<p>這會導致實例化的成本過高</p>
+<p>這時候就可以透過物件池來對物體進行管理</p>
+
+<p>利用預先生成的物體</p>
+<p>一次性的實體化物件</p>
+<p>並將物件存放在物件池中</p>
+
+<p>當玩家需要使用時</p>
+<p>則從物件池中拿出來</p>
+<p>而用完後再放回物件池中</p>
+
+<p>新增一個 ObjectPool.cs</p>
+<p>接著在場景中新增一個空物件命名為 ObjectPool</p>
+<p>並附加 ObjectPool.cs</p>
+
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class ObjectPool : MonoBehaviour
+{
+	public GameObject prefab;
+	public int initailSize = 20;
+
+	private Queue&lt;GameObject&gt; m_pool = new Queue&lt;GameObject&gt;();
+
+	void Awake()
+	{
+		for( int cnt = 0; cnt &lt; initailSize; cnt++ )
+		{
+			GameObject go = Instantiate( prefab ) as GameObject;
+			m_pool.Enqueue( go ); go.SetActive( false );
+		}
+	}
+
+	public void ReUse(Vector3 position, Quaternion rotation)
+	{
+		if(m_pool.Count &gt; 0)
+		{
+			GameObject reuse = m_pool.Dequeue();
+			reuse.transform.position = position;
+			reuse.transform.rotation = rotation;
+			reuse.SetActive( true );
+		}
+		else
+		{
+			GameObject go = Instantiate( prefab ) as GameObject;
+			go.transform.position = position;
+			go.transform.rotation = rotation;
+		}
+	}
+
+	public void Recovery(GameObject recovery)
+	{
+		m_pool.Enqueue ( recovery );
+		recovery.SetActive ( false );
+	}
+}</code></pre>
+
+<p>Line 10</p>
+<p><a href="https://msdn.microsoft.com/en-us/library/7977ey2c(v=vs.110).aspx" rel="noopener noreferrer" target="_blank">Queue</a> 是一種資料結構</p>
+<p>它的概念是先進先出</p>
+<p>Queue.Enqueue()：將物件放入結構中</p>
+<p>Queue.Dequeue()：將最先進入的物件取出</p>
+
+<p>Line 12~19</p>
+<p>這段程式中</p>
+<p>在一開始初始化了 20 個預設物件</p>
+<p>並將他們全部放入物件池中</p>
+
+<p>Line 21~36</p>
+<p>ReUse 是用來取出存放在物件池中的物件</p>
+<p>簡單的判斷如果物件池中有物件則取出</p>
+<p>如果沒有物件則重新生成</p>
+
+<p>Line 39~43</p>
+<p>Recovery 是用來回收物件</p>
+<p>將物件重新放入物件池中</p>
+
+<p>接著新增一個發射器腳本 Spawner.cs</p>
+<p>並在場景中新增一個 Cylinder 重新命名為 Spawner 當作發射器</p>
+<p>並附加 Spawner.cs</p>
+
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class Spawner : MonoBehaviour
+{
+	public ObjectPool pool;
+
+	public float spawnTime = 0.2f;
+	private float _timer;
+
+	void Update()
+	{
+		if( Time.time &gt; _timer + spawnTime )
+		{
+			_timer = Time.time;
+			pool.ReUse( transform.position, transform.rotation );
+		}
+	}
+}</code></pre>
+
+<p>這段只是簡單的計時器腳本</p>
+<p>時間一到則呼叫 ReUse 方法</p>
+<p>將子彈從物件池中取出</p>
+
+<p>接著要讓發射出去的子彈可以往前發射</p>
+<p>並且一段時間後進行回收</p>
+<p>新增一個 Bullet.cs</p>
+
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class Bullet : MonoBehaviour
+{
+	public float speed = 25;
+	public float recoveryTime = 3.0f;
+
+	private float _timer;
+
+	private Transform _myTransform;
+
+	void Awake()
+	{
+		_myTransform = transform;
+	}
+
+	void OnEnable()
+	{
+		_timer = Time.time;
+	}
+
+	void Update ()
+	{
+		if( !gameObject.activeInHierarchy )
+			return;
+
+		if( Time.time &gt; _timer + recoveryTime )
+		{
+			GameObject.Find( "ObjectPool" ).GetComponent&lt;ObjectPool&gt;().Recovery( gameObject );
+		}
+
+		_myTransform.Translate ( _myTransform.forward * speed * Time.deltaTime );
+	}
+}</code></pre>
+
+<p>這裡也是使用簡單的計時器</p>
+<p>超過時間就將子彈回收回物件池</p>
+<p>而 transform.Translate() 可以讓物件有簡單的移動</p>
+
+<p>在看看實際運行成果之前</p>
+<p>要先將預發射的子彈儲存成 prefab 並附加 Bullet.cs</p>
+<p><img alt="Object Pool – 物件池 插圖" decoding="async" height="797" loading="lazy" src="3e4f0be848c22a3730e5547daa4c2333.png" width="1440"></p>
+
+<p>完成設置後</p>
+<p>來看看實際運行成果</p>
+<p><img alt="Object Pool – 物件池 插圖" decoding="async" height="990" loading="lazy" src="170eed18afa1e0460901f27f03140819.jpg" width="1920"></p>

@@ -1,0 +1,347 @@
+<!--
+{
+  "title": "Client Database System – 本地端資料庫系統",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "把自己專案中使用的簡易版本地端資料庫系統抽取出來 支援 Excel 編輯以及自動化腳本更新",
+  "image": "cover-database1.png",
+  "imageAlt": "Client Database System – 本地端資料庫系統 封面",
+  "shortTitle": "Client Database System",
+  "heading": "Client Database System<br><span>本地端資料庫系統</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/client-database-system/"
+}
+-->
+<p>把自己專案中使用的簡易版本地端資料庫系統抽取出來<br>
+支援 Excel 編輯以及自動化腳本更新</p>
+<p>2016-07-16 更新<br>
+ 1.優化自動化腳本流程<br>
+ 2.移除 Reflection Library，防止若 Script Call Optimization 設定為 Fast but no exception 會導致移動裝置不能正常運作<br>
+ 3.移除 Json Library 改為直接讀取 csv 以優化效能<br>
+ 4.移除 List 支援型態<br>
+ 5.新增 int[], float[], bool[], string[] 支援型態<br>
+ 6.新增 Array 資料範例</p>
+<h2>DataManager</h2>
+<p>DataManager 是一個簡易的本地資料庫工具，依據企劃內容來自動化產出相對應的程式碼</p>
+<h3><a href="https://github.com/ted10401/DataManager/tree/master/zh-tw#支援資料型態" rel="noopener noreferrer" target="_blank"></a>支援資料型態</h3>
+<ul>
+<li>bool</li>
+<li>float</li>
+<li>int</li>
+<li>string</li>
+<li>bool[]</li>
+<li>float[]</li>
+<li>int[]</li>
+<li>string[]</li>
+</ul>
+<h3><a href="https://github.com/ted10401/DataManager/tree/master/zh-tw#excel-資料範例" rel="noopener noreferrer" target="_blank"></a>Excel 資料範例</h3>
+<h3><a href="https://github.com/ted10401/DataManager/tree/master/zh-tw#playercsv" rel="noopener noreferrer" target="_blank"></a>Player.csv</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>string/Key</th>
+<th>int/Level</th>
+<th>int/Hp</th>
+<th>int/Exp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>20</td>
+<td>20</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>30</td>
+<td>30</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td>40</td>
+<td>40</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5</td>
+<td>50</td>
+<td>50</td>
+</tr>
+<tr>
+<td>5</td>
+<td>6</td>
+<td>60</td>
+<td>60</td>
+</tr>
+<tr>
+<td>6</td>
+<td>7</td>
+<td>70</td>
+<td>70</td>
+</tr>
+<tr>
+<td>7</td>
+<td>8</td>
+<td>80</td>
+<td>80</td>
+</tr>
+<tr>
+<td>8</td>
+<td>9</td>
+<td>90</td>
+<td>90</td>
+</tr>
+<tr>
+<td>9</td>
+<td>10</td>
+<td>100</td>
+<td>100</td>
+</tr>
+</tbody>
+</table></div>
+<p>轉換後類別</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">public class PlayerData
+{
+    public string Key;
+    public int Level;
+    public int Hp;
+    public int Exp;
+}</code></pre>
+<h3><a href="https://github.com/ted10401/DataManager/tree/master/zh-tw#monstercsv" rel="noopener noreferrer" target="_blank"></a>Monster.csv</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>string/Key</th>
+<th>string/Name</th>
+<th>int/Hp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Monster_1</td>
+<td>10</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Monster_2</td>
+<td>20</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Monster_3</td>
+<td>30</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Monster_4</td>
+<td>40</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Monster_5</td>
+<td>50</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Monster_6</td>
+<td>60</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Monster_7</td>
+<td>70</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Monster_8</td>
+<td>80</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Monster_9</td>
+<td>90</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Monster_10</td>
+<td>100</td>
+</tr>
+</tbody>
+</table></div>
+<p>轉換後類別</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">public class MonsterData
+{
+    public string Key;
+    public string Name;
+    public int Hp;
+}</code></pre>
+<h3><a href="https://github.com/ted10401/DataManager/tree/master/zh-tw#weaponcsv" rel="noopener noreferrer" target="_blank"></a>Weapon.csv</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>string/Key</th>
+<th>string/Name</th>
+<th>int[]/Atk</th>
+<th>string[]/Rarity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Sword_01</td>
+<td>1;2;3;4;5</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Sword_02</td>
+<td>2;3;4;5;6</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Sword_03</td>
+<td>3;4;5;6;7</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Sword_04</td>
+<td>4;5;6;7;8</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Sword_05</td>
+<td>5;6;7;8;9</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Sword_06</td>
+<td>6;7;8;9;10</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Sword_07</td>
+<td>7;8;9;10;11</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Sword_08</td>
+<td>8;9;10;11;12</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Sword_09</td>
+<td>9;10;11;12;13</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Sword_10</td>
+<td>10;11;12;13;14</td>
+<td>Basic;Common;Rare;Epic;Legendary</td>
+</tr>
+</tbody>
+</table></div>
+<p>轉換後類別</p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">public class WeaponData
+{
+    public string Key;
+    public string Name;
+    public int[] Atk;
+    public string[] Rarity;
+}</code></pre>
+<h3><a href="https://github.com/ted10401/DataManager/tree/master/zh-tw#自動化腳本生成流程" rel="noopener noreferrer" target="_blank"></a>自動化腳本生成流程</h3>
+<ol>
+<li>使用 Excel 工具編輯資料表內容</li>
+<li>將資料表匯出成 .csv 格式</li>
+<li>將 .csv 檔案放入 DatabaseTool/Resources/CsvResources/ 目錄下</li>
+<li>點選 TEDTool/Database/Generate Script</li>
+</ol>
+<h3><a href="https://github.com/ted10401/DataManager/tree/master/zh-tw#使用範例" rel="noopener noreferrer" target="_blank"></a>使用範例</h3>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+using TEDTool.Database;
+
+public class Example : MonoBehaviour
+{
+    private DatabaseManager m_databaseManager;
+
+    void Awake()
+    {
+        m_databaseManager = new DatabaseManager();
+        m_databaseManager.Load();
+
+        PrintPlayerData();
+        PrintMonsterData();
+        PrintWeaponData();
+    }
+
+    private void PrintPlayerData()
+    {
+        PlayerDatabase playerDatabase = m_databaseManager.GetDatabase&lt;PlayerDatabase&gt;();
+        PlayerData playerData = null;
+
+        for(int cnt = 1; cnt &lt; playerDatabase.GetCount(); cnt++)
+        {
+            playerData = playerDatabase.GetDataByKey(cnt.ToString());
+
+            Debug.Log(string.Format("PlayerData_{0} : Key = {1}, Level = {2}, Hp = {3}, Exp = {4}",
+                                    cnt, playerData.Key, playerData.Level, playerData.Hp, playerData.Exp));
+        }
+    }
+
+    private void PrintMonsterData()
+    {
+        MonsterDatabase monsterDatabase = m_databaseManager.GetDatabase&lt;MonsterDatabase&gt;();
+        MonsterData monsterData = null;
+
+        for(int cnt = 1; cnt &lt; monsterDatabase.GetCount(); cnt++)
+        {
+            monsterData = monsterDatabase.GetDataByKey(cnt.ToString());
+
+            Debug.Log(string.Format("MonsterData_{0} : Key = {1}, Name = {2}, Hp = {3}",
+                                    cnt, monsterData.Key, monsterData.Name, monsterData.Hp));
+        }
+    }
+
+    private void PrintWeaponData()
+    {
+        WeaponDatabase weaponDatabase = m_databaseManager.GetDatabase&lt;WeaponDatabase&gt;();
+        WeaponData weaponData = null;
+
+        for(int cnt = 1; cnt &lt; weaponDatabase.GetCount(); cnt++)
+        {
+            weaponData = weaponDatabase.GetDataByKey(cnt.ToString());
+
+            Debug.Log(string.Format("MonsterData_{0} : Key = {1}, Name = {2}",
+                                    cnt, weaponData.Key, weaponData.Name));
+
+            for(int lv = 0; lv &lt; weaponData.Atk.Length; lv++)
+            {
+                Debug.Log(string.Format("Lv.{0}, Atk = {1}", lv + 1, weaponData.Atk[lv]));
+            }
+
+            for(int lv = 0; lv &lt; weaponData.Rarity.Length; lv++)
+            {
+                Debug.Log(string.Format("Lv.{0}, Rarity = {1}", lv + 1, weaponData.Rarity[lv]));
+            }
+        }
+    }
+}</code></pre>
+<p>若有任何建議也歡迎提出</p>
+<p><a href="https://github.com/ted10401/DataManager" rel="noopener noreferrer" target="_blank">GitHub Source Code</a></p>

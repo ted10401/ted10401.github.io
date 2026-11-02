@@ -1,0 +1,75 @@
+<!--
+{
+  "title": "Lindenmayer System 分形圖形學 – 以閃電效果為例",
+  "date": "2020-04-16",
+  "category": "Unity · Algorithm",
+  "excerpt": "在上一篇文章 Lindenmayer System 分形圖形學 中，描述了 Lindenmayer System 分行圖形學的主要概念，此篇文章會在分形圖形…",
+  "image": "cover-lightning_bolts_final_gif.gif",
+  "imageAlt": "Lindenmayer System 分形圖形學 – 以閃電效果為例 封面",
+  "shortTitle": "Lindenmayer System 分形圖形學",
+  "heading": "Lindenmayer System 分形圖形學<br><span>以閃電效果為例</span>",
+  "source": "https://tedsieblog.wordpress.com/2020/04/16/lindenmayer-system-a-case-study-of-lightning-bolts/"
+}
+-->
+<hr>
+<p>在上一篇文章 <a>Lindenmayer System 分形圖形學</a> 中，描述了 Lindenmayer System 分行圖形學的主要概念，此篇文章會在分形圖形學的基礎上加入更多規則，包含<b>利用中點偏移規則來模擬閃電之字形的部分、利用隨機分支規則來模擬閃電分支的部分、迭代過程優化分支產生規則</b>，創造出分形閃電效果。</p>
+<hr>
+<h2>分形閃電效果概念</h2>
+<p><b>1. 中點偏移規則</b><br>
+每次的迭代過程中，會在線段適合的位置加入一垂直於線段的偏移向量，形成閃電效果的之字形部分。</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：中點偏移規則 – 迭代次數 0" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_1_0.png" width="512">中點偏移規則 – 迭代次數 0</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：中點偏移規則 – 迭代次數 1" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_1_1.png" width="512">中點偏移規則 – 迭代次數 1</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：中點偏移規則 – 迭代次數 2" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_1_2.png" width="512">中點偏移規則 – 迭代次數 2</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：中點偏移規則 – 迭代次數 3" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_1_3.png" width="512">中點偏移規則 – 迭代次數 3</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：中點偏移規則 – 迭代次數 4" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_1_4.png" width="512">中點偏移規則 – 迭代次數 4</p>
+<p><b>2. 隨機分支規則</b><br>
+在每次中點位移規則後，會在新中點位置加入一隨機線段，形成閃電效果的分支部分。</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：隨機分支規則 – 迭代次數 0" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_2_0.png" width="512">隨機分支規則 – 迭代次數 0</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：隨機分支規則 – 迭代次數 1" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_2_1.png" width="512">隨機分支規則 – 迭代次數 1</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：隨機分支規則 – 迭代次數 2" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_2_2.png" width="512">隨機分支規則 – 迭代次數 2</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：隨機分支規則 – 迭代次數 3" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_2_3.png" width="512">隨機分支規則 – 迭代次數 3</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：隨機分支規則 – 迭代次數 4" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_2_4.png" width="512">隨機分支規則 – 迭代次數 4</p>
+<p><b>3. 分支規則優化</b><br>
+觀察 <b>2. 隨機分支規則</b> 步驟可以察覺，若在每一次的迭代過程都產生分支，分支數量會過於發散導致最終的結果變的不可接受。所以在 <b>2. 隨機分支規則</b> 上需要加入一些優化調整來改善這個問題。</p>
+<p><b>a. 機率性產生分支<br>
+b. 分支角度的調整<br>
+c. 限制每次迭代過程中的分支數量<br>
+d. 限制總體的分支數量</b></p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：分支規則優化 – 迭代次數 0" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_3_0.png" width="512">分支規則優化 – 迭代次數 0</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：分支規則優化 – 迭代次數 1" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_3_1.png" width="512">分支規則優化 – 迭代次數 1</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：分支規則優化 – 迭代次數 2" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_3_2.png" width="512">分支規則優化 – 迭代次數 2</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：分支規則優化 – 迭代次數 3" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_3_3.png" width="512">分支規則優化 – 迭代次數 3</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：分支規則優化 – 迭代次數 4" decoding="async" height="512" loading="lazy" src="lightning_bolts_role_3_4.png" width="512">分支規則優化 – 迭代次數 4</p>
+<p><b>4. 網格生成</b><br>
+到目前為止都還在生成線段的步驟，只有線段沒辦法運用在遊戲之中，這邊簡單的取得每個線段的中心點及長度並利用 <a href="https://docs.unity3d.com/ScriptReference/GameObject.CreatePrimitive.html" rel="noopener noreferrer" target="_blank">GameObject.CreatePrimitive</a> 生成 Quad 網格，最後搭配 GPU Instancing 改善網格過多造成的問題。</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：網格生成" decoding="async" height="600" loading="lazy" src="lightning_bolts_role_4.jpg" width="600">網格生成</p>
+<p><b>5. 網格間隔優化</b><br>
+觀察 <b>4. 網格生成</b> 步驟可以發現，產生出的網格會在交界處出現細小間隔，導致閃電整體出現斷斷續續的情況，可以在線段交界處額外生成網格來改善這個問題。</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：網格間隔優化前" decoding="async" height="600" loading="lazy" src="lightning_bolts_role_5_0.jpg" width="600">網格間隔優化前</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：網格間隔優化後" decoding="async" height="600" loading="lazy" src="lightning_bolts_role_5_1.jpg" width="600">網格間隔優化後</p>
+<p><b>6. 閃電效果優化</b><br>
+目前已完成閃電效果的雛形，不過由於產生的網格大小、顏色太過一致，導致效果整體過於單調且乏味，需要在額外進行一些優化調整。</p>
+<p><b>a. 網格大小優化</b><br>
+網格大小優化的主要思路是在迭代過程中紀錄線段間的關係，從而區分出主幹、分支兩部分，並紀錄線段位於分支層級。<br>
+<b>主幹部分</b>使用線段與閃電終點的距離作為網格大小調整依據，<b>分支部分</b>使用分支層級作為網格大小調整依據，最後建立一個 <a href="https://docs.unity3d.com/ScriptReference/AnimationCurve.html" rel="noopener noreferrer" target="_blank">Animation Curve</a> 來取得對應的網格大小。</p>
+<p><b>b. 網格顏色優化</b><br>
+同 <b>a. 大小優化</b> 步驟，最後建立一個 <a href="https://docs.unity3d.com/ScriptReference/Gradient.html" rel="noopener noreferrer" target="_blank">Gradient</a> 來取得對應的網格顏色。</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：網格大小優化" decoding="async" height="600" loading="lazy" src="lightning_bolts_role_6_0.jpg" width="600">網格大小優化</p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例：網格顏色優化" decoding="async" height="600" loading="lazy" src="lightning_bolts_role_6_1.jpg" width="600">網格顏色優化</p>
+<p><b>8. 最終成果</b></p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例 插圖" decoding="async" height="600" loading="lazy" src="lightning_bolts_final_0.jpg" width="600"></p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例 插圖" decoding="async" height="600" loading="lazy" src="lightning_bolts_final_1.jpg" width="600"></p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例 插圖" decoding="async" height="600" loading="lazy" src="lightning_final_2.jpg" width="600"></p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例 插圖" decoding="async" height="600" loading="lazy" src="lightning_final_3.jpg" width="600"></p>
+<p><img alt="Lindenmayer System 分形圖形學 – 以閃電效果為例 插圖" decoding="async" height="512" loading="lazy" src="lightning_bolts_final_gif.gif" width="512"></p>
+<hr>
+<h2>Patreon</h2>
+<p><a href="https://www.patreon.com/tedsieblog" rel="noopener noreferrer" target="_blank">訂閱 Patreon</a></p>
+<hr>
+<h2>完整原始碼</h2>
+<p><a href="https://www.patreon.com/posts/36061667" rel="noopener noreferrer" target="_blank">Lindenmayer System 分形圖形學 – 以閃電效果為例（完整原始碼）</a></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="http://drilian.com/2009/02/25/lightning-bolts/" rel="noopener noreferrer" target="_blank">Drilian’s House of Game Development – Lightning Bolts</a><br>
+<a href="https://zhuanlan.zhihu.com/p/111904859" rel="noopener noreferrer" target="_blank">游戏中雨天效果开发：如何打造“最美下雨天”</a><br>
+<a href="https://zhuanlan.zhihu.com/p/103124702" rel="noopener noreferrer" target="_blank">移动端天气系统–【下雨】效果之【雷电】的实现和分析</a></p>

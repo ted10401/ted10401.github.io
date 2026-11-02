@@ -1,0 +1,1492 @@
+<!--
+{
+  "title": "Maze Generator – 迷宮產生器",
+  "date": "2016-07-28",
+  "category": "Unity · Algorithm",
+  "excerpt": "嘗試了在 Roguelike 遊戲中會看到的隨機迷宮生成 在每次玩家進入地城時會產生出不一樣的迷宮 使遊戲的變化性提升",
+  "image": "cover-finalmazenormal.png",
+  "imageAlt": "Maze Generator – 迷宮產生器 封面",
+  "shortTitle": "Maze Generator",
+  "heading": "Maze Generator<br><span>迷宮產生器</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/28/maze-generator/"
+}
+-->
+<p>嘗試了在 Roguelike 遊戲中會看到的隨機迷宮生成<br>
+在每次玩家進入地城時會產生出不一樣的迷宮<br>
+使遊戲的變化性提升</p>
+<h2>Preparing</h2>
+<h3>GameObjectUtils.cs</h3>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+
+namespace TEDCore.Utils
+{
+	public static class GameObjectUtils
+	{
+		public static GameObject FindChild(this GameObject root, string name)
+		{
+			GameObject tempObject = null;
+			Transform transformCache = root.transform;
+			int childCount = root.transform.childCount;
+			int cnt = 0;
+
+			for(cnt = 0; cnt &lt; childCount; cnt++)
+			{
+				tempObject = transformCache.GetChild(cnt).gameObject;
+
+				if(name == tempObject.name)
+				{
+					return tempObject;
+				}
+			}
+
+			for(cnt = 0; cnt &lt; childCount; cnt++)
+			{
+				tempObject = transformCache.GetChild(cnt).gameObject;
+
+				if(tempObject.transform.childCount &gt; 0)
+				{
+					tempObject = tempObject.FindChild(name);
+
+					if(null != tempObject)
+					{
+						return tempObject;
+					}
+				}
+			}
+
+			return null;
+		}
+	}
+}</code></pre>
+<p>Line 7<br>
+利用了擴充方法 <a href="https://msdn.microsoft.com/zh-tw/library/bb383977.aspx" rel="noopener noreferrer" target="_blank">this</a><br>
+主要是用來更方便的尋找 GameObject 物件下的同名物件<br>
+會在後續的腳本中使用到</p>
+<p>首先先建立好會使用到的基本物件 EmptyCellPrefab 及 CellPrefab<br>
+<img alt="EmptyCellPrefab" decoding="async" height="810" loading="lazy" src="emptycellprefab.png" width="2880"><br>
+<img alt="CellPrefab" decoding="async" height="808" loading="lazy" src="cellprefab.png" width="2880"></p>
+<p>EmptyCellPrefab：為迷宮背景的預置物件<br>
+CellPrefab：為各個單位的預置物件</p>
+<h2>Base Scripts</h2>
+<h3>BaseCell.cs</h3>
+<p>用來產生新的迷宮單位<br>
+並將單位配置到迷宮中</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+
+public class BaseCell
+{
+	public const string PREFAB_NAME = "CellPrefab";
+
+	public Vector2 Center { get { return m_center; } }
+	public GameObject Root { get { return m_root; } }
+
+	private Vector2 m_center;
+	private GameObject m_root;
+	private BaseMaze m_maze;
+
+	public BaseCell(int w, int h, MazeGenerator mazeGenerator)
+	{
+		m_center = new Vector2 (w, h);
+
+		m_root = GameObject.Instantiate (Resources.Load(PREFAB_NAME) as GameObject);
+		m_root.name = string.Format("Cell {0},{1}", m_center.x, m_center.y);
+		m_root.transform.position = new Vector3 (m_center.x, m_center.y, -0.1f);
+
+		m_maze = mazeGenerator.maze;
+		m_maze.SetCell(w, h, this);
+	}
+}</code></pre>
+<p>Line 14：建構函式，在相對的行列產生基本單位</p>
+<h3>BaseMaze.cs</h3>
+<p>儲存、管理迷宮單位</p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class BaseMaze : MonoBehaviour
+{
+	public int Width { get { return m_width; } }
+	public int Height { get { return m_height; } }
+
+	public GameObject emptyCellPrefab;
+	public Transform emptyCellRoot;
+	public Transform cellRoot;
+
+	private int m_width;
+	private int m_height;
+	private BaseCell[,] m_maze;
+	private GameObject[,] m_emptyMaze;
+
+	public void InitializeMaze(int width, int height)
+	{
+		DestroyMaze();
+
+		m_width = width;
+		m_height = height;
+		m_maze = new BaseCell[m_width, m_height];
+		m_emptyMaze = new GameObject[m_width, m_height];
+
+		for(int w = 0; w &lt; m_width; w++)
+		{
+			for(int h = 0; h &lt; m_height; h++)
+			{
+				m_emptyMaze[w, h] = Instantiate(emptyCellPrefab);
+				m_emptyMaze[w, h].transform.position = new Vector3(w, h);
+				m_emptyMaze[w, h].transform.SetParent(emptyCellRoot);
+			}
+		}
+	}
+
+	public BaseCell GetCell(int width, int height)
+	{
+		if(width &lt; 0 || width &gt;= m_width ||
+			height &lt; 0 || height &gt;= m_height)
+			return null;
+
+		return m_maze[width, height];
+	}
+
+	public void SetCell(int width, int height, BaseCell cell)
+	{
+		if(width &lt; 0 || width &gt;= m_width ||
+			height &lt; 0 || height &gt;= m_height)
+			return;
+
+		m_maze[width, height] = cell;
+		m_maze[width, height].Root.transform.SetParent(cellRoot);
+	}
+
+	private void DestroyMaze()
+	{
+		if (null == m_maze)
+			return;
+
+		BaseCell cell = null;
+		GameObject cellObject = null;
+
+		for(int h = 0; h &lt; m_height; h++)
+		{
+			for(int w = 0; w &lt; m_width; w++)
+			{
+				cell = GetCell(w, h);
+				if(null != cell)
+				{
+					Destroy(m_maze[w, h].Root);
+				}
+
+				cellObject = m_emptyMaze[w, h];
+				if(null != cellObject)
+				{
+					Destroy(cellObject);
+				}
+			}
+		}
+
+		m_maze = null;
+		m_emptyMaze = null;
+	}
+
+	public bool HasCell(int width, int height)
+	{
+		return null != GetCell(width, height);
+	}
+}</code></pre>
+<p>Line 18：迷宮初始化<br>
+Line 39：取得該行列迷宮單位<br>
+Line 49：設定該行列迷宮單位<br>
+Line 60：刪除迷宮<br>
+Line 91：判斷該行列是否已有迷宮單位</p>
+<h3>MazeGenerator.cs</h3>
+<p>迷宮管理器<br>
+負責管理迷宮的生成<br>
+以及鏡頭控制</p>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+public class MazeGenerator : MonoBehaviour
+{
+	public BaseMaze maze;
+	public int width = 10;
+	public int height = 10;
+	public int roomTestCount = 10;
+	public bool playAnimation = true;
+
+	void Awake()
+	{
+		GenerateMaze();
+	}
+
+	private void SetupCamera()
+	{
+		Camera.main.transform.position = new Vector3 (width - 1, height - 1, -20) / 2;
+
+		if(Screen.width &gt; Screen.height)
+		{
+			float ratio = (float)Screen.width / Screen.height;
+
+			if((float)width / height &gt; ratio)
+				Camera.main.orthographicSize = (float)width / 2 + 1;
+			else
+				Camera.main.orthographicSize = (float)height / 2 + 1;
+		}
+		else
+		{
+			float ratio = (float)Screen.height / Screen.width;
+
+			if((float)height / width &gt; ratio)
+				Camera.main.orthographicSize = (float)height / 2 + 1;
+			else
+				Camera.main.orthographicSize = (float)width / 2 + 1;
+		}
+	}
+
+	private void InitializeMaze()
+	{
+		SetupCamera ();
+		maze.InitializeMaze(width, height);
+	}
+
+	public void GenerateMaze()
+	{
+		InitializeMaze ();
+		StartCoroutine(StartGenerateMaze());
+	}
+
+	private IEnumerator StartGenerateMaze()
+	{
+		BaseCell cellCache = null;
+
+		for(int w = 0; w &lt; width; w++)
+		{
+			for(int h = 0; h &lt; height; h++)
+			{
+				if(playAnimation)
+					yield return new WaitForSeconds(0.05f);
+
+				new BaseCell(w, h, this);
+			}
+		}
+	}
+}</code></pre>
+<p>Line 19：攝影機設置<br>
+Line 44：迷宮初始化接口<br>
+Line 51：迷宮產生接口<br>
+Line 58：迷宮產生</p>
+<p>接著在場景中完成基本配置<br>
+<img alt="Preparing" decoding="async" height="810" loading="lazy" src="preparing.png" width="2878"></p>
+<h3>Base Scripts 執行結果</h3>
+<p><img alt="PreparingGif" decoding="async" height="509" loading="lazy" src="preparinggif.gif" width="480"></p>
+<h2>Implement MazeUtils</h2>
+<h3>MazeUtils.cs</h3>
+<p>用來處理在這個專案中會使用的到列舉<br>
+以及與列舉相關的靜態方法</p>
+<pre aria-label="C# 程式碼 5" tabindex="0"><code class="language-csharp">using UnityEngine;
+
+namespace Maze.Utils
+{
+	public enum Direction
+	{
+		None,
+		Up,
+		Down,
+		Left,
+		Right,
+	}
+
+	public enum NeighbourType
+	{
+		Wall,
+		Visited,
+		None,
+	}
+
+	public static class MazeUtils
+	{
+		public static Vector2 DirectionToVector2(Direction direction)
+		{
+			Vector2 result = Vector2.zero;
+
+			switch(direction)
+			{
+			case Direction.Up:
+				result = Vector2.up;
+				break;
+			case Direction.Down:
+				result = Vector2.down;
+				break;
+			case Direction.Left:
+				result = Vector2.left;
+				break;
+			case Direction.Right:
+				result = Vector2.right;
+				break;
+			}
+
+			return result;
+		}
+
+		public static Direction GetOppositeDirection(Direction direction)
+		{
+			Direction result = Direction.None;
+
+			switch(direction)
+			{
+			case Direction.Up:
+				result = Direction.Down;
+				break;
+			case Direction.Down:
+				result = Direction.Up;
+				break;
+			case Direction.Left:
+				result = Direction.Right;
+				break;
+			case Direction.Right:
+				result = Direction.Left;
+				break;
+			}
+
+			return result;
+		}
+	}
+}</code></pre>
+<p>Line 5：方向列舉定義<br>
+Line 14：鄰邊單位狀態列舉定義<br>
+Line 23：將 Direction 轉換為 Vector2<br>
+Line 47：取得反方向 Direction 列舉</p>
+<h2>Implement BaseCell</h2>
+<p>在上一步驟中<br>
+我們完成了事前的準備<br>
+接下來要開始著手實作 BaseCell 中所需要使用的到方法</p>
+<h3>BaseCell.cs</h3>
+<pre aria-label="C# 程式碼 6" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System;
+using System.Collections.Generic;
+using TEDCore.Utils;
+using Maze.Utils;
+
+public class BaseCell
+{
+	public const string PREFAB_NAME = "CellPrefab";
+
+	public Vector2 Center { get { return m_center; } }
+	public GameObject Root { get { return m_root; } }
+
+	private Vector2 m_center;
+	private GameObject m_root;
+	private BaseMaze m_maze;
+	private Dictionary&lt;Direction, NeighbourType&gt; m_neighbours;
+	private Dictionary&lt;Direction, GameObject&gt; m_walls;
+
+	public BaseCell(int w, int h, MazeGenerator mazeGenerator)
+	{
+		m_center = new Vector2 (w, h);
+
+		m_root = GameObject.Instantiate (Resources.Load(PREFAB_NAME) as GameObject);
+		m_root.name = string.Format("Cell {0},{1}", m_center.x, m_center.y);
+		m_root.transform.position = new Vector3 (m_center.x, m_center.y, -0.1f);
+
+		m_maze = mazeGenerator.maze;
+		m_maze.SetCell(w, h, this);
+
+		SetupWalls (Direction.None);
+		SetupNeighbours ();
+	}
+
+	public BaseCell(BaseCell previousCell, Direction direction, MazeGenerator mazeGenerator)
+	{
+		m_center = previousCell.Center + MazeUtils.DirectionToVector2(direction);
+
+		m_root = GameObject.Instantiate (Resources.Load(PREFAB_NAME) as GameObject);
+		m_root.name = string.Format("Cell {0},{1}", m_center.x, m_center.y);
+		m_root.transform.position = new Vector3 (m_center.x, m_center.y, -0.1f);
+
+		m_maze = mazeGenerator.maze;
+		m_maze.SetCell((int)m_center.x, (int)m_center.y, this);
+
+		SetupWalls (direction);
+		SetupNeighbours ();
+	}
+
+	private void SetupWalls(Direction initialDirection)
+	{
+		m_walls = new Dictionary&lt;Direction, GameObject&gt; ();
+		for(int cnt = 1; cnt &lt; Enum.GetNames(typeof(Direction)).Length; cnt++)
+		{
+			GameObject wall = m_root.FindChild("Wall" + ((Direction)cnt).ToString());
+			m_walls.Add((Direction)cnt, wall);
+
+			if(initialDirection != Direction.None)
+			{
+				if((Direction)cnt == MazeUtils.GetOppositeDirection(initialDirection))
+				{
+					DisableWalls((Direction)cnt);
+				}
+			}
+		}
+	}
+
+	public void DisableWalls(Direction direction)
+	{
+		m_walls [direction].SetActive (false);
+	}
+
+	private void SetupNeighbours()
+	{
+		m_neighbours = new Dictionary&lt;Direction, NeighbourType&gt; ();
+		for(int cnt = 1; cnt &lt; Enum.GetNames(typeof(Direction)).Length; cnt++)
+		{
+			m_neighbours.Add((Direction)cnt, NeighbourType.None);
+		}
+
+		if (m_center.y + 1 == m_maze.Height)
+			m_neighbours[Direction.Up] = NeighbourType.Wall;
+
+		if (m_center.y - 1 &lt; 0)
+			m_neighbours[Direction.Down] = NeighbourType.Wall;
+
+		if (m_center.x - 1 &lt; 0)
+			m_neighbours[Direction.Left] = NeighbourType.Wall;
+
+		if (m_center.x + 1 == m_maze.Width)
+			m_neighbours[Direction.Right] = NeighbourType.Wall;
+
+		UpdateNeighbours ();
+	}
+
+	private void UpdateNeighbours()
+	{
+		for(int cnt = 1; cnt &lt; Enum.GetNames(typeof(Direction)).Length; cnt++)
+		{
+			Vector2 direction = m_center + MazeUtils.DirectionToVector2 ((Direction)cnt);
+			if(direction.x &lt; 0 || direction.x == m_maze.Width ||
+				direction.y &lt; 0 || direction.y == m_maze.Height)
+				continue;
+
+			if(m_maze.HasCell((int)direction.x, (int)direction.y))
+			{
+				m_neighbours[(Direction)cnt] = NeighbourType.Visited;
+			}
+		}
+	}
+
+	public Direction GetRandomDirection()
+	{
+		UpdateNeighbours ();
+
+		List&lt;int&gt; directions = new List&lt;int&gt; ();
+		bool noNeighbour = true;
+		for(int cnt = 1; cnt &lt; Enum.GetNames(typeof(Direction)).Length; cnt++)
+		{
+			if(m_neighbours[(Direction)cnt] == NeighbourType.None)
+			{
+				noNeighbour = false;
+				directions.Add(cnt);
+			}
+		}
+
+		if (noNeighbour)
+			return Direction.None;
+
+		int randomNum = UnityEngine.Random.Range (0, directions.Count);
+		Direction randomDirection = (Direction)directions[randomNum];
+
+		DisableWalls (randomDirection);
+
+		return randomDirection;
+	}
+}</code></pre>
+<p>Line 36：建構函式，透過輸入的 BaseCell 在相應方向上產生另一個基本單位<br>
+Line 52：初始化提取牆壁物件<br>
+Line 71：關閉牆壁物件<br>
+Line 77：初始化設定鄰邊單位狀態為 NeighbourType.Wall<br>
+Line 101：更新鄰邊單位狀態為 NeighbourType.Wall<br>
+Line 118：隨機獲取尚未遍歷過的鄰邊方向</p>
+<h2>Backtracking Algorithm</h2>
+<h3>Backtracking Algorithm Pseudocode</h3>
+<p>完成了 BaseCell 中所需要用到的方法後<br>
+接下來要開始進入如何產生迷宮的部分<br>
+在一開始先來看一下最暴力 Backtracking Algorithm 回溯演算法<br>
+利用 <a href="https://msdn.microsoft.com/en-us/library/system.collections.stack(v=vs.110).aspx" rel="noopener noreferrer" target="_blank">Stack</a> 先進後出的結構<br>
+不斷的遍歷所有 BaseCell<br>
+直到所有 BaseCell 的鄰邊都不為空</p>
+<pre aria-label="程式碼 7" tabindex="0"><code>Add the initial BaseCell to CellStack
+
+while CellStack is not empty
+	peek the BaseCell c from CellStack
+
+	if c has an empty neighbor
+		choose a random neighbor
+		create the new BaseCell and add it to CellStack
+	else
+		pop c from CellStack</code></pre>
+<h3>Implement Backtracking Algorithm</h3>
+<p>完成了回溯法的虛擬程式碼後<br>
+我們就可以來著手實作<br>
+先定義好每種演算法的基礎類別</p>
+<h3>AlgorithmBase.cs</h3>
+<pre aria-label="C# 程式碼 8" tabindex="0"><code class="language-csharp">using System.Collections;
+
+public class AlgorithmBase
+{
+	public bool IsGenerating
+	{
+		get { return m_isGenerating; }
+	}
+
+	protected MazeGenerator m_mazeGenerator;
+	protected bool m_isGenerating = false;
+
+	public AlgorithmBase(MazeGenerator mazeGenerator)
+	{
+		m_mazeGenerator = mazeGenerator;
+	}
+
+	public virtual IEnumerator Update (bool playAnimation)
+	{
+		return null;
+	}
+}</code></pre>
+<h3>Implement Backtracking Algorithm</h3>
+<h3>BacktrackingAlgorithm.cs</h3>
+<pre aria-label="C# 程式碼 9" tabindex="0"><code class="language-csharp">using System.Collections;
+using System.Collections.Generic;
+using Maze.Utils;
+
+public class BacktrackingAlgorithm : AlgorithmBase
+{
+	private Stack&lt;BaseCell&gt; m_cellStack;
+
+	public BacktrackingAlgorithm(MazeGenerator mazeGenerator) : base(mazeGenerator)
+	{
+
+	}
+
+	public override IEnumerator Update(bool playAnimation)
+	{
+		m_isGenerating = true;
+
+		m_cellStack = new Stack&lt;BaseCell&gt; ();
+
+		if(playAnimation)
+			yield return null;
+
+		m_cellStack.Push (new BaseCell(0, 0, m_mazeGenerator));
+
+		BaseCell cellCache = null;
+		Direction directionCache = Direction.None;
+
+		while(m_cellStack.Count != 0)
+		{
+			cellCache = m_cellStack.Peek();
+			directionCache = cellCache.GetRandomDirection();
+
+			if(directionCache != Direction.None)
+			{
+				if(playAnimation)
+					yield return null;
+
+				m_cellStack.Push(new BaseCell(cellCache, directionCache, m_mazeGenerator));
+			}
+			else
+			{
+				m_cellStack.Pop();
+			}
+		}
+
+		m_isGenerating = false;
+	}
+}</code></pre>
+<h3>Result of Backtracking Algorithm</h3>
+<p>完成了 Backtracking Algorithm 後<br>
+我們必須對 MazeGenerator 做一些調整<br>
+來看到演算法的結果</p>
+<h3>MazeGenerator.cs</h3>
+<pre aria-label="C# 程式碼 10" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+public class MazeGenerator : MonoBehaviour
+{
+	public BaseMaze maze;
+	public int width = 10;
+	public int height = 10;
+	public int roomTestCount = 10;
+	public bool playAnimation = true;
+	public AlgorithmBase algorithm;
+
+	void Awake()
+	{
+		algorithm = new BacktrackingAlgorithm(this);
+		GenerateMaze();
+	}
+
+	private void SetupCamera()
+	{
+		Camera.main.transform.position = new Vector3 (width - 1, height - 1, -20) / 2;
+
+		if(Screen.width &gt; Screen.height)
+		{
+			float ratio = (float)Screen.width / Screen.height;
+
+			if((float)width / height &gt; ratio)
+				Camera.main.orthographicSize = (float)width / 2 + 1;
+			else
+				Camera.main.orthographicSize = (float)height / 2 + 1;
+		}
+		else
+		{
+			float ratio = (float)Screen.height / Screen.width;
+
+			if((float)height / width &gt; ratio)
+				Camera.main.orthographicSize = (float)height / 2 + 1;
+			else
+				Camera.main.orthographicSize = (float)width / 2 + 1;
+		}
+	}
+
+	private void InitializeMaze()
+	{
+		SetupCamera ();
+		maze.InitializeMaze(width, height);
+	}
+
+	private bool IsGenerating()
+	{
+		if (null != algorithm &amp;&amp; algorithm.IsGenerating)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public void GenerateMaze()
+	{
+		if(IsGenerating())
+		{
+			return;
+		}
+
+		StopGenerateMaze ();
+		InitializeMaze ();
+		StartGenerateMaze ();
+	}
+
+	private void StartGenerateMaze()
+	{
+		StartCoroutine(algorithm.Update(playAnimation));
+	}
+
+	private void StopGenerateMaze()
+	{
+		StopCoroutine(algorithm.Update(playAnimation));
+	}
+}</code></pre>
+<h3>Backtracking Algorithm 執行結果</h3>
+<p><img alt="BacktrackingAlgorithm" decoding="async" height="285" loading="lazy" src="backtrackingalgorithm1.gif" width="480"></p>
+<h2>Backjumping Algorithm</h2>
+<h3>Backjumping Algorithm Pseudocode</h3>
+<p>現在來試著套入 Backjumping Algorithm<br>
+與 Backtracking 最大的差異是在陣列的結構<br>
+Backtracking 中，在 Cell 周圍都不為空時，會提取陣列中的最後一個物件<br>
+Backjumping 中，則會提取陣列的第一個物件</p>
+<pre aria-label="程式碼 11" tabindex="0"><code>Add the initial BaseCell to CellList
+
+while CellList is not empty
+	get the last BaseCell c from CellList
+
+	if c has an empty neighbor
+		choose a random neighbor
+		create the new BaseCell and add it to CellList
+	else
+		remove c from CellList
+		move the first BaseCell to the last in CellList</code></pre>
+<h3>Implement Backjumping Algorithm</h3>
+<h3>BackjumpingAlgorithm.cs</h3>
+<pre aria-label="C# 程式碼 12" tabindex="0"><code class="language-csharp">using System.Collections;
+using System.Collections.Generic;
+using Maze.Utils;
+
+public class BackjumpingAlgorithm : AlgorithmBase
+{
+	private List&lt;BaseCell&gt; m_cellList;
+
+	public BackjumpingAlgorithm(MazeGenerator mazeGenerator) : base(mazeGenerator)
+	{
+
+	}
+
+	public override IEnumerator Update(bool playAnimation)
+	{
+		m_isGenerating = true;
+
+		m_cellList = new List&lt;BaseCell&gt; ();
+
+		if(playAnimation)
+			yield return null;
+
+		m_cellList.Add (new BaseCell(0, 0, m_mazeGenerator));
+
+		BaseCell cellCache = null;
+		Direction directionCache = Direction.None;
+
+		while(m_cellList.Count != 0)
+		{
+			cellCache = m_cellList[m_cellList.Count - 1];
+			directionCache = cellCache.GetRandomDirection();
+
+			if(directionCache != Direction.None)
+			{
+				if(playAnimation)
+					yield return null;
+
+				m_cellList.Add(new BaseCell(cellCache, directionCache, m_mazeGenerator));
+			}
+			else
+			{
+				m_cellList.RemoveAt(m_cellList.Count - 1);
+
+				if(m_cellList.Count &gt;= 2)
+				{
+					BaseCell firstCell = m_cellList[0];
+					m_cellList.RemoveAt(0);
+					m_cellList.Add(firstCell);
+				}
+			}
+		}
+
+		m_isGenerating = false;
+	}
+}</code></pre>
+<h3>Implement Backjumping 執行結果</h3>
+<p><img alt="BackjumpingAlgorithm" decoding="async" height="285" loading="lazy" src="backjumpingalgorithm.gif" width="480"></p>
+<h2>Prims Algorithm</h2>
+<h3>Prims Algorithm Pseudocode</h3>
+<p>Prims 的最大差別是在每次提取時隨機提取陣列中的物件</p>
+<pre aria-label="程式碼 13" tabindex="0"><code>Add the initial BaseCell to CellList
+
+while CellList is not empty
+	get the random BaseCell c from CellList
+
+	if c has an empty neighbor
+		choose a random neighbor
+		create the new BaseCell and add it to CellList
+	else
+		remove c from CellList</code></pre>
+<h3>Implement Prims Algorithm</h3>
+<h3>PrimsAlgorithm.cs</h3>
+<pre aria-label="C# 程式碼 14" tabindex="0"><code class="language-csharp">using System.Collections;
+using System.Collections.Generic;
+using Maze.Utils;
+
+public class PrimsAlgorithm : AlgorithmBase
+{
+	private List&lt;BaseCell&gt; m_cellList;
+
+	public PrimsAlgorithm(MazeGenerator mazeGenerator) : base(mazeGenerator)
+	{
+
+	}
+
+	public override IEnumerator Update(bool playAnimation)
+	{
+		m_isGenerating = true;
+
+		m_cellList = new List&lt;BaseCell&gt; ();
+
+		if(playAnimation)
+			yield return null;
+
+		m_cellList.Add (new BaseCell(0, 0, m_mazeGenerator));
+
+		BaseCell cellCache = null;
+		Direction directionCache = Direction.None;
+		int randomCache = 0;
+
+		while(m_cellList.Count != 0)
+		{
+			randomCache = UnityEngine.Random.Range(0, m_cellList.Count);
+			cellCache = m_cellList[randomCache];
+			directionCache = cellCache.GetRandomDirection();
+
+			if(directionCache != Direction.None)
+			{
+				if(playAnimation)
+					yield return null;
+
+				m_cellList.Add(new BaseCell(cellCache, directionCache, m_mazeGenerator));
+			}
+			else
+			{
+				m_cellList.RemoveAt(randomCache);
+			}
+		}
+
+		m_isGenerating = false;
+	}
+}</code></pre>
+<h3>Prims Algorithm 執行結果</h3>
+<p><img alt="PrimsAlgorithm" decoding="async" height="285" loading="lazy" src="primsalgorithm.gif" width="480"></p>
+<h2>Algorithm Callback</h2>
+<p>為了增加迷宮的可玩性<br>
+需要先在 Algorithm 中加入 callback<br>
+用來在迷宮產生完畢後，執行其他功能</p>
+<h3>AlgorithmBase.cs</h3>
+<pre aria-label="C# 程式碼 15" tabindex="0"><code class="language-csharp">using System;
+using System.Collections;
+
+public class AlgorithmBase
+{
+	public bool IsGenerating
+	{
+		get { return m_isGenerating; }
+	}
+
+	protected MazeGenerator m_mazeGenerator;
+	protected bool m_isGenerating = false;
+
+	public AlgorithmBase(MazeGenerator mazeGenerator)
+	{
+		m_mazeGenerator = mazeGenerator;
+	}
+
+	public virtual IEnumerator Update (bool playAnimation, Action onComplete = null)
+	{
+		return null;
+	}
+}</code></pre>
+<h3>BacktrackingAlgorithm.cs</h3>
+<pre aria-label="C# 程式碼 16" tabindex="0"><code class="language-csharp">using System;
+using System.Collections;
+using System.Collections.Generic;
+using Maze.Utils;
+
+public class BacktrackingAlgorithm : AlgorithmBase
+{
+	private Stack&lt;BaseCell&gt; m_cellStack;
+
+	public BacktrackingAlgorithm(MazeGenerator mazeGenerator) : base(mazeGenerator)
+	{
+
+	}
+
+	public override IEnumerator Update(bool playAnimation, Action onComplete = null)
+	{
+		m_isGenerating = true;
+
+		m_cellStack = new Stack&lt;BaseCell&gt; ();
+
+		if(playAnimation)
+			yield return null;
+
+		m_cellStack.Push (new BaseCell(0, 0, m_mazeGenerator));
+
+		BaseCell cellCache = null;
+		Direction directionCache = Direction.None;
+
+		while(m_cellStack.Count != 0)
+		{
+			cellCache = m_cellStack.Peek();
+			directionCache = cellCache.GetRandomDirection();
+
+			if(directionCache != Direction.None)
+			{
+				if(playAnimation)
+					yield return null;
+
+				m_cellStack.Push(new BaseCell(cellCache, directionCache, m_mazeGenerator));
+			}
+			else
+			{
+				m_cellStack.Pop();
+			}
+		}
+
+		m_isGenerating = false;
+
+		if(null != onComplete)
+		{
+			onComplete();
+		}
+	}
+}</code></pre>
+<h3>BackjumpingAlgorithm.cs</h3>
+<pre aria-label="C# 程式碼 17" tabindex="0"><code class="language-csharp">using System;
+using System.Collections;
+using System.Collections.Generic;
+using Maze.Utils;
+
+public class BackjumpingAlgorithm : AlgorithmBase
+{
+	private List&lt;BaseCell&gt; m_cellList;
+
+	public BackjumpingAlgorithm(MazeGenerator mazeGenerator) : base(mazeGenerator)
+	{
+
+	}
+
+	public override IEnumerator Update(bool playAnimation, Action onComplete = null)
+	{
+		m_isGenerating = true;
+
+		m_cellList = new List&lt;BaseCell&gt; ();
+
+		if(playAnimation)
+			yield return null;
+
+		m_cellList.Add (new BaseCell(0, 0, m_mazeGenerator));
+
+		BaseCell cellCache = null;
+		Direction directionCache = Direction.None;
+
+		while(m_cellList.Count != 0)
+		{
+			cellCache = m_cellList[m_cellList.Count - 1];
+			directionCache = cellCache.GetRandomDirection();
+
+			if(directionCache != Direction.None)
+			{
+				if(playAnimation)
+					yield return null;
+
+				m_cellList.Add(new BaseCell(cellCache, directionCache, m_mazeGenerator));
+			}
+			else
+			{
+				m_cellList.RemoveAt(m_cellList.Count - 1);
+
+				if(m_cellList.Count &gt;= 2)
+				{
+					BaseCell firstCell = m_cellList[0];
+					m_cellList.RemoveAt(0);
+					m_cellList.Add(firstCell);
+				}
+			}
+		}
+
+		m_isGenerating = false;
+
+		if(null != onComplete)
+		{
+			onComplete();
+		}
+	}
+}</code></pre>
+<h3>PrimsAlgorithm.cs</h3>
+<pre aria-label="C# 程式碼 18" tabindex="0"><code class="language-csharp">using System;
+using System.Collections;
+using System.Collections.Generic;
+using Maze.Utils;
+
+public class PrimsAlgorithm : AlgorithmBase
+{
+	private List&lt;BaseCell&gt; m_cellList;
+
+	public PrimsAlgorithm(MazeGenerator mazeGenerator) : base(mazeGenerator)
+	{
+
+	}
+
+	public override IEnumerator Update(bool playAnimation, Action onComplete = null)
+	{
+		m_isGenerating = true;
+
+		m_cellList = new List&lt;BaseCell&gt; ();
+
+		if(playAnimation)
+			yield return null;
+
+		m_cellList.Add (new BaseCell(0, 0, m_mazeGenerator));
+
+		BaseCell cellCache = null;
+		Direction directionCache = Direction.None;
+		int randomCache = 0;
+
+		while(m_cellList.Count != 0)
+		{
+			randomCache = UnityEngine.Random.Range(0, m_cellList.Count);
+			cellCache = m_cellList[randomCache];
+			directionCache = cellCache.GetRandomDirection();
+
+			if(directionCache != Direction.None)
+			{
+				if(playAnimation)
+					yield return null;
+
+				m_cellList.Add(new BaseCell(cellCache, directionCache, m_mazeGenerator));
+			}
+			else
+			{
+				m_cellList.RemoveAt(randomCache);
+			}
+		}
+
+		m_isGenerating = false;
+
+		if(null != onComplete)
+		{
+			onComplete();
+		}
+	}
+}</code></pre>
+<h2>Room Generator</h2>
+<p>完成了三種演算方式的 Callback 後<br>
+目前迷宮的道路都已經可以自動產生出來了<br>
+但是往往在地城類遊戲中<br>
+都會有各種房間的配置來提升遊戲可玩性</p>
+<p>首先建立房間的基本配置<br>
+包含：房間中心、房間長寬</p>
+<h3>BaseRoom.cs</h3>
+<pre aria-label="C# 程式碼 19" tabindex="0"><code class="language-csharp">using UnityEngine;
+
+public class BaseRoom
+{
+	public int PivotW { get { return m_pivotW; } }
+	public int PivotH { get { return m_pivotH; } }
+	public int RoomWidth { get { return m_roomWidth; } }
+	public int RoomHeight { get { return m_roomHeight; } }
+
+	private int m_pivotW;
+	private int m_pivotH;
+	private int m_roomWidth;
+	private int m_roomHeight;
+
+	public BaseRoom(int width, int height)
+	{
+		m_pivotW = Random.Range (1, width - 2);
+		m_pivotH = Random.Range (1, height - 2);
+
+		m_roomWidth = Random.Range (2, Mathf.Min(width - m_pivotW, 20));
+		m_roomHeight = Random.Range (2, Mathf.Min(height - m_pivotH, 20));
+
+		if((float)m_roomHeight / m_roomWidth &gt; 1.5f)
+		{
+			m_roomHeight = (int)(m_roomWidth * Random.Range(1.0f, 1.5f));
+		}
+		else if((float)m_roomWidth / m_roomHeight &gt; 1.5f)
+		{
+			m_roomWidth = (int)(m_roomHeight * Random.Range(1.0f, 1.5f));
+		}
+	}
+}</code></pre>
+<h2>Implement Room Generator</h2>
+<h3>RoomGenerator.cs</h3>
+<pre aria-label="C# 程式碼 20" tabindex="0"><code class="language-csharp">uusing UnityEngine;
+using System.Collections.Generic;
+
+public class RoomGenerator
+{
+	private MazeGenerator m_mazeGenerator;
+	private int m_testCount;
+	private List&lt;BaseRoom&gt; m_rooms;
+
+	public RoomGenerator(MazeGenerator mazeGenerator, int testCount = 1)
+	{
+		m_mazeGenerator = mazeGenerator;
+		m_testCount = testCount;
+	}
+
+	public void Generate()
+	{
+		m_rooms = new List&lt;BaseRoom&gt; ();
+
+		for(int cnt = 0; cnt &lt; m_testCount; cnt++)
+		{
+			BaseRoom baseRoom = new BaseRoom(m_mazeGenerator.width, m_mazeGenerator.height);
+			if(CanCreateRoom(baseRoom))
+			{
+				CreateRoom(baseRoom);
+			}
+		}
+	}
+
+	private bool CanCreateRoom(BaseRoom baseRoom)
+	{
+		if (m_mazeGenerator.maze.HasCell(baseRoom.PivotW, baseRoom.PivotH) ||
+			m_mazeGenerator.maze.HasCell(baseRoom.PivotW, baseRoom.PivotH + baseRoom.RoomHeight - 1) ||
+			m_mazeGenerator.maze.HasCell(baseRoom.PivotW + baseRoom.RoomWidth - 1, baseRoom.PivotH) ||
+			m_mazeGenerator.maze.HasCell(baseRoom.PivotW + baseRoom.RoomWidth - 1, baseRoom.PivotH + baseRoom.RoomHeight - 1))
+			return false;
+
+		for(int h = baseRoom.PivotH - 1; h &lt; baseRoom.PivotH + baseRoom.RoomHeight + 1; h++)
+		{
+			for(int w = baseRoom.PivotW - 1; w &lt; baseRoom.PivotW + baseRoom.RoomWidth + 1; w++)
+			{
+				if(w == m_mazeGenerator.maze.Width || h == m_mazeGenerator.maze.Width ||
+				   w &lt; 0 || h &lt; 0)
+					return false;
+
+				if(m_mazeGenerator.maze.HasCell(w, h))
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	private void CreateRoom(BaseRoom baseRoom)
+	{
+		m_rooms.Add(baseRoom);
+
+		BaseCell baseCell = null;
+		float randomR = Random.Range(0, 255f) / 255;
+		float randomG = Random.Range(0, 255f) / 255;
+		float randomB = Random.Range(0, 255f) / 255;
+
+		for(int h = baseRoom.PivotH; h &lt; baseRoom.PivotH + baseRoom.RoomHeight; h++)
+		{
+			for(int w = baseRoom.PivotW; w &lt; baseRoom.PivotW + baseRoom.RoomWidth; w++)
+			{
+				baseCell = new BaseCell (w, h, m_mazeGenerator);
+				baseCell.SetColor(new Color(randomR, randomG, randomB));
+
+				#region corner
+				if(w == baseRoom.PivotW &amp;&amp; h == baseRoom.PivotH)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW &amp;&amp; h == baseRoom.PivotH + baseRoom.RoomHeight - 1)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW + baseRoom.RoomWidth - 1 &amp;&amp; h == baseRoom.PivotH)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW + baseRoom.RoomWidth - 1 &amp;&amp; h == baseRoom.PivotH + baseRoom.RoomHeight - 1)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					continue;
+				}
+				#endregion
+
+				#region edge
+				if(h == baseRoom.PivotH)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					continue;
+				}
+
+				if(h == baseRoom.PivotH + baseRoom.RoomHeight - 1)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW + baseRoom.RoomWidth - 1)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					continue;
+				}
+				#endregion
+
+				baseCell.DisableWalls (Maze.Utils.Direction.Up);
+				baseCell.DisableWalls (Maze.Utils.Direction.Down);
+				baseCell.DisableWalls (Maze.Utils.Direction.Left);
+				baseCell.DisableWalls (Maze.Utils.Direction.Right);
+			}
+		}
+	}
+
+	public void CreateDoors()
+	{
+		for(int cnt = 0; cnt &lt; m_rooms.Count; cnt++)
+		{
+			CreateDoor(m_rooms[cnt]);
+		}
+	}
+
+	private void CreateDoor(BaseRoom baseRoom)
+	{
+		int randomDirection = Random.Range (0, 4);
+		int randomW = 0;
+		int randomH = 0;
+
+		switch(randomDirection)
+		{
+		case 0:
+			randomW = Random.Range(baseRoom.PivotW, baseRoom.PivotW + baseRoom.RoomWidth);
+			randomH = baseRoom.PivotH + baseRoom.RoomHeight - 1;
+			m_mazeGenerator.maze.GetCell(randomW, randomH).DisableWalls(Maze.Utils.Direction.Up);
+			m_mazeGenerator.maze.GetCell(randomW, randomH + 1).DisableWalls(Maze.Utils.Direction.Down);
+			break;
+		case 1:
+			randomW = Random.Range(baseRoom.PivotW, baseRoom.PivotW + baseRoom.RoomWidth);
+			randomH = baseRoom.PivotH;
+			m_mazeGenerator.maze.GetCell(randomW, randomH).DisableWalls(Maze.Utils.Direction.Down);
+			m_mazeGenerator.maze.GetCell(randomW, randomH - 1).DisableWalls(Maze.Utils.Direction.Up);
+			break;
+		case 2:
+			randomW = baseRoom.PivotW;
+			randomH = Random.Range(baseRoom.PivotH, baseRoom.PivotH + baseRoom.RoomHeight);
+			m_mazeGenerator.maze.GetCell(randomW, randomH).DisableWalls(Maze.Utils.Direction.Left);
+			m_mazeGenerator.maze.GetCell(randomW - 1, randomH).DisableWalls(Maze.Utils.Direction.Right);
+			break;
+		case 3:
+			randomW = baseRoom.PivotW + baseRoom.RoomWidth - 1;
+			randomH = Random.Range(baseRoom.PivotH, baseRoom.PivotH + baseRoom.RoomHeight);
+			m_mazeGenerator.maze.GetCell(randomW, randomH).DisableWalls(Maze.Utils.Direction.Right);
+			m_mazeGenerator.maze.GetCell(randomW + 1, randomH).DisableWalls(Maze.Utils.Direction.Left);
+			break;
+		}
+	}
+}</code></pre>
+<p>Line 10：建構函式，在這邊對 RoomGenerator 進行初始化配置<br>
+Line 16：房間產生接口<br>
+Line 30：檢查該 BaseRoom 能不能產生<br>
+Line 54：產生房間，並更新房間牆壁顯示<br>
+Line 143：遍歷房間資料<br>
+Line 152：產生房間出入口</p>
+<h2>Adjust MazeGenerator</h2>
+<p>最後在 MazeGenerator 中加入 RoomGenerator 方法</p>
+<h3>MazeGenerator.cs</h3>
+<pre aria-label="C# 程式碼 21" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+public class MazeGenerator : MonoBehaviour
+{
+	public BaseMaze maze;
+	public int width = 10;
+	public int height = 10;
+	public int roomTestCount = 10;
+	public bool playAnimation = true;
+	public AlgorithmBase algorithm;
+
+	private RoomGenerator m_roomGenerator;
+
+	void Awake()
+	{
+		algorithm = new BacktrackingAlgorithm(this);
+		GenerateRoomAndMaze();
+	}
+
+	private void SetupCamera()
+	{
+		Camera.main.transform.position = new Vector3 (width - 1, height - 1, -20) / 2;
+
+		if(Screen.width &gt; Screen.height)
+		{
+			float ratio = (float)Screen.width / Screen.height;
+
+			if((float)width / height &gt; ratio)
+				Camera.main.orthographicSize = (float)width / 2 + 1;
+			else
+				Camera.main.orthographicSize = (float)height / 2 + 1;
+		}
+		else
+		{
+			float ratio = (float)Screen.height / Screen.width;
+
+			if((float)height / width &gt; ratio)
+				Camera.main.orthographicSize = (float)height / 2 + 1;
+			else
+				Camera.main.orthographicSize = (float)width / 2 + 1;
+		}
+	}
+
+	private void InitializeMaze()
+	{
+		SetupCamera ();
+		maze.InitializeMaze(width, height);
+	}
+
+	private bool IsGenerating()
+	{
+		if (null != algorithm &amp;&amp; algorithm.IsGenerating)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public void GenerateMaze()
+	{
+		if(IsGenerating())
+		{
+			return;
+		}
+
+		StopGenerateMaze ();
+		InitializeMaze ();
+		StartGenerateMaze ();
+	}
+
+	public void GenerateRoom()
+	{
+		if(IsGenerating())
+		{
+			return;
+		}
+
+		InitializeMaze ();
+		StartCreateRoom();
+	}
+
+	public void GenerateRoomAndMaze()
+	{
+		if(IsGenerating())
+		{
+			return;
+		}
+
+		StopGenerateMaze();
+		InitializeMaze();
+		StartCreateRoom();
+		StartGenerateMaze(m_roomGenerator.CreateDoors);
+	}
+
+	private void StartCreateRoom()
+	{
+		m_roomGenerator = new RoomGenerator(this, roomTestCount);
+		m_roomGenerator.Generate ();
+	}
+
+	private void StartGenerateMaze(Action callback = null)
+	{
+		StartCoroutine(algorithm.Update(playAnimation, callback));
+	}
+
+	private void StopGenerateMaze()
+	{
+		StopCoroutine(algorithm.Update(playAnimation));
+	}
+}</code></pre>
+<p>Room And Maze Generate 執行結果<br>
+<img alt="RoomAndMazeNormal" decoding="async" height="285" loading="lazy" src="roomandmazenormal.gif" width="480"></p>
+<h3>Room Color Changed</h3>
+<p>為了增加畫面的變化性<br>
+再生成房間的同時加入顏色增加房間的辨識度</p>
+<p>在 BaseCell.cs 中加入</p>
+<pre aria-label="C# 程式碼 22" tabindex="0"><code class="language-csharp">	public void SetColor(Color color)
+	{
+		m_root.FindChild("Center").GetComponent&lt;MeshRenderer&gt;().material.color = color;
+	}</code></pre>
+<p>修改 RoomGenerator.CreateRoom</p>
+<pre aria-label="C# 程式碼 23" tabindex="0"><code class="language-csharp">	private void CreateRoom(BaseRoom baseRoom)
+	{
+		m_rooms.Add(baseRoom);
+
+		BaseCell baseCell = null;
+		float randomR = Random.Range(0, 255f) / 255;
+		float randomG = Random.Range(0, 255f) / 255;
+		float randomB = Random.Range(0, 255f) / 255;
+
+		for(int h = baseRoom.PivotH; h &lt; baseRoom.PivotH + baseRoom.RoomHeight; h++)
+		{
+			for(int w = baseRoom.PivotW; w &lt; baseRoom.PivotW + baseRoom.RoomWidth; w++)
+			{
+				baseCell = new BaseCell (w, h, m_mazeGenerator);
+				baseCell.SetColor(new Color(randomR, randomG, randomB));
+
+				#region corner
+				if(w == baseRoom.PivotW &amp;&amp; h == baseRoom.PivotH)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW &amp;&amp; h == baseRoom.PivotH + baseRoom.RoomHeight - 1)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW + baseRoom.RoomWidth - 1 &amp;&amp; h == baseRoom.PivotH)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW + baseRoom.RoomWidth - 1 &amp;&amp; h == baseRoom.PivotH + baseRoom.RoomHeight - 1)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					continue;
+				}
+				#endregion
+
+				#region edge
+				if(h == baseRoom.PivotH)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					continue;
+				}
+
+				if(h == baseRoom.PivotH + baseRoom.RoomHeight - 1)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Right);
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					continue;
+				}
+
+				if(w == baseRoom.PivotW + baseRoom.RoomWidth - 1)
+				{
+					baseCell.DisableWalls (Maze.Utils.Direction.Left);
+					baseCell.DisableWalls (Maze.Utils.Direction.Up);
+					baseCell.DisableWalls (Maze.Utils.Direction.Down);
+					continue;
+				}
+				#endregion
+
+				baseCell.DisableWalls (Maze.Utils.Direction.Up);
+				baseCell.DisableWalls (Maze.Utils.Direction.Down);
+				baseCell.DisableWalls (Maze.Utils.Direction.Left);
+				baseCell.DisableWalls (Maze.Utils.Direction.Right);
+			}
+		}
+	}</code></pre>
+<h3>執行結果</h3>
+<p><img alt="RoomAndMazeColor" decoding="async" height="285" loading="lazy" src="roomandmazecolor.gif" width="480"></p>
+<h2>加入簡易編輯器執行結果</h2>
+<p><img alt="FinalMazeEditor" decoding="async" height="1374" loading="lazy" src="finalmazeeditor.png" width="2440"><br>
+<img alt="FinalMazeNormal" decoding="async" height="1374" loading="lazy" src="finalmazenormal.png" width="2444"></p>
+<p>參考資料<br>
+<a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm" rel="noopener noreferrer" target="_blank">Maze generation algorithm</a><br>
+<a href="https://en.wikipedia.org/wiki/Backtracking" rel="noopener noreferrer" target="_blank">Backtracking</a><br>
+<a href="https://en.wikipedia.org/wiki/Backjumping" rel="noopener noreferrer" target="_blank">Backjumping</a><br>
+<a href="http://indienova.com/indie-game-development/rooms-and-mazes-a-procedural-dungeon-generator/" rel="noopener noreferrer" target="_blank">房间和迷宫：一个地牢生成算法</a></p>
+<p>專案 Source Code<br>
+<a href="https://github.com/ted10401/MazeGenerator" rel="noopener noreferrer" target="_blank">GitHub Source Code</a></p>

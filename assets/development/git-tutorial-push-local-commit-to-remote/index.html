@@ -1,0 +1,75 @@
+<!--
+{
+  "title": "Push Local Commit to Remote – 將本地端節點更新到伺服器上",
+  "date": "2016-07-11",
+  "category": "Git",
+  "excerpt": "git fetch：檢查分支上有無更新節點",
+  "image": "8436ee3ba2eab13a1bca84ce5f1fd56e.png",
+  "imageAlt": "Push Local Commit to Remote – 將本地端節點更新到伺服器上 封面",
+  "shortTitle": "Push Local Commit to Remote",
+  "heading": "Push Local Commit to Remote<br><span>將本地端節點更新到伺服器上</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/git-tutorial-push-local-commit-to-remote/"
+}
+-->
+<p>在這篇中</p>
+<p>我們會做以下動作</p>
+<p>git fetch：檢查分支上有無更新節點</p>
+<p>git pull：將分支上有更新的資料全部擷取</p>
+<p>git rebase：已分支為基礎，將另一分支的節點(commit)新增過去</p>
+<p>git push：將新增的節點上傳到 Bitbucket 上</p>
+
+<p>1.git fetch</p>
+<p>我們先將當前分支從 modify_ted 切換為 master</p>
+<p>在 master 分支上雙擊滑鼠即可切換</p>
+<p>切換完成後當前分支會顯示為粗體字</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="404" loading="lazy" src="8436ee3ba2eab13a1bca84ce5f1fd56e.png" width="284"></p>
+
+<p>這時候需要檢查分支有無更新節點</p>
+<p>按下 Fetch 按鈕並點選 OK</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="270" loading="lazy" src="9bef30e501f523daf5e977940cb07a57.png" width="920"></p>
+
+<p>2.git pull</p>
+<p>在檢查更新結束後</p>
+<p>如果分支有需要進行 Pull</p>
+<p>則會有下列顯示</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="110" loading="lazy" src="d36206fe6bbb00125402e7db19e6cf69.png" width="70"></p>
+
+<p>若是分支需要更新</p>
+<p>則點選 Pull 按鈕並點選 OK</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="598" loading="lazy" src="2703b1a682a8e9b5a2889423ae5c30f0.png" width="1232"></p>
+
+<p>3.git rebase</p>
+<p>前置動作完成了</p>
+<p>接下來就要將之前在本地端做的修改</p>
+<p>新增到伺服器上</p>
+<p>讓其他專案成員能夠 git fetch 到更新節點</p>
+
+<p>先將分支切回 modify_ted</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="236" loading="lazy" src="9b28844b4611e0313b0ddc54336b1eb9.png" width="284"></p>
+
+<p>在 master 分支上點選右鍵</p>
+<p>並選擇 Rebase current changes onto master</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="550" loading="lazy" src="ce5d4be64885da3d67d7a1bfd3f134ca.png" width="698"></p>
+
+<p>點選 OK 後即完成 modify_ted rebase master 的動作</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="368" loading="lazy" src="dc58a8611231d6f841275302245b1a1b.png" width="838"></p>
+
+<p>到這邊是將本地端新增的節點</p>
+<p>已 master 分支為基礎</p>
+<p>重新將節點整合</p>
+
+<p>接下來切回 Master 分支</p>
+<p>並對 modify_ted 分支點選右鍵</p>
+<p>並選擇 Rebase current changes onto modify_ted</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="588" loading="lazy" src="e714752ee6a03c397d40801f183d99e7.png" width="782"></p>
+
+<p>點選 OK 後即完成了將資料新增到 master 分支的動作</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="240" loading="lazy" src="f6606ad100e7f1bb2fd22247dcf24e07.png" width="2100"></p>
+
+<p>4.git push</p>
+<p>完成節點整合後</p>
+<p>按下 Push 按鈕並點選 OK</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="544" loading="lazy" src="89f7ed0920b32cf07367a6198846ffae.png" width="1304"></p>
+
+<p>則完成了將本地端分支更新到伺服器上的所有步驟</p>
+<p><img alt="Push Local Commit to Remote – 將本地端節點更新到伺服器上 插圖" decoding="async" height="727" loading="lazy" src="20602a5d5d621701135401c8d0a1c883.png" width="1349"></p>

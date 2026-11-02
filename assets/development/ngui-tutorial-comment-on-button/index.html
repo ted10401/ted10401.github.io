@@ -1,0 +1,49 @@
+<!--
+{
+  "title": "Comment on Button – Button 系列功能講解",
+  "date": "2016-07-10",
+  "category": "Unity · NGUI",
+  "excerpt": "這篇要來介紹一下 NGUI 中的 Button 系列腳本 點選 Component → NGUI → Interaction 可以看到有一長串的 NGUI 腳本",
+  "image": "cover-uibutton.jpg",
+  "imageAlt": "Comment on Button – Button 系列功能講解 封面",
+  "shortTitle": "Comment on Button",
+  "heading": "Comment on Button<br><span>Button 系列功能講解</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/ngui-tutorial-comment-on-button/"
+}
+-->
+<p>這篇要來介紹一下 NGUI 中的 Button 系列腳本<br>
+點選 Component → NGUI → Interaction<br>
+可以看到有一長串的 NGUI 腳本<br>
+<img alt="Comment on Button – Button 系列功能講解 插圖" decoding="async" height="375" loading="lazy" src="12dd49f0d27edada6b7add5399751420.jpg" width="818"></p>
+<p>在使用 Button 腳本前，須先加入 Collider 至物件上，才可以使用</p>
+<p><b>Button：基本按鈕動作</b><br>
+<img alt="Comment on Button – Button 系列功能講解 插圖" decoding="async" height="342" loading="lazy" src="4b3c59f5beabac470134d6c0864fd2ae.jpg" width="261"><br>
+Tween Target：        作用物件<br>
+Transition：              狀態轉換時間<br>
+Colors：                   各種按鈕狀態下的按鈕對應顏色<br>
+Normal：      正常顯示<br>
+Hover：        滑鼠停留<br>
+Pressed：    滑鼠按下<br>
+Disabled：    未啟用<br>
+Sprites：                   各種按鈕狀態下的按鈕對應圖片<br>
+Pixel Snap：             切換對應圖片後，Widget 中的 Size 是否重置<br>
+On Click：                當按下後要觸發的其他物件腳本</p>
+<p><b>Button Activate：物件開關</b><br>
+<img alt="Comment on Button – Button 系列功能講解 插圖" decoding="async" height="73" loading="lazy" src="b9415c3f60810e642ebb1cfd370081b5.jpg" width="262"><br>
+Target：        作用物件<br>
+State：         按下後的物件狀態 ( 勾選為開啟物件、不勾選為關閉物件 )</p>
+<p><b>Button Color：功能同 Button ，但只有切換按鈕顏色功能</b><br>
+<img alt="Comment on Button – Button 系列功能講解 插圖" decoding="async" height="185" loading="lazy" src="2733a09a11beb1e4510df8b44c86407d.jpg" width="259"><br>
+若按下 Upgrade to a Button ，UIButton Color 自動切換為 UIButton</p>
+<p><b>Button Keys (Legacy)：舊版 NGUI 功能，不建議使用</b></p>
+<p><b>Button Message (Legacy)：舊版 NGUI 功能，不建議使用</b></p>
+<p><b>Button Offset：按鈕偏移</b><br>
+<img alt="Comment on Button – Button 系列功能講解 插圖" decoding="async" height="141" loading="lazy" src="889007065b28c164601df0f0949a4c91.jpg" width="260"><br>
+Tween Target：            作用物件<br>
+Hover：                        滑鼠停留時的偏移座標 ( Position )<br>
+Pressed：                    滑鼠按下時的偏移座標 ( Position )<br>
+Duration：                    轉換時間</p>
+<p><b>Button Rotation：按鈕旋轉，同 Button Offset，座標影響變為 Rotation</b><br>
+<img alt="Comment on Button – Button 系列功能講解 插圖" decoding="async" height="142" loading="lazy" src="3dd2c0a16a721f485d9486d682317b53.jpg" width="260"></p>
+<p><b>Button Scale：按鈕縮放，同 Button Offset，座標影響變為 Scale</b><br>
+<img alt="Comment on Button – Button 系列功能講解 插圖" decoding="async" height="142" loading="lazy" src="88fdfeac1977d7164e59309777e8a4ae.jpg" width="260"></p>

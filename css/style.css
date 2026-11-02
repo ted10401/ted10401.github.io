@@ -1,0 +1,297 @@
+/* =========================================================
+   存檔點 — Pixel room portfolio
+   1. Tokens & base
+   2. Room scene (canvases, hotspots, monitor, soundbar)
+   3. HUD (header / footer)
+   4. Night mode
+   5. Window dialog
+   6. Cards (reading / development / portfolio)
+   7. Article reader
+   8. Portfolio player
+   9. About
+   10. Responsive & motion
+   ========================================================= */
+
+/* 1. Tokens & base ---------------------------------------- */
+:root{
+  --hud-edge:clamp(16px,4.5vmin,56px);
+  --mono:'Space Mono',monospace;
+  --ink:#304853;
+  --card-bg:#e0e9e4;
+  --card-hover:#d5e4db;
+  --card-border:#afc3ba;
+  --accent:#346d65;
+  --scrollbar:#8aa4a6 #eaf0ee;
+  --skew:21.8deg;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#b9c5d1;color:#263b45;font-family:'Noto Sans TC',sans-serif;overflow:hidden}
+button,a{-webkit-tap-highlight-color:transparent}
+button{cursor:pointer;font:inherit}
+button:focus-visible,a:focus-visible{outline:3px dashed #e9c277;outline-offset:5px}
+
+/* 2. Room scene ------------------------------------------- */
+.room{position:absolute;left:50%;top:50%;width:min(100vw,133.333vh);height:min(75vw,100vh);transform:translate(-50%,-50%);overflow:hidden;background:#bac7d5;box-shadow:0 0 100px #65778533}
+canvas{position:absolute;width:100%;height:100%;image-rendering:pixelated}
+.daylight,.desk-glow,.monitor-light{pointer-events:none;transition:opacity .5s}
+.desk-glow,.monitor-light{opacity:0}
+.room-shade{position:absolute;inset:0;pointer-events:none;background:transparent;transition:background .6s}
+
+/* Hotspots */
+.hotspot{position:absolute;padding:0;border:0;background:none;color:inherit}
+.books{left:24.770833%;top:1%;width:34%;height:25%}
+.notebook{left:42%;top:73%;width:10%;height:9%}
+.artwork{left:3.3%;top:22.5%;width:10.5%;height:21%;transform:skewY(calc(-1*var(--skew)))}
+
+/* Pin: the + is drawn with two bars so it stays centred regardless of font metrics. */
+.pin{display:grid;place-items:center;width:22px;height:22px;margin:auto;border:2px solid #344f59;box-shadow:3px 3px #344f5955;color:#3c6566;font:0 'Space Mono';opacity:.8;transition:transform .2s;
+  background:linear-gradient(currentColor,currentColor) center/10px 2px no-repeat,linear-gradient(currentColor,currentColor) center/2px 10px no-repeat,#f5f5e4ed}
+.hotspot:hover .pin,.hints .pin{transform:translateY(-5px);opacity:1}
+.books:focus-visible .pin{transform:translateY(-5px)}
+.artwork .pin{transform:skewY(var(--skew))}
+.artwork:hover .pin,.artwork:focus-visible .pin,.hints .artwork .pin{transform:skewY(var(--skew)) translateY(-5px)}
+
+.tooltip{display:block;position:absolute;left:50%;bottom:110%;transform:translateX(-50%);padding:8px 11px;border:2px solid #415b65;background:#f5f5e9;box-shadow:3px 3px #2f485c44;color:#334f57;font-size:10px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+.hotspot:hover .tooltip,.hotspot:focus-visible .tooltip,.hints .tooltip{opacity:1}
+.books .tooltip{bottom:80%}
+.artwork .tooltip{left:110%;bottom:35%;transform:skewY(var(--skew))}
+
+/* Monitor: hit area shares the four canvas corners; --monitor-left/top are set by scene.js. */
+.monitor{left:var(--monitor-left,36.979167%);top:var(--monitor-top,15.833333%);width:32.708333%;height:42.916667%;
+  clip-path:polygon(0 40.776699%,100% 0,100% 58.899676%,0 100%);overflow:hidden;
+  background:transparent;color:#e0f9ed;text-align:left;text-shadow:1px 1px #203c53;transition:background .2s}
+.monitor:hover{background:#c2f2ee18}
+.monitor:focus-visible{outline:none;background:#c2f2ee30}
+.monitor-content{display:block;position:absolute;left:0;top:40.776699%;width:100%;height:59.223301%;padding:17px 23px;text-align:left;
+  transform:matrix(1,-0.4012738854,0,1,0,0);transform-origin:top left}
+.screen-label{display:block;font:6px var(--mono);letter-spacing:1.8px}
+.monitor strong{display:block;margin-top:10px;font:700 clamp(17px,3.1vw,36px)/1.12 var(--mono);letter-spacing:1px}
+.screen-menu{display:block;margin-top:10px;font-size:9px}
+.cursor{animation:blink 1.2s steps(1) infinite}
+
+/* Soundbar: decorative speaker + clock enclosure on the desk. */
+.soundbar{position:absolute;left:42.291667%;top:60.833333%;width:18.75%;height:4.305556%;
+  display:grid;grid-template-columns:1fr 2.5fr 1fr;align-items:center;gap:4%;padding:2px 5px;
+  transform:matrix(1,-.4,0,1,0,0);transform-origin:top left;
+  border:2px solid #78939b;background:#213842;box-shadow:0 2px 0 #172d37;color:#edf8e8;
+  font:clamp(8px,2.1vw,23px) var(--mono);letter-spacing:-1px;pointer-events:none}
+.soundbar #clock{display:block;font:inherit;line-height:1;text-align:center;text-shadow:0 0 5px #cbf5df55}
+.speaker-grille{display:block;height:75%;border:1px solid #47636d;background-color:#182e37;background-image:radial-gradient(#7e9a9d .7px,transparent .9px);background-size:3px 3px}
+
+/* 3. HUD -------------------------------------------------- */
+header{position:fixed;top:var(--hud-edge);left:var(--hud-edge);right:var(--hud-edge);z-index:3;display:flex;justify-content:space-between;align-items:start;pointer-events:none}
+.brand{display:flex;flex-direction:column}
+.wordmark{color:#293e4c;font-size:24px;font-weight:900;letter-spacing:5px;text-decoration:none;text-shadow:1px 1px #e7edf4;pointer-events:auto}
+.wordmark span{display:block;margin-top:7px;font:7px var(--mono);letter-spacing:2px}
+.room-caption{max-width:min(260px,60vw);margin-top:clamp(16px,3vh,30px)}
+.room-caption h1{margin:0;font-size:clamp(10px,1.4vw,16px);font-weight:700;line-height:1.8;letter-spacing:1px}
+#theme{padding:7px 12px;border:2px solid #576a79;background:#e9eff0dd;box-shadow:3px 3px #576a7955;color:#304956;font-size:17px;pointer-events:auto}
+#theme span{margin-left:5px;font-size:10px;vertical-align:middle}
+footer{position:fixed;bottom:var(--hud-edge);right:var(--hud-edge);z-index:3;display:flex;justify-content:flex-end;align-items:center;color:#d8e3e6;font-size:9px;text-shadow:1px 1px #273c4d}
+footer button{padding:8px 12px;border:1px solid #a2b7c1;background:#233d4bd9;box-shadow:3px 3px #1d2f3c55;color:#e3eced;font-size:9px}
+
+/* 4. Night: lights off, the monitor is the only light source. */
+body.night{background:#27364e}
+.night .room{background:#05070c;box-shadow:none}
+.night #room-canvas{filter:brightness(.58) saturate(.6) hue-rotate(-8deg)}
+.night .daylight{opacity:0}
+.night .desk-glow{opacity:1;filter:brightness(1.05) saturate(1.2)}
+.night .monitor-light{opacity:1;filter:brightness(1.2) saturate(1.1) drop-shadow(0 0 18px #7fe3f066)}
+.night .room-shade{mix-blend-mode:multiply;background:radial-gradient(ellipse 45% 52% at 50% 40%,#9dbdd0 0%,#4a6580 42%,#24364f 75%,#141f33 100%)}
+.night .monitor{background:#91e8f509;color:#ecfff7;text-shadow:0 0 8px #cbffef80,1px 1px #20434c}
+.night .monitor:hover,.night .monitor:focus-visible{background:#b1f8f222}
+.night .soundbar{border-color:#2f4652;background:#0d1a22;color:#7fb8b0}
+.night .pin{opacity:.85;box-shadow:0 0 10px #9fe6ee55,2px 2px #0b142455}
+.night .wordmark,.night .room-caption{color:#7f95a6;text-shadow:none}
+.night footer{color:#62798a}
+
+/* 5. Window dialog ---------------------------------------- */
+dialog{width:min(560px,calc(100% - 30px));max-height:calc(100dvh - 40px);overflow-y:auto;padding:0;border:3px solid #344c58;background:#eaf0ee;box-shadow:8px 8px #142e4b77;color:var(--ink);scrollbar-color:var(--scrollbar);scrollbar-width:thin}
+dialog::backdrop{background:#172d4870;backdrop-filter:blur(3px)}
+.window-bar{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:7px 12px;background:#415e6b;color:#e7f0ec;font:10px 'Space Mono';letter-spacing:2px}
+.window-bar button{width:23px;height:23px;border:0;background:#d8e6e4;color:#314952;font-size:20px;line-height:1}
+#window-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#close{flex-shrink:0}
+#panel-content{padding:28px}
+dialog h2{margin:8px 0 18px;font-size:25px}
+dialog p{color:#617780;font-size:13px;line-height:2}
+.eyebrow{color:#6b858b;font:9px 'Space Mono';letter-spacing:1px}
+.back{padding:6px 10px;border:1px solid #799497;background:none;color:#47656e}
+
+/* 6. Cards ------------------------------------------------ */
+.reading-card,.development-card,.portfolio-card{width:100%;border:1px solid var(--card-border);background:var(--card-bg);color:var(--ink);text-align:left;transition:background .2s,transform .2s}
+.reading-card:hover,.development-card:hover,.portfolio-card:hover{background:var(--card-hover);transform:translateY(-2px)}
+.development-card,.portfolio-card{display:block;padding:0;overflow:hidden}
+.reading-tag{color:#5a7e7b;font-size:9px}
+.reading-tag time{display:block;margin-top:5px;color:#708783;font:9px/1.8 'Space Mono';letter-spacing:.4px}
+.reading-source{color:#6b8184;font-size:12px;line-height:1.8}
+.reading-cta{color:var(--accent);font-size:11px}
+
+/* Reading shelf: full, uncropped covers; alternate cards use the warm palette. */
+.reading-card{display:flex;gap:25px;padding:22px}
+.reading-card+.reading-card{margin-top:16px}
+.thinking-card{border-color:#c8c4b2;background:#e9e5d9}
+.thinking-card:hover{background:#e3ddcb}
+.thinking-card .reading-tag,.thinking-card .reading-cta{color:#856250}
+.book-cover{display:block;flex-shrink:0;align-self:center;width:116px;height:auto;padding:0;border:1px solid #bdc8b7;background:#f5f4e9;box-shadow:4px 4px #9bafa64d;object-fit:contain}
+.reading-info{display:flex;flex-direction:column;justify-content:center;gap:13px;min-width:0}
+.reading-info>strong{font-size:19px;line-height:1.7}
+
+/* Development notes */
+.development-thumbnail{display:block;width:100%;height:auto;aspect-ratio:16/9;border-bottom:1px solid var(--card-border);background:#15232d;object-fit:contain}
+.development-card-content{display:flex;flex-direction:column;gap:13px;padding:22px}
+.development-card-content>strong{font:700 19px/1.65 'Space Mono','Noto Sans TC',sans-serif;overflow-wrap:anywhere}
+
+/* Portfolio grid */
+.portfolio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:18px}
+.portfolio-poster{display:block;position:relative;aspect-ratio:16/9;overflow:hidden;background:#1f3540}
+.portfolio-poster img{display:block;width:100%;height:100%;object-fit:cover}
+.portfolio-poster::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 55%,#172e3b88)}
+.portfolio-card-content{display:flex;flex-direction:column;gap:8px;padding:14px 16px}
+.portfolio-card-content>strong{font:700 16px/1.35 var(--mono);letter-spacing:-.5px}
+
+/* 7. Article reader (reading + development full text) ----- */
+dialog.article-reader{display:flex;flex-direction:column;width:min(980px,calc(100% - 32px));height:calc(100dvh - 40px);max-height:none;overflow:hidden}
+dialog.article-reader:not([open]){display:none}
+.article-reader .window-bar{flex-shrink:0}
+.article-reader #panel-content{display:flex;flex-direction:column;flex:1;min-height:0;padding:0}
+.reader-toolbar{display:flex;flex-shrink:0;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;border-bottom:1px solid #bccfca;background:#e3ece7}
+.reader-toolbar>span{color:#78918d;font:9px 'Space Mono';letter-spacing:1px}
+.article-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;background:#f1f3eb;scrollbar-color:var(--scrollbar);scrollbar-width:thin}
+
+.native-article{max-width:760px;margin:auto;padding:44px 48px 36px}
+.native-article>.eyebrow{line-height:1.8}
+.native-article>h1{margin:18px 0 9px;color:#2e5056;font-size:35px;font-weight:900;line-height:1.65;letter-spacing:1px}
+.native-article .article-subtitle{margin:0 0 8px;color:#6f8787;font:11px/1.9 'Space Mono'}
+.article-book-title{margin:5px 0 12px;color:#557766;font-size:17px}
+.native-meta{display:flex;gap:16px;margin:0 0 24px;color:#6b817a;font-size:10px;line-height:1.8}
+.native-meta time{flex-shrink:0;font-family:'Space Mono'}
+
+.article-body{color:#465a52;font-size:14px;line-height:2.2;overflow-wrap:anywhere}
+.article-body p{margin:18px 0;color:inherit;font-size:14px;line-height:2.2}
+.article-body h1{margin:38px 0 20px;color:#315c56;font-size:24px;line-height:1.7}
+.article-body h2{margin:38px 0 18px;padding-top:25px;border-top:1px solid #c8d4c6;color:#315c56;font-size:21px;font-weight:700;line-height:1.8;scroll-margin-top:22px}
+.article-body h3{margin:28px 0 12px;color:#4b7062;font-size:17px;line-height:1.8;scroll-margin-top:22px}
+.article-body strong{color:#314f42;font-weight:700;background:linear-gradient(transparent 67%,#cfddbf 67%)}
+.article-body a{color:#346f69;text-underline-offset:3px}
+.article-body del{color:#8a9385;text-decoration-thickness:1px}
+.article-body blockquote{margin:22px 0;padding:8px 20px;border-left:3px solid #8da78c;background:#e6ecdf}
+.article-body blockquote p{margin:10px 0;font-size:13px}
+.article-body ol,.article-body ul{padding-left:24px}
+.article-body li{margin:10px 0}
+.article-body li>blockquote{margin:10px 0 20px}
+.article-body img{display:block;width:min(245px,75%);max-width:100%;height:auto;margin:28px auto 36px;border:4px solid #e9ece0;box-shadow:5px 5px #7a8f7833}
+.article-end{display:flex;justify-content:space-between;gap:15px;margin-top:38px;padding-top:20px;border-top:1px solid #bacaaf;color:#82917e;font:8px 'Space Mono','Noto Sans TC'}
+.article-end a{color:#477366;font-size:10px;text-underline-offset:4px}
+
+/* Development article overrides */
+.development-article>h1{font:700 34px/1.5 'Space Mono','Noto Sans TC',sans-serif;letter-spacing:0}
+.development-article>h1>span{font-size:25px}
+.development-article .article-body h2{padding-top:0;border-top:0}
+.development-article .article-body hr{margin:30px 0;border:0;border-top:1px solid #c8d4c6}
+.development-article .article-body img{width:auto;margin:24px auto 12px;border:1px solid #adc2b8;box-shadow:4px 4px #7a8f7833}
+.development-article .article-body pre{display:block;max-width:100%;margin:20px 0 28px;padding:18px 20px;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid #3f5b64;background:#213640;color:#deede8;font:12px/1.85 Consolas,'Space Mono',monospace;tab-size:4;white-space:pre;overflow-wrap:normal;word-break:normal;scrollbar-color:#7f9e9f #213640;scrollbar-width:thin}
+.development-article pre:focus-visible{outline:2px solid #799d97;outline-offset:3px}
+.development-article pre code{color:inherit;font:inherit;white-space:pre;overflow-wrap:normal;word-break:normal}
+
+/* C# syntax colours (Rider dark inspired); spans are added by tools/csharp-highlight.cjs at build time. */
+.development-article pre .tok-kw{color:#6c95eb}
+.development-article pre .tok-type{color:#c191ff}
+.development-article pre .tok-fn{color:#39cc9b}
+.development-article pre .tok-field{color:#66c3cc}
+.development-article pre .tok-num{color:#ed94c0}
+.development-article pre .tok-str{color:#c9a26d}
+.development-article pre .tok-com{color:#85c46c;font-style:italic}
+.development-article pre .tok-attr{color:#e1bfff}
+.native-meta a{color:var(--accent);text-underline-offset:3px}
+.development-article .article-body img.math{display:inline-block;width:auto;max-width:100%;margin:0 2px;vertical-align:middle;border:0;box-shadow:none;background:none}
+.development-article .article-body video{display:block;width:auto;max-width:100%;height:auto;margin:24px auto 12px;border:1px solid #adc2b8;box-shadow:4px 4px #7a8f7833;background:#15232d}
+.development-article .note-embed{position:relative;width:100%;aspect-ratio:16/9;margin:24px 0;border:1px solid #adc2b8;background:#172e3b}
+.development-article .note-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.development-article .note-embed-fallback{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-start;color:#deede8;font:11px/1.8 'Space Mono','Noto Sans TC',monospace;text-decoration:none}
+.development-article .article-body .note-embed-fallback img{position:absolute;inset:0;width:100%;height:100%;max-width:none;margin:0;border:0;box-shadow:none;object-fit:cover}
+.development-article .note-embed-fallback span{position:relative;margin:12px;padding:4px 10px;background:#213640e6;border:1px solid #3f5b64}
+.development-article .table-scroll{max-width:100%;margin:20px 0 28px;overflow-x:auto;overscroll-behavior-x:contain}
+.development-article .article-body table{min-width:100%;border-collapse:collapse;font-size:13px;line-height:1.8}
+.development-article .article-body th,.development-article .article-body td{padding:6px 12px;border:1px solid #c8d4c6;text-align:left;vertical-align:top}
+.development-article .article-body th{background:#e6ecdf;color:#315c56}
+
+/* 8. Portfolio player ------------------------------------- */
+dialog.portfolio-player{width:min(900px,calc(100% - 30px))}
+.portfolio-kicker{margin-top:24px}
+.portfolio-video{position:relative;width:100%;aspect-ratio:16/9;border:1px solid var(--card-border);background:#172e3b}
+.portfolio-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.portfolio-video-fallback{display:block;overflow:hidden}
+.portfolio-video-fallback img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portfolio-video-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:15px;color:#718783;font:10px/1.8 'Space Mono','Noto Sans TC',monospace}
+.portfolio-video-footer a{color:var(--accent);text-underline-offset:3px}
+.portfolio-links{display:flex;flex-wrap:wrap;gap:16px}
+
+/* 9. About ------------------------------------------------ */
+.about-lead{color:var(--ink);font-size:15px}
+.about-skills{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 22px;padding:0;list-style:none}
+.about-skills li{padding:4px 10px;border:1px solid var(--card-border);background:var(--card-bg);color:#3d6363;font:11px 'Space Mono','Noto Sans TC',monospace}
+.about-en{padding-left:14px;border-left:3px solid var(--card-border);font-size:12px;line-height:1.9}
+.about-links-intro{margin:22px 0 0;font-size:12px}
+.about-links{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 6px}
+.about-links a{padding:8px 14px;border:1px solid #799497;color:#365962;font:12px var(--mono);text-decoration:none;transition:background .2s}
+.about-links a:hover,.about-links a:focus-visible{background:var(--card-hover)}
+.about-room{margin-top:22px;padding-top:14px;border-top:1px dashed #bccdcc;font-size:12px}
+
+/* 10. Responsive & motion --------------------------------- */
+@keyframes blink{50%{opacity:0}}
+
+/* Portrait: the room spans the full width; scene text and pins scale down. */
+@media (max-aspect-ratio:3/4){
+  .room{overflow:visible}
+  .wordmark{font-size:22px}
+  .wordmark span{font-size:6px}
+  .room-caption h1{line-height:1.5}
+  #theme{padding:4px 8px}
+  .monitor{font-size:12px}
+  .monitor-content{padding:8px 10px}
+  .screen-label{font-size:3px;letter-spacing:.8px}
+  .monitor strong{margin-top:5px;font-size:16px}
+  .screen-menu{margin-top:5px;font-size:4px}
+  .soundbar{gap:3%;padding:1px 2px;border-width:1px;font-size:clamp(7px,2.1vw,12px)}
+  .speaker-grille{border-width:0;background-size:2px 2px}
+  .pin{width:16px;height:16px;border-width:1px;box-shadow:2px 2px #344f5955;background-size:8px 2px,2px 8px,auto}
+  .tooltip{padding:5px;border-width:1px;font-size:8px}
+}
+
+@media (max-width:600px){
+  dialog.article-reader{width:calc(100% - 12px);height:calc(100dvh - 16px)}
+  .reader-toolbar{gap:8px;padding:10px 16px}
+  .reader-toolbar>span{font-size:7px}
+  .reader-toolbar .back{font-size:11px}
+  .native-article{padding:30px 23px}
+  .native-article>.eyebrow{font-size:7px}
+  .native-article>h1{font-size:27px}
+  .native-article .article-subtitle{font-size:10px}
+  .native-meta{flex-wrap:wrap;font-size:9px}
+  .article-body,.article-body p{line-height:2.1}
+  .article-body h2{font-size:19px}
+  .article-body blockquote{padding:5px 13px}
+  .article-end{flex-wrap:wrap;line-height:1.8}
+  .development-card-content{padding:18px}
+  .development-card-content>strong{font-size:16px}
+  .development-article>h1{font-size:28px}
+  .development-article>h1>span{font-size:21px}
+  .development-article .article-body pre{padding:14px;font-size:11px}
+}
+
+@media (max-width:480px){
+  #panel-content{padding:22px}
+  .reading-card{gap:18px;padding:16px}
+  .reading-card .reading-source{font-size:11px}
+  .book-cover{width:96px}
+  .reading-info{gap:10px}
+  .reading-info>strong{font-size:15px}
+  .article-book-title{font-size:15px}
+  .article-body h3{font-size:16px}
+  .portfolio-video-footer{font-size:9px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}

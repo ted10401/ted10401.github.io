@@ -1,0 +1,48 @@
+<!--
+{
+  "title": "Physics Constraints Formula Derivation – 物理約束公式推導",
+  "date": "2020-02-18",
+  "category": "Physics",
+  "excerpt": "衝量 作用力 質量、轉動慣量 約束條件",
+  "image": "assets/development-cover.png",
+  "imageAlt": "Physics Constraints Formula Derivation – 物理約束公式推導 封面",
+  "shortTitle": "Physics Constraints Formula Derivation",
+  "heading": "Physics Constraints Formula Derivation<br><span>物理約束公式推導</span>",
+  "source": "https://tedsieblog.wordpress.com/2020/02/18/physics-constraints-formula-derivation/"
+}
+-->
+<p><img alt="P:" class="math" height="12" src="math-001.png" width="21"> 衝量<br>
+<img alt="F:" class="math" height="12" src="math-002.png" width="21"> 作用力<br>
+<img alt="M:" class="math" height="12" src="math-003.png" width="26"> 質量、轉動慣量<br>
+<img alt="C:" class="math" height="12" src="math-004.png" width="21"> 約束條件</p>
+<p>衝量是作用在物體上的力在時間上的累積<br>
+<img alt="P = F \bigtriangleup t \cdots(1)" class="math" height="18" src="math-005.png" width="117"></p>
+<p>牛頓第二運動定律<br>
+<img alt="F = Ma" class="math" height="12" src="math-006.png" width="61"></p>
+<p>經由牛頓第二運動定律可以得知 P 與 F 的關係，進而求出速度變化量<br>
+<img alt="\begin{aligned}  a&amp;= M^{-1}F\\  \frac{\Delta v}{\Delta t}&amp;= M^{-1}F\\  \Delta v&amp;= M^{-1}F \Delta t&amp;\cdots{substitute}\ (1)\\  &amp;= M^{-1}P&amp;\cdots(2)  \end{aligned}  " class="math" height="108" src="math-007.png" width="242"></p>
+<p>由於約束衝量 or 作用力並不會對整個系統做功<br>
+所以可以得知<br>
+<img alt="F^{T} \Delta x = F^{T}V \Delta t = F^{T} \Delta t V = P^{T}V = 0" class="math" height="14" src="math-008.png" width="284"></p>
+<p>將約束條件微分並通則化<br>
+<img alt="C = 0 \\  \dot{C} = \frac{\partial C}{\partial q} \frac{\partial q}{\partial t} = JV = 0" class="math" height="41" src="math-009.png" width="145"></p>
+<p><img alt="J:" class="math" height="12" src="math-010.png" width="18"> 雅可比矩陣，列矩陣<br>
+<img alt="q:" class="math" height="12" src="math-011.png" width="16"> 物體速度、角速度</p>
+<p>由做功與約束條件可得知衝量與雅可比矩陣之間的關係<br>
+<img alt="JV = P^{T}V = 0\\  P = J^{T}\lambda\cdots(3)  " class="math" height="38" src="math-012.png" width="110"></p>
+<p>在約束條件中加入偏重<br>
+<img alt="b: bias \\  \dot{C}: JV + b = 0 \\  b = \frac{\beta}{\Delta t}C" class="math" height="58" src="math-013.png" width="107"></p>
+<p>計算速度變化量後重新導入約束條件<br>
+即可求得 <img alt="\lambda" class="math" height="13" src="math-014.png" width="9"> 值<br>
+<img alt="\begin{aligned}  \Delta v &amp;= M^{-1}P &amp; \cdots{substitute}\ (3)\\  &amp;= M^{-1}J^{T}\lambda \\  V_{2} - V_{1} &amp;= M^{-1}J^{T}\lambda \\  V_{2} &amp;= V_{1} + M^{-1}J^{T}\lambda &amp; \cdots(4)\\  \end{aligned}  " class="math" height="97" src="math-015.png" width="304"></p>
+<p>將新速度套入 JV 公式即可求得 <img alt="\lambda" class="math" height="13" src="math-016.png" width="9"><br>
+<img alt="\begin{aligned}  JV + b &amp;= 0 \quad\cdots{substitute}(4) \\  J(V_{1} + M^{-1}J^{T}\lambda) + b &amp;= 0 \\  JV_{1} + JM^{-1}J^{T}\lambda + b &amp;= 0\\  JM^{-1}J^{T}\lambda &amp;= -(JV_{1} + b)\\  \lambda &amp;= \frac{-(JV_{1} + b)}{JM^{-1}J^{T}}\\  &amp;= (JM^{-1}J^{T})^{-1}[ -(JV_{1} + b)]\\  \end{aligned}  " class="math" height="161" src="math-017.png" width="347"></p>
+<p>定義 <img alt="M_{eff}" class="math" height="18" src="math-018.png" width="35"> 有效質量 Effective Mass<br>
+<img alt="M_{eff} = (JM^{-1}J^{T})^{-1}  " class="math" height="20" src="math-019.png" width="147"></p>
+<p>最終可以求得 <img alt="\lambda" class="math" height="13" src="math-020.png" width="9"> 拉格朗日乘數 Lagrange Multiplier<br>
+<img alt="\lambda = M_{eff}[ -(JV_{1} + b)]\cdots(5)  " class="math" height="19" src="math-021.png" width="199"></p>
+<p>每幀的速度、角速度變化量即為<br>
+<img alt="\begin{aligned}  \Delta v &amp;= M^{-1}P&amp;\cdots{substitute}\ (3)  \\&amp;= M^{-1}J^{T}\lambda&amp;\cdots{substitute}\ (5)  \\&amp;= M^{-1}J^{T}M_{eff}[-(JV_{1} + b)]  \end{aligned}  " class="math" height="72" src="math-022.png" width="352"></p>
+<p>參考資料<br>
+<a href="https://github.com/TheAllenChou/unity-physics-constraints" rel="noopener noreferrer" target="_blank">TheAllenChou/unity-physics-constraints</a><br>
+<a href="http://myselph.de/gamePhysics/equalityConstraints.html" rel="noopener noreferrer" target="_blank">Game Physics – Equality Constraints &amp; Solver</a></p>

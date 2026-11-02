@@ -1,0 +1,53 @@
+<!--
+{
+  "title": "Dynamic Split Screen – 動態畫面分割",
+  "date": "2020-04-01",
+  "category": "Unity · Shader",
+  "excerpt": "在許多遊戲中，隨著遊玩的人數不同，會根據遊戲特性在畫面中加入一些巧思提高玩家的遊玩體驗。 較常見的做法像是 動態調整攝影機位置及範圍 、 角色超出螢幕範圍時…",
+  "image": "cover.jpg",
+  "imageAlt": "Dynamic Split Screen – 動態畫面分割 封面",
+  "shortTitle": "Dynamic Split Screen",
+  "heading": "Dynamic Split Screen<br><span>動態畫面分割</span>",
+  "source": "https://tedsieblog.wordpress.com/2020/04/01/dynamic-split-screen/"
+}
+-->
+<hr>
+<h2>前言</h2>
+<p>在許多遊戲中，隨著遊玩的人數不同，會根據遊戲特性在畫面中加入一些巧思提高玩家的遊玩體驗。<br>
+較常見的做法像是<b>動態調整攝影機位置及範圍</b>、<b>角色超出螢幕範圍時加入提示</b>、<b>畫面水平分割</b>、及<b>畫面垂直分割</b>…等。</p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：煮過頭 – 動態調整攝影機位置 圖片來源" decoding="async" height="720" loading="lazy" src="dynamic_split_screen_example_overcook.jpg" width="1280">煮過頭 – 動態調整攝影機位置<br>
+<a href="https://www.youtube.com/watch?v=yUhw1VvaFec" rel="noopener noreferrer" target="_blank">圖片來源</a></p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：超級雞馬 – 動態調整攝影機位置、範圍 圖片來源" decoding="async" height="1080" loading="lazy" src="dynamic_split_screen_ultimate_chicken_horse.jpg" width="1920">超級雞馬 – 動態調整攝影機位置、範圍<br>
+<a href="https://store.steampowered.com/app/386940/Ultimate_Chicken_Horse/?l=schinese" rel="noopener noreferrer" target="_blank">圖片來源</a></p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：任天堂明星大亂鬥 – 角色超出螢幕範圍時加入提示 圖片來源" decoding="async" loading="lazy" src="https://cdn.hk01.com/di/media/images/2177856/org/1c35d8360e3b9ce51800b17c69b55293.jpg/bqHCr7b3_9Mzqto2hqPuFuVlZ7cvDWjEgf3ecoH93nI">任天堂明星大亂鬥 – 角色超出螢幕範圍時加入提示<br>
+<a href="https://cdn.hk01.com/di/media/images/2177856/org/1c35d8360e3b9ce51800b17c69b55293.jpg/bqHCr7b3_9Mzqto2hqPuFuVlZ7cvDWjEgf3ecoH93nI?v=w1920" rel="noopener noreferrer" target="_blank">圖片來源</a></p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：馬力歐賽車8 – 畫面垂直分割 圖片來源" decoding="async" height="720" loading="lazy" src="dynamic_split_screen_example_mario_karts_8.jpg" width="1280">馬力歐賽車8 – 畫面垂直分割<br>
+<a href="https://www.youtube.com/watch?v=qz6XEhHlyuA" rel="noopener noreferrer" target="_blank">圖片來源</a></p>
+<hr>
+<h2>動態畫面分割</h2>
+<p>一般來說，遊戲如果使用畫面分割的方式來切割畫面，絕大多數都是使用水平分割或垂直分割，玩家在遊玩時可以很清楚的知道自己在畫面中的位置，但對於其他玩家位置及整個場景相對位置的掌握度卻沒有這麼好。</p>
+<p>動態畫面分割則是根據角色在場景中的位置來動態分割畫面，讓玩家能夠 <b>清楚的知道其他玩家位於哪個方位</b> 及 <b>了解整個場景的相對關係</b>。</p>
+<hr>
+<h2>畫面分割概念流程</h2>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：判斷角色距離" decoding="async" height="320" loading="lazy" src="dynamic_split_screen_distance_more-1.jpg" width="320">判斷角色距離</p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：計算角色位置中心點" decoding="async" height="320" loading="lazy" src="dynamic_split_screen_midpoint-1.jpg" width="320">計算角色位置中心點</p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：計算兩角色對應攝影機位置" decoding="async" height="320" loading="lazy" src="dynamic_split_screen_camera_target-1.jpg" width="320">計算兩角色對應攝影機位置</p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：計算攝影機遮罩角度" decoding="async" height="320" loading="lazy" src="dynamic_split_screen_camera_mask-1.jpg" width="320">計算攝影機遮罩角度</p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：加入攝影機位置偏差" decoding="async" height="320" loading="lazy" src="dynamic_split_screen_camera_target_bias.jpg" width="320">加入攝影機位置偏差</p>
+<hr>
+<h2>畫面分割過渡優化</h2>
+<p>由上述流程建立出來畫面分割功能會在功能開啟時產生頓感，是因為攝影機偏差與中間點在功能切換的瞬間距離過遠，導致在功能切換時，攝影機會在一瞬間在中心點及偏差點之間移動。解決方法相當簡單，只需要在偏差值部分加入根據距離變化的功能即可。</p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：過渡問題演示" decoding="async" height="320" loading="lazy" src="dynamic_split_screen_bias_issue.gif" width="320">過渡問題演示</p>
+<p><img alt="Dynamic Split Screen – 動態畫面分割：解決過渡問題" decoding="async" height="320" loading="lazy" src="dynamic_split_screen_bias_isssue_fixed.gif" width="320">解決過渡問題</p>
+<h2>最終成果</h2>
+<p><video aria-label="Dynamic Split Screen – 動態畫面分割：成果演示" autoplay height="320" loop muted playsinline poster="dynamic_split_screen_final-poster.jpg" preload="metadata" src="dynamic_split_screen_final.mp4" width="640"></video>成果演示</p>
+<hr>
+<h2>Patreon</h2>
+<p><a href="https://www.patreon.com/tedsieblog" rel="noopener noreferrer" target="_blank">訂閱 Patreon</a></p>
+<hr>
+<h2>完整原始碼</h2>
+<p><a href="https://www.patreon.com/posts/dynamic-split-ge-35004308" rel="noopener noreferrer" target="_blank">Dynamic Split Screen – 動態畫面分割（完整原始碼）</a></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://www.youtube.com/watch?v=tu-Qe66AvtY&amp;feature=youtu.be&amp;t=1745" rel="noopener noreferrer" target="_blank">Math for Game Programmers: Juicing Your Cameras With Math</a><br>
+<a href="https://mattwoelk.github.io/voronoi_split_screen_notes/" rel="noopener noreferrer" target="_blank">Voronoi Split Screen: A Quick Tour by MattWoelk</a></p>

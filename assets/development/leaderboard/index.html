@@ -1,0 +1,174 @@
+<!--
+{
+  "title": "Leaderboard – 分數排行榜",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "這篇文章中有使用到的工具有： XAMPP：建立排行榜所需資料庫 NetBeans：撰寫 PHP 表單部分 Unity：撰寫客戶端發送請求",
+  "image": "1f604268fc2e24be96bf63e58fd044cb.jpg",
+  "imageAlt": "Leaderboard – 分數排行榜 封面",
+  "shortTitle": "Leaderboard",
+  "heading": "Leaderboard<br><span>分數排行榜</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/leaderboard/"
+}
+-->
+<p>這篇文章中有使用到的工具有：<br>
+<a href="https://www.apachefriends.org/zh_tw/index.html" rel="noopener noreferrer" target="_blank">XAMPP：建立排行榜所需資料庫</a><br>
+<a href="https://netbeans.org/" rel="noopener noreferrer" target="_blank">NetBeans：撰寫 PHP 表單部分</a><br>
+Unity：撰寫客戶端發送請求</p>
+<p>教學中所使用的 Username 為 root<br>
+是 MySQL 中預設的使用者帳號，也是權限最高的帳號<br>
+因為撰寫教學所以在這裡直接使用 root<br>
+建議實際撰寫時使用另外建立的使用者帳號<br>
+防止被駭客攻擊</p>
+<p>先使用 MySQL 建立資料庫及資料表<br>
+mysql -u root<br>
+create database highscore;<br>
+use highscore;<br>
+create table ranking (<br>
+id int(10) auto_increment primary key,<br>
+name varchar(15),<br>
+score int(10)<br>
+);<br>
+<img alt="Leaderboard – 分數排行榜 插圖" decoding="async" height="510" loading="lazy" src="1f604268fc2e24be96bf63e58fd044cb.jpg" width="625"></p>
+<p>資料庫及資料表建立完成後<br>
+可至 <a href="http://localhost/phpmyadmin" rel="noopener noreferrer" target="_blank">http://localhost/phpmyadmin</a> 查看資料表是否建立成功<br>
+<img alt="Leaderboard – 分數排行榜 插圖" decoding="async" height="393" loading="lazy" src="3e35511a5f944f5f305475b3e9e4c4c8.jpg" width="240"></p>
+<p><b>分數上傳</b><br>
+接下來開啟 NetBeans 撰寫分數上傳部分<br>
+建立一個新專案並命名為 Unity<br>
+新增一個 RankingUpdate.php 腳本<br>
+<img alt="Leaderboard – 分數排行榜 插圖" decoding="async" height="744" loading="lazy" src="b6174bde0dcff690bea8fa07bd5df207.jpg" width="1131"></p>
+<p>回到 Unity 建立 UI.cs 腳本</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class UI : MonoBehaviour
+{
+	public string path = "http://localhost/Unity/RandingUpdate.php";
+	public string downloadPath = "http://localhost/Unity/RankingDownload.php";
+
+	public string name;
+	public string score;
+
+	void OnGUI()
+	{
+		name = GUILayout.TextField(name, 10);
+		score = GUILayout.TextField(score, 10);
+
+		if(GUILayout.Button("Update"))
+		{
+			StartCoroutine("ScoreUpdate");
+		}
+	}
+
+	public IEnumerator ScoreUpdate()
+	{
+		WWWForm form = new WWWForm();
+
+		Dictionary&lt;string,string&gt; data = new Dictionary&lt;string, string&gt;();
+		data.Add("name", name);
+		data.Add("score", score);
+
+		foreach(KeyValuePair&lt;string,string&gt; post in data)
+		{
+			form.AddField( post.Key, post.Value );
+		}
+
+		WWW www = new WWW(path, form);
+
+		yield return www;
+
+		Debug.Log(www.text);
+
+	}
+}</code></pre>
+
+<p>開始後輸入名字及分數後按下 Update 按鈕<br>
+若成功則會在 Console 面板看到剛剛在 php 裡的提示<br>
+在 <a href="http://localhost/phpmyadmin" rel="noopener noreferrer" target="_blank">http://localhost/phpmyadmin</a> 可查詢是否正確寫入資料<br>
+<img alt="Leaderboard – 分數排行榜 插圖" decoding="async" height="977" loading="lazy" src="6e1c10dfbef469c997781e43e6ad67e7.jpg" width="1919"><br>
+<img alt="Leaderboard – 分數排行榜 插圖" decoding="async" height="79" loading="lazy" src="7ef19a0399dc1d54fcc8f722eb7ee3e5.jpg" width="332"></p>
+
+<p><b>排行榜下載</b><br>
+在 NetBeans 中建立 RankingDownload.php 腳本<br>
+<img alt="Leaderboard – 分數排行榜 插圖" decoding="async" height="728" loading="lazy" src="0a630e460e0279231e5d416962a698bf.jpg" width="923"></p>
+
+<p>回到 Unity 更新 UI.cs 腳本</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class UI : MonoBehaviour
+{
+	public string path = "http://localhost/Unity/RandingUpdate.php";
+	public string downloadPath = "http://localhost/Unity/RankingDownload.php";
+
+	public string name;
+	public string score;
+
+	void OnGUI()
+	{
+		name = GUILayout.TextField(name, 10);
+		score = GUILayout.TextField(score, 10);
+
+		if(GUILayout.Button("Update"))
+		{
+			StartCoroutine("ScoreUpdate");
+		}
+
+		if(GUILayout.Button("Download"))
+		{
+			StartCoroutine("ScoreDownload");
+		}
+	}
+
+	public IEnumerator ScoreUpdate()
+	{
+		WWWForm form = new WWWForm();
+
+		Dictionary&lt;string,string&gt; data = new Dictionary&lt;string, string&gt;();
+		data.Add("name", name);
+		data.Add("score", score);
+
+		foreach(KeyValuePair&lt;string,string&gt; post in data)
+		{
+			form.AddField( post.Key, post.Value );
+		}
+
+		WWW www = new WWW(path, form);
+
+		yield return www;
+
+		Debug.Log(www.text);
+
+	}
+
+	public IEnumerator ScoreDownload()
+	{
+		WWWForm form = new WWWForm();
+
+		Dictionary&lt;string,string&gt; data = new Dictionary&lt;string, string&gt;();
+		data.Add("download", "1");
+
+		foreach(KeyValuePair&lt;string,string&gt; post in data)
+		{
+			form.AddField( post.Key, post.Value );
+		}
+
+		WWW www = new WWW(downloadPath, form);
+
+		yield return www;
+
+		Debug.Log(www.text);
+	}
+}</code></pre>
+<p>接下來在遊戲中按下 Download 按鈕<br>
+就可以接收到由資料庫所傳回的訊息<br>
+<img alt="Leaderboard – 分數排行榜 插圖" decoding="async" height="65" loading="lazy" src="a3f677fe3f38ab469ef2bb82f701f54d.jpg" width="668"></p>
+<p>由於這裡回傳的資料沒有另外經過處理<br>
+所以格式看起來不是很好<br>
+不過還是可以看到回傳的順序為<br>
+TED，1003<br>
+TED，1000</p>
+<p>這樣建立排行榜的概念就算完成了</p>

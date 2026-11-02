@@ -1,0 +1,88 @@
+<!--
+{
+  "title": "Image Processing Kernel in Unity",
+  "date": "2017-07-22",
+  "category": "Shader",
+  "excerpt": "在 Real-Time Rendering Third Edition 的 Image-Based Effects 章節中提到了影像處理技術 而在其中的 I…",
+  "image": "cover-image_processing_kernel_emboss3x3.png",
+  "imageAlt": "Image Processing Kernel in Unity 封面",
+  "source": "https://tedsieblog.wordpress.com/2017/07/22/image-processing-kernel-in-unity/"
+}
+-->
+<p>在 Real-Time Rendering Third Edition 的 Image-Based Effects 章節中提到了影像處理技術<br>
+而在其中的 Image Processing Kernel 段落中提到了高斯模糊及邊緣檢測<br>
+這兩種影像處理技術都有著相似的取樣原理<br>
+透過 Convolution Kernel 或 Convolution Matrix 來取樣貼圖的數據<br>
+而達到不同的效果</p>
+<p>這次收集了許多不同種類的 Kernel<br>
+透過 Unity 進行簡單的驗證<br>
+將這些 Kernel 的取樣結果記錄下來</p>
+
+<h2>Identity</h2>
+<p><img alt="kernel = \begin{bmatrix}  0 &amp; 0 &amp; 0\\  0 &amp; 1 &amp; 0\\  0 &amp; 0 &amp; 0  \end{bmatrix}" class="math" height="60" src="math-001.png" width="138"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="830" loading="lazy" src="image_processing_kernel_identity.png" width="830"></p>
+
+<h2>BoxBlur</h2>
+<p><img alt="kernel = \frac{1}{9}\begin{bmatrix}  1 &amp; 1 &amp; 1\\  1 &amp; 1 &amp; 1\\  1 &amp; 1 &amp; 1  \end{bmatrix}" class="math" height="60" src="math-002.png" width="150"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="828" loading="lazy" src="image_processing_kernel_boxblur.png" width="830"></p>
+
+<h2>Gaussian Blur 3×3</h2>
+<p><img alt="kernel = \frac{1}{16}\begin{bmatrix}  1 &amp; 2 &amp; 1\\  2 &amp; 4 &amp; 2\\  1 &amp; 2 &amp; 1  \end{bmatrix}" class="math" height="60" src="math-003.png" width="156"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="822" loading="lazy" src="image_processing_kernel_gaussianblur3x3.png" width="824"></p>
+
+<h2>Sharpen</h2>
+<p><img alt="kernel = \begin{bmatrix}  0 &amp; -1 &amp; 0\\  -1 &amp; 5 &amp; -1\\  0 &amp; -1 &amp; 0  \end{bmatrix}" class="math" height="60" src="math-004.png" width="176"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="826" loading="lazy" src="image_processing_kernel_sharpen.png" width="830"></p>
+
+<h2>Emboss 3×3</h2>
+<p><img alt="kernel = \begin{bmatrix}  -2 &amp; -1 &amp; 0\\  -1 &amp; 1 &amp; 1\\  0 &amp; 1 &amp; 2  \end{bmatrix}" class="math" height="60" src="math-005.png" width="164"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="828" loading="lazy" src="image_processing_kernel_emboss3x3.png" width="828"></p>
+
+<h2>Edge Enhance</h2>
+<p><img alt="kernel = \begin{bmatrix}  0 &amp; 0 &amp; 0\\  -1 &amp; 1 &amp; 0\\  0 &amp; 0 &amp; 0  \end{bmatrix}" class="math" height="60" src="math-006.png" width="151"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="822" loading="lazy" src="image_processing_kernel_edgeenhance.png" width="824"></p>
+
+<h2>Edge Detection 1</h2>
+<p><img alt="kernel = \begin{bmatrix}  1 &amp; 0 &amp; -1\\  0 &amp; 0 &amp; 0\\  -1 &amp; 0 &amp; 1  \end{bmatrix}" class="math" height="60" src="math-007.png" width="164"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="818" loading="lazy" src="image_processing_kernel_edgedetection1.png" width="824"></p>
+
+<h2>Edge Detection 2</h2>
+<p><img alt="kernel = \begin{bmatrix}  0 &amp; 1 &amp; 0\\  1 &amp; -4 &amp; 1\\  0 &amp; 1 &amp; 0  \end{bmatrix}" class="math" height="60" src="math-008.png" width="151"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="822" loading="lazy" src="image_processing_kernel_edgedetection2.png" width="828"></p>
+
+<h2>Edge Detection 3</h2>
+<p><img alt="kernel = \begin{bmatrix}  -1 &amp; -1 &amp; -1\\  -1 &amp; 8 &amp; -1\\  -1 &amp; -1 &amp; -1  \end{bmatrix}" class="math" height="60" src="math-009.png" width="176"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="820" loading="lazy" src="image_processing_kernel_edgedetection3.png" width="826"></p>
+
+<h2>Gradient Roberts 2×2</h2>
+<p><img alt="Gx = \begin{bmatrix}  -1 &amp; 0\\  0 &amp; 1  \end{bmatrix}" class="math" height="40" src="math-010.png" width="101"></p>
+<p><img alt="Gy = \begin{bmatrix}  0 &amp; -1\\  1 &amp; 0  \end{bmatrix}" class="math" height="40" src="math-011.png" width="100"></p>
+<p><img alt="G = \sqrt{G_{x}^2 + G_{y}^2}" class="math" height="20" src="math-012.png" width="111"><br>
+<img alt="or" class="math" height="8" src="math-013.png" width="16"><br>
+<img alt="G = \left | G_{x} \right | + \left | G_{y} \right |" class="math" height="19" src="math-014.png" width="111"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="818" loading="lazy" src="image_processing_kernel_gradient_roberts2x2.png" width="828"></p>
+
+<h2>Gradient Prewitt 3×3</h2>
+<p><img alt="Gx = \begin{bmatrix}  -1 &amp; -1 &amp; -1\\  0 &amp; 0 &amp; 0\\  1 &amp; 1 &amp; 1  \end{bmatrix}" class="math" height="60" src="math-015.png" width="152"></p>
+<p><img alt="Gy = \begin{bmatrix}  -1 &amp; 0 &amp; 1\\  -1 &amp; 0 &amp; 1\\  -1 &amp; 0 &amp; 1  \end{bmatrix}" class="math" height="60" src="math-016.png" width="125"></p>
+<p><img alt="G = \sqrt{G_{x}^2 + G_{y}^2}" class="math" height="20" src="math-017.png" width="111"><br>
+<img alt="or" class="math" height="8" src="math-018.png" width="16"><br>
+<img alt="G = \left | G_{x} \right | + \left | G_{y} \right |" class="math" height="19" src="math-019.png" width="111"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="824" loading="lazy" src="image_processing_kernel_gradient_prewitt3x3.png" width="824"></p>
+
+<h2>Gradient Sobel 3×3</h2>
+<p><img alt="Gx = \begin{bmatrix}  -1 &amp; -2 &amp; -1\\  0 &amp; 0 &amp; 0\\  1 &amp; 2 &amp; 1  \end{bmatrix}" class="math" height="60" src="math-020.png" width="152"></p>
+<p><img alt="Gy = \begin{bmatrix}  -1 &amp; 0 &amp; 1\\  -2 &amp; 0 &amp; 2\\  -1 &amp; 0 &amp; 1  \end{bmatrix}" class="math" height="60" src="math-021.png" width="125"></p>
+<p><img alt="G = \sqrt{G_{x}^2 + G_{y}^2}" class="math" height="20" src="math-022.png" width="111"><br>
+<img alt="or" class="math" height="8" src="math-023.png" width="16"><br>
+<img alt="G = \left | G_{x} \right | + \left | G_{y} \right |" class="math" height="19" src="math-024.png" width="111"></p>
+<p><img alt="Image Processing Kernel in Unity 插圖" decoding="async" height="820" loading="lazy" src="image_processing_kernel_gradient_sobel3x3.png" width="828"></p>
+
+<h2>Github</h2>
+<p><a href="https://github.com/ted10401/ImageProcessingKernel" rel="noopener noreferrer" target="_blank">ted10401/ImageProcessingKernel</a></p>
+
+<h2>參考資料</h2>
+<p><a href="https://en.wikipedia.org/wiki/Kernel_(image_processing)" rel="noopener noreferrer" target="_blank">Kernel(image processing)</a><br>
+<a href="http://matlabtricks.com/post-5/3x3-convolution-kernels-with-online-demo#demo" rel="noopener noreferrer" target="_blank">3×3 convolution kernels</a><br>
+<a href="https://docs.gimp.org/en/plug-in-convmatrix.html" rel="noopener noreferrer" target="_blank">8.2. Convolution Matrix</a><br>
+Unity Shader 入門精要, 第12章 螢幕後處理效果, 12.3 邊緣檢測</p>

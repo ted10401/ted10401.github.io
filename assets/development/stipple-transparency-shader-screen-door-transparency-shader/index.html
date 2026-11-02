@@ -1,0 +1,50 @@
+<!--
+{
+  "title": "Stipple Transparency Shader (Screen-Door Transparency Shader)",
+  "date": "2020-02-13",
+  "category": "Shader",
+  "excerpt": "Stipple Transparency 是一種基於螢幕空間的物件渲染方式，透過轉換螢幕空間位置至像素位置計算出閥值，剔除不必要的像素。 隨著物件透明度的上…",
+  "image": "cover-stippletransparencyshader_final.jpg",
+  "imageAlt": "Stipple Transparency Shader (Screen-Door Transparency Shader) 封面",
+  "source": "https://tedsieblog.wordpress.com/2020/02/13/stipple-transparency-shader-screen-door-transparency-shader/"
+}
+-->
+<hr>
+<h2>什麼是 Stipple Transparency?</h2>
+<p>Stipple Transparency 是一種基於螢幕空間的物件渲染方式，透過轉換螢幕空間位置至像素位置計算出閥值，剔除不必要的像素。<br>
+隨著物件透明度的上升，逐漸地增加剃除像素的數量。</p>
+<p><img alt="Stipple Transparency Shader (Screen-Door Transparency Shader)：剔除過程" decoding="async" height="320" loading="lazy" src="stippletransparency_demo.gif" width="320">剔除過程</p>
+<hr>
+<h2>為什麼需要 Stipple Transparency?</h2>
+<p>Unity 中預設的透明物件渲染方式是基於 Alpha Blending，由文章 <a data-detail="development-unity-game-view-overdraw" href="#development-unity-game-view-overdraw">Unity Game View Overdraw – 在遊戲視窗上顯示 Overdraw</a> 可得知，當 Render Queue 為 Transparency 時由於物件採取由後到前的方式繪製，所以會有 Overdraw 的情況發生。<br>
+且當複數個物件重疊時，會出現本該是一體的物件出現渲染排序的問題，導致透明渲染呈現詭異的結果。</p>
+<p><img alt="Stipple Transparency Shader (Screen-Door Transparency Shader)：預設透明漸變過程" decoding="async" height="907" loading="lazy" src="stippletransparencyshader_default.jpg" width="1620">預設透明漸變過程</p>
+<p>Stipple Transparency 渲染方式則是基於 Alpha Testing，能夠避免 Overdraw、改善渲染排序、提高物件整體性。</p>
+<hr>
+<h2>Stipple Transparency 核心算法</h2>
+<p>1. 計算螢幕空間位置</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">o.vertex = UnityObjectToClipPos(v.vertex);
+o.screenPos = ComputeScreenPos(o.vertex);</code></pre>
+<p>2. 定義閥值矩陣</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">const float4x4 thresholdMatrix =
+{
+1,   9,  3, 11,
+13,  5, 15,  7,
+4,  12,  2, 10,
+16,  8, 14,  6
+};</code></pre>
+<p>3. 計算對應像素位置</p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">float2 pixelPos = i.screenPos.xy / i.screenPos.w * _ScreenParams.xy;</code></pre>
+<p>4. 取得對應閥值</p>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">float threshold = thresholdMatrix[pixelPos.x % 4][pixelPos.y % 4] / 17;</code></pre>
+<p>5. 剔除像素</p>
+<pre aria-label="C# 程式碼 5" tabindex="0"><code class="language-csharp">clip(_Alpha - threshold);</code></pre>
+<hr>
+<h2>最終成果</h2>
+<p><img alt="Stipple Transparency Shader (Screen-Door Transparency Shader)：預設透明 vs Stipple Transparency" decoding="async" height="683" loading="lazy" src="stippletransparencyshader_vs.jpg" width="672">預設透明 vs Stipple Transparency</p>
+<p><img alt="Stipple Transparency Shader (Screen-Door Transparency Shader)：Stipple Transparency 漸變過程" decoding="async" height="907" loading="lazy" src="stippletransparencyshader_final.jpg" width="1620">Stipple Transparency 漸變過程</p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://www.youtube.com/watch?v=--GB9qyZJqg#t=5m25s" rel="noopener noreferrer" target="_blank">Coding Adventure: Game Idea Generator</a><br>
+<a href="https://ocias.com/blog/unity-stipple-transparency-shader/" rel="noopener noreferrer" target="_blank">Unity Stipple Transparency Shader</a><br>
+<a href="https://digitalrune.github.io/DigitalRune-Documentation/html/fa431d48-b457-4c70-a590-d44b0840ab1e.htm" rel="noopener noreferrer" target="_blank">Screen-Door Transparency</a></p>

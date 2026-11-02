@@ -1,0 +1,283 @@
+<!--
+{
+  "title": "Alpha Mask – 用 JPG 達到 PNG 效果",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "PNG：使用 RGBA 四個通道",
+  "image": "cover-alphamask3.png",
+  "imageAlt": "Alpha Mask – 用 JPG 達到 PNG 效果 封面",
+  "shortTitle": "Alpha Mask",
+  "heading": "Alpha Mask<br><span>用 JPG 達到 PNG 效果</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/alpha-mask/"
+}
+-->
+<p>在貼圖中有常見的兩種格式</p>
+<p>PNG：使用 RGBA 四個通道</p>
+<p>JPG：使用 RGB 三個通道</p>
+<p>當我們需要使用到透明圖層時就必須使用 A 通道</p>
+
+<p>而 Alpha Mask 的主要功用</p>
+<p>就是利用了圖片的 RGB 三個通道</p>
+<p>來作為額外的遮罩圖層</p>
+<p>將原本三張 PNG 變換為四張 JPG</p>
+<p>使 JPG 也可以達到 PNG 的效果</p>
+
+<p><b>製作原理</b></p>
+<p>讀取一至三張不同的 PNG 圖片</p>
+<p>擷取各自的像素產生出對應的 R、G、B 通道後</p>
+<p>將三個通道合併成 Alpha Mask</p>
+
+<p>接著則需要利用 Shader 來使用 Alpha Mask 作為遮罩參考來源</p>
+<p>賦予相對應的 JPG、Alpha Mask 及 Channel</p>
+<p>如此就能夠利用 JPG 來達到 PNG 的效果</p>
+
+<p><b>製作流程</b></p>
+<p>這裏的範例中使用了 R、G、B 三張不同的 PNG</p>
+<p>PS 1：範例中的 JPG 並不是自動產生的，需要另外對 PNG 做處理</p>
+<p>PS 2：在使用工具前，必須先勾選 Texture 設定中的 Read/Write Enabled</p>
+<p>PS 3：打包圖檔的長寬必須一致</p>
+
+<p>1.點選 Tools/Alpha Mask Maker</p>
+<p><img alt="Alpha Mask – 用 JPG 達到 PNG 效果 插圖" decoding="async" height="98" loading="lazy" src="542ac62524a6f830794b7a21eeb83db6.png" width="326"></p>
+
+<p>2.賦予對應的貼圖素材</p>
+<p><img alt="Alpha Mask – 用 JPG 達到 PNG 效果 插圖" decoding="async" height="436" loading="lazy" src="15479956c06644e27f954487db8d0566.png" width="652"></p>
+
+<p>3.點選 Create Alpha Mask 按鈕，並選擇儲存路徑產生出 Alpha Mask</p>
+<p><img alt="Alpha Mask – 用 JPG 達到 PNG 效果 插圖" decoding="async" height="436" loading="lazy" src="19f24430aa473b04d329360e68ccbf53.png" width="656"></p>
+
+<p>4.生成 Alpha Masked 材質球並做相對應設定</p>
+<p>Base：賦予 JPG 圖片</p>
+<p>Alpha：賦予 Alpha Mask 圖片</p>
+<p>Channel：選擇使用的通道</p>
+<p><img alt="Alpha Mask – 用 JPG 達到 PNG 效果 插圖" decoding="async" height="1400" loading="lazy" src="d30cde2e35340403c4722d4535835116.png" width="552"></p>
+
+<p>5.完成利用JPG來達到PNG效果</p>
+<p><img alt="Alpha Mask – 用 JPG 達到 PNG 效果 插圖" decoding="async" height="310" loading="lazy" src="6c9ee80a16b9608dd004226ca92ea453.png" width="772"></p>
+
+<p><b>工具程式碼</b></p>
+<br>
+
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using UnityEditor;
+using System.Collections;
+using System.IO;
+
+public class AlphaMaskWindow : EditorWindow
+{
+    private Texture2D m_textureR;
+    private Texture2D m_textureG;
+    private Texture2D m_textureB;
+
+    private int m_arrayLength;
+    private int m_width;
+    private int m_height;
+    private Texture2D m_alphaMask;
+
+    [MenuItem("Tools/Alpha Mask Maker")]
+    private static void OpenWindow()
+    {
+        EditorWindow.GetWindow&lt;AlphaMaskWindow&gt; ().Show ();
+    }
+
+    void OnGUI()
+    {
+        GUILayout.BeginVertical ();
+        m_textureR = EditorGUILayout.ObjectField("Reference Texture R", m_textureR,typeof(object), false)asTexture2D;
+        m_textureG = EditorGUILayout.ObjectField("Reference Texture G", m_textureG,typeof(object), false)asTexture2D;
+        m_textureB = EditorGUILayout.ObjectField("Reference Texture B", m_textureB,typeof(object), false)asTexture2D;
+
+        if (m_textureR != null || m_textureG != null || m_textureB != null)
+        {
+            if(CheckSize())
+                DisplayButtons();
+            else
+                EditorGUILayout.LabelField("Textures should have the same size.");
+        }
+
+        EditorGUILayout.EndVertical ();
+    }
+
+    private void DisplayButtons()
+    {
+        if (GUILayout.Button ("Create Alpha Mask"))
+            CreateAlphaMask ();
+    }
+
+    private void CreateAlphaMask()
+    {
+        m_alphaMask = null;
+        m_arrayLength = 0;
+
+        Initialize (m_textureR);
+        Initialize (m_textureG);
+        Initialize (m_textureB);
+
+        Color[] channelR = GetChannel (m_textureR, Color.red);
+        Color[] channelG = GetChannel (m_textureG, Color.green);
+        Color[] channelB = GetChannel (m_textureB, Color.blue);
+
+        Color[] finalColor = new Color[m_arrayLength];
+        for(int cnt = 0; cnt &lt; finalColor.Length; cnt++)
+        {
+            finalColor[cnt] = new Color(channelR[cnt].r, channelG[cnt].g, channelB[cnt].b);
+        }
+
+        m_alphaMask.SetPixels (0, 0, m_width, m_height, finalColor);
+
+        SaveAlphaMask ();
+    }
+
+    private void Initialize(Texture2D texture)
+    {
+        if (m_alphaMask != null)
+            return;
+
+        if (texture != null)
+        {
+            m_arrayLength = texture.GetPixels().Length;
+            m_alphaMask = new Texture2D (texture.width, texture.height, TextureFormat.RGBA32, false);
+        }
+    }
+
+    private Color[] GetChannel(Texture2D texture, Color color)
+    {
+        Color[] channel = new Color[m_arrayLength];
+
+        if(texture != null)
+        {
+            channel = texture.GetPixels();
+            for(int cnt = 0; cnt &lt; m_arrayLength; cnt++)
+            {
+                if(channel[cnt].a != 0)
+                    channel[cnt] = color;
+                else
+                    channel[cnt] = new Color(0, 0, 0, 0);
+            }
+        }
+        else
+        {
+            for(int cnt = 0; cnt &lt; m_arrayLength; cnt++)
+            {
+                channel[cnt] = new Color(0, 0, 0, 0);
+            }
+        }
+
+        return channel;
+    }
+
+    private bool CheckSize()
+    {
+        m_width = 0;
+        m_height = 0;
+
+        SetSize (m_textureR);
+        SetSize (m_textureG);
+        SetSize (m_textureB);
+
+        bool result = true;
+
+        result &amp;= CheckTextureSize (m_textureR);
+        result &amp;= CheckTextureSize (m_textureG);
+        result &amp;= CheckTextureSize (m_textureB);
+
+        return result;
+    }
+
+    private void SetSize(Texture2D texture)
+    {
+        if (texture == null)
+            return;
+
+        m_width = texture.width;
+        m_height = texture.height;
+    }
+
+    private bool CheckTextureSize(Texture2D texture)
+    {
+        if (texture != null)
+            return m_width == texture.width &amp;&amp; m_height == texture.height;
+        else
+            return true;
+    }
+
+    private void SaveAlphaMask()
+    {
+        string path = EditorUtility.SaveFilePanelInProject ("Save Alpha Mask", "", "jpg","Select folder and choose file name.");
+
+        byte[] bytes = m_alphaMask.EncodeToJPG();
+
+        File.WriteAllBytes(path, bytes);
+
+        AssetDatabase.Refresh ();
+    }
+}</code></pre>
+
+<p><b>Shader 程式碼</b></p>
+<br>
+
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">Shader "Unlit/Transparent Colored Alpha Masked"
+{
+    Properties
+    {
+        _MainTex ("Base (RGB)", 2D) = "black" {}
+        _MaskTex ("Alpha (RGB)", 2D) = "white" {}
+        _Channel ("Channel", Vector) = (1, 0, 0, 0)
+    }
+    SubShader
+    {
+        LOD 100
+        Tags
+        {
+            "Queue" = "Transparent"
+            "IgnoreProjector" = "True"
+            "RenderType" = "Transparent"
+        }
+        Cull Off
+        Lighting Off
+        ZWrite Off
+        Fog { Mode Off }
+        Offset -1, -1
+        Blend SrcAlpha OneMinusSrcAlpha
+        Pass
+        {
+            CGPROGRAM
+                #pragma vertex vert
+                #pragma fragment frag
+                #pragma only_renderers opengl d3d9 gles gles3 metal
+                #include "UnityCG.cginc"
+                struct appdata_t
+                {
+                    float4 vertex : POSITION;
+                    float2 texcoord : TEXCOORD0;
+                    fixed4 color : COLOR;
+                };
+                struct v2f
+                {
+                    float4 vertex : SV_POSITION;
+                    float2 texcoord : TEXCOORD0;
+                    fixed4 color : COLOR;
+                };
+                uniform sampler2D _MainTex;
+                uniform sampler2D _MaskTex;
+                float4 _MainTex_ST;
+                fixed4 _Channel;
+                v2f vert (appdata_t v)
+                {
+                    v2f o;
+                    o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+                    o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                    o.color = v.color;
+                    return o;
+                }
+                fixed4 frag (v2f i) : COLOR
+                {
+                    fixed4 mask = tex2D(_MaskTex, i.texcoord) * _Channel;
+                    fixed alpha = mask.x  + mask.y + mask.z;
+                    fixed4 col = fixed4(tex2D(_MainTex, i.texcoord).rgb * i.color.rgb,  alpha * i.color.a);
+                    return col;
+                }
+            ENDCG
+        }
+    }
+}</code></pre>

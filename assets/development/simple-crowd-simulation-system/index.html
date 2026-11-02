@@ -1,0 +1,145 @@
+<!--
+{
+  "title": "Simple Crowd Simulation System –  簡易人群模擬系統",
+  "date": "2020-04-23",
+  "category": "Unity",
+  "excerpt": "遊戲玩家走在路上，遇到迎面而來的人群，每個人物都有著自己的走路姿勢、路徑、反應，上述的景象在許多大規模遊戲中，如俠盜獵車手、看門狗、人中之龍…等都有出現…",
+  "image": "cover.jpg",
+  "imageAlt": "Simple Crowd Simulation System –  簡易人群模擬系統 封面",
+  "shortTitle": "Simple Crowd Simulation System",
+  "heading": "Simple Crowd Simulation System<br><span>簡易人群模擬系統</span>",
+  "source": "https://tedsieblog.wordpress.com/2020/04/23/simple-crowd-simulation-system/"
+}
+-->
+<p>遊戲玩家走在路上，遇到迎面而來的人群，每個人物都有著自己的走路姿勢、路徑、反應，上述的景象在許多大規模遊戲中，如俠盜獵車手、看門狗、人中之龍…等都有出現。<br>
+當開發者醉心於遊戲世界中的主要系統、構思遊戲主要玩法與體驗的同時，這些旁支系統也是提升遊戲體驗的一劑強心針。</p>
+<hr>
+<p><div class="note-embed"><iframe allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube-nocookie.com/embed/PfoFVsUyb7Y?rel=0" title="YouTube 影片"></iframe></div><br>
+<div class="note-embed"><iframe allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube-nocookie.com/embed/EtBh4QzZKz4?rel=0" title="YouTube 影片"></iframe></div></p>
+<p>這次的文章會探討如何在 Unity 中實作出簡易的人群系統，搭配方便使用的路徑編輯器，讓開發者能夠在短時間建立出擁有不同動作、速度、路徑、決策的簡易人群模擬系統。</p>
+<p>文章內容包含：<b>如何建立客製化編輯器</b>、<b>如何在 Scene 視窗中快速編輯</b>、<b>如何在 Scene 視窗中建立可互動 Gizmo</b>、<b>如何快速設定人物動作</b>、<b>如何使用 NavMesh 移動人物</b></p>
+<hr>
+<h2>Waypoint</h2>
+<p>在遊戲開發領域中 Waypoint 是用來表示路徑中的一個目標點，也是這次要開發的人群模擬系統中最主要的元素。<br>
+一個完整的 Waypoint 需要提供的參數有：<b>下個 Waypoint、上個 Waypoint、路徑分支</b></p>
+<p><b>下個 Waypoint</b><br>
+當人物從當前 Waypoint 的上個 Waypoint 方向走來，下個 Waypoint 即為人物接續的目標點。</p>
+<p><b>上個 Waypoint</b><br>
+當人物從當前 Waypoint 的下個 Waypoint 方向走來，上個 Waypoint 即為人物接續的目標點。</p>
+<p><b>路徑分支</b><br>
+當人物走道 Waypoint 盡頭時，利用路徑分支來作為人物接續目標點的決策依據。</p>
+<p><b>對齊地面</b><br>
+當地面起伏較為複雜時，透過對齊地面功能可以快速調整 Waypoint 高度。</p>
+<hr>
+<h2>Waypoint 編輯器</h2>
+<p>客製化編輯器能夠有效提升開發者編輯的效率，主要元素包含：<a href="https://docs.unity3d.com/Manual/editor-CustomEditors.html" rel="noopener noreferrer" target="_blank">CustomEditor</a>、<a href="https://docs.unity3d.com/ScriptReference/Editor.OnInspectorGUI.html" rel="noopener noreferrer" target="_blank">OnInspectorGUI</a>、<a href="https://docs.unity3d.com/ScriptReference/Editor.OnSceneGUI.html" rel="noopener noreferrer" target="_blank">OnSceneGUI</a>、<a href="https://docs.unity3d.com/ScriptReference/DrawGizmo.html" rel="noopener noreferrer" target="_blank">DrawGizmo</a></p>
+<p><b>1. 建立 CustomEditor</b></p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">[CustomEditor(typeof(Waypoint))]
+public class WaypointEditor : Editor
+{
+
+}</code></pre>
+<p><b>2. OnInspectorGUI</b><br>
+在 Inspector 介面中新增編輯提示</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">public override void OnInspectorGUI()
+{
+    GUI.enabled = false;
+    EditorGUILayout.TextArea("新增 Inspector 編輯提示訊息");
+    GUI.enabled = true;
+
+    base.OnInspectorGUI();
+}</code></pre>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：Waypoint Inspector 的編輯提示" decoding="async" height="130" loading="lazy" src="simple_crowd_simulation_system_waypoint_inspector.jpg" width="569">Waypoint Inspector 的編輯提示</p>
+<p><b>3. OnSceneGUI</b><br>
+在 <a href="https://docs.unity3d.com/ScriptReference/Editor.OnSceneGUI.html" rel="noopener noreferrer" target="_blank">OnSceneGUI</a> 中搭配使用 <a href="https://docs.unity3d.com/ScriptReference/Event-current.html" rel="noopener noreferrer" target="_blank">Event.current</a> 及 <a href="https://docs.unity3d.com/ScriptReference/HandleUtility.GUIPointToWorldRay.html" rel="noopener noreferrer" target="_blank">HandleUtility.GUIPointToWorldRay</a> 讓使用者能夠在 Scene 視窗中透過鍵盤按鍵與滑鼠位置快速的在對應位置上建立所需元件。</p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">private GameObject m_created = null;
+
+private void OnSceneGUI()
+{
+    if (Event.current.type == EventType.KeyUp)
+    {
+        Ray ray = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
+        RaycastHit raycastHit;
+
+        if (Physics.Raycast(ray, out raycastHit))
+        {
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.position = raycastHit.point;
+            Selection.activeGameObject = cube;
+        }
+    }
+}</code></pre>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：按下鍵盤在滑鼠位置快速生成物件" decoding="async" height="519" loading="lazy" src="simple_crowd_simulation_system_waypoint_onscenegui.gif" width="1037">按下鍵盤在滑鼠位置快速生成物件</p>
+<p><b>4. DrawGizmo</b><br>
+使用 <a href="https://docs.unity3d.com/ScriptReference/DrawGizmo.html" rel="noopener noreferrer" target="_blank">DrawGizmo</a> 繪製自定義顯示方式，加強編輯互動性。</p>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected | GizmoType.Pickable)]
+public static void OnDrawSceneGizmo(Waypoint waypoint, GizmoType gizmoType)
+{
+    float alpha = (gizmoType &amp; GizmoType.NonSelected) != 0 ? 0.25f : 1f;
+
+    Color color = Color.yellow;
+    color.a = alpha;
+
+    Gizmos.color = color;
+    Gizmos.DrawSphere(waypoint.transform.position, 0.5f);
+}</code></pre>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：加強未選取物件跟已選取物件的鑑別度" decoding="async" height="519" loading="lazy" src="simple_crowd_simulation_system_waypoint_drawgizmo-1.gif" width="1037">加強未選取物件跟已選取物件的鑑別度</p>
+<p><b>5. 對應按鈕功能</b></p>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：新增下個 Waypoint" decoding="async" height="519" loading="lazy" src="simple_crowd_simulation_system_waypoint_next.gif" width="1037">新增下個 Waypoint</p>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：新增上個 Waypoint" decoding="async" height="519" loading="lazy" src="simple_crowd_simulation_system_waypoint_previous.gif" width="1037">新增上個 Waypoint</p>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：新增路徑分支" decoding="async" height="519" loading="lazy" src="simple_crowd_simulation_system_waypoint_branch.gif" width="1037">新增路徑分支</p>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：對齊地面" decoding="async" height="519" loading="lazy" src="simple_crowd_simulation_system_waypoint_attach_ground.gif" width="1037">對齊地面</p>
+<hr>
+<h2>Branch</h2>
+<p>路徑分支的功能相對簡單，只需要紀錄這個分支連接多少 Waypoint，作為人物往後的移動方向決策。</p>
+<hr>
+<h2>Branch 編輯器</h2>
+<p>路徑分支編輯器的功能也相對簡單，只需要提供創建 Waypoint 及對齊地面即可。</p>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：Branch Inspector 的編輯提示" decoding="async" height="94" loading="lazy" src="simple_crowd_simulation_system_branch_oninspectorgui.jpg" width="372">Branch Inspector 的編輯提示</p>
+<hr>
+<h2>完整路徑規劃</h2>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：原始道路" decoding="async" height="908" loading="lazy" src="simple_crowd_simulation_system_original_road.png" width="974">原始道路</p>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：路徑規劃" decoding="async" height="908" loading="lazy" src="simple_crowd_simulation_system_waypoint_road.png" width="972">路徑規劃</p>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：原始道路 + 路徑規劃" decoding="async" height="908" loading="lazy" src="simple_crowd_simulation_system_combine_road.png" width="976">原始道路 + 路徑規劃</p>
+<hr>
+<h2>人物設定</h2>
+<p>路徑編輯完成後，接下來就依需求調整人物功能，此文章範例中針對人物的刻畫沒有太過深入，簡單的搭配 <a href="https://docs.unity3d.com/ScriptReference/AI.NavMeshAgent.html" rel="noopener noreferrer" target="_blank">NavMeshAgent</a> 及 <a href="https://docs.unity3d.com/ScriptReference/AnimatorOverrideController.html" rel="noopener noreferrer" target="_blank">AnimatorOverrideController</a>，實作出會不停在路徑中移動的人物。</p>
+<p><b>如何快速設定人物動作</b><br>
+利用 <a href="https://docs.unity3d.com/ScriptReference/AnimatorOverrideController.html" rel="noopener noreferrer" target="_blank"> AnimatorOverrideController </a> 的特性配合 AnimationClip 及移動速度，快速的設定每個人物行走時對應的動作及移動速度。</p>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：AnimatorController 內容" decoding="async" height="910" loading="lazy" src="simple_crowd_simulation_system_animatorcontroller.png" width="2268">AnimatorController 內容</p>
+<pre aria-label="C# 程式碼 5" tabindex="0"><code class="language-csharp">RuntimeAnimatorController runtimeAnimatorController = m_animator.runtimeAnimatorController;
+AnimatorOverrideController originalOverrideController = runtimeAnimatorController as AnimatorOverrideController;
+if (originalOverrideController != null)
+{
+    runtimeAnimatorController = originalOverrideController.runtimeAnimatorController;
+}
+
+AnimatorOverrideController animatorOverrideController = new AnimatorOverrideController();
+animatorOverrideController.runtimeAnimatorController = runtimeAnimatorController;
+
+if (m_walkAnimationClips.Length &gt; 1)
+{
+    int index = Random.Range(0, m_walkAnimationClips.Length);
+    animatorOverrideController["walking"] = m_walkAnimationClips[index];
+    m_navMeshAgent.speed = m_walkSpeed[index];
+}
+
+m_animator.runtimeAnimatorController = animatorOverrideController;</code></pre>
+<p><img alt="Simple Crowd Simulation System –  簡易人群模擬系統：設定人物動作及移動速度" decoding="async" height="566" loading="lazy" src="simple_crowd_simulation_system_animationclips.png" width="926">設定人物動作及移動速度</p>
+<p><b>如何使用 NavMesh 移動人物</b><br>
+NavMesh 是 Unity 中用於進行尋路的功能，能夠事先或實時烘焙可行走範圍，並配合 NavMeshAgent 方便的將物件移動至對應位置上。</p>
+<pre aria-label="C# 程式碼 6" tabindex="0"><code class="language-csharp">m_navMeshAgent.SetDestination(m_curDestination);</code></pre>
+<hr>
+<h2>最終成果</h2>
+<p><video aria-label="Simple Crowd Simulation System –  簡易人群模擬系統：成果演示1" autoplay height="320" loop muted playsinline poster="simple_crowd_simulation_system_final_1-1-poster.jpg" preload="metadata" src="simple_crowd_simulation_system_final_1-1.mp4" width="568"></video>成果演示1</p>
+<p><video aria-label="Simple Crowd Simulation System –  簡易人群模擬系統：成果演示2" autoplay height="320" loop muted playsinline poster="simple_crowd_simulation_system_final_2-poster.jpg" preload="metadata" src="simple_crowd_simulation_system_final_2.mp4" width="568"></video>成果演示2</p>
+<p><video aria-label="Simple Crowd Simulation System –  簡易人群模擬系統：成果演示3" autoplay height="320" loop muted playsinline poster="simple_crowd_simulation_system_final_3-poster.jpg" preload="metadata" src="simple_crowd_simulation_system_final_3.mp4" width="568"></video>成果演示3</p>
+<hr>
+<h2>Patreon</h2>
+<p><a href="https://www.patreon.com/tedsieblog" rel="noopener noreferrer" target="_blank">訂閱 Patreon</a></p>
+<hr>
+<h2>完整原始碼</h2>
+<p><a href="https://www.patreon.com/posts/35911547" rel="noopener noreferrer" target="_blank">Simple Crowd Simulation System –  簡易人群模擬系統（完整原始碼）</a></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://www.youtube.com/watch?v=MXCZ-n5VyJc" rel="noopener noreferrer" target="_blank"> Building a Traffic System in Unity</a></p>

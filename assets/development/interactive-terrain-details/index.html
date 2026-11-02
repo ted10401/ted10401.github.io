@@ -1,0 +1,98 @@
+<!--
+{
+  "title": "Interactive Terrain Details – 製作可互動的 Terrain Details 讓場景動起來",
+  "date": "2019-10-26",
+  "category": "Shader",
+  "excerpt": "Terrain 地形編輯器 Unity 開發者相當熟悉的功能 其中 Terrain Details 功能讓開發者能夠使用筆刷工具種植花花草草",
+  "image": "interactive_terrain_details_final_result-poster.jpg",
+  "imageAlt": "Interactive Terrain Details – 製作可互動的 Terrain Details 讓場景動起來 封面",
+  "shortTitle": "Interactive Terrain Details",
+  "heading": "Interactive Terrain Details<br><span>製作可互動的 Terrain Details 讓場景動起來</span>",
+  "source": "https://tedsieblog.wordpress.com/2019/10/26/interactive-terrain-details/"
+}
+-->
+<p><video aria-label="Interactive Terrain Details – 製作可互動的 Terrain Details 讓場景動起來 插圖" autoplay height="358" loop muted playsinline poster="interactive_terrain_details_final_result-poster.jpg" preload="metadata" src="interactive_terrain_details_final_result.mp4" width="640"></video></p>
+<hr>
+<h2>目的</h2>
+<p>Terrain 地形編輯器<br>
+Unity 開發者相當熟悉的功能<br>
+其中 Terrain Details 功能讓開發者能夠使用筆刷工具種植花花草草<br>
+<img alt="Interactive Terrain Details – 製作可互動的 Terrain Details 讓場景動起來 插圖" decoding="async" height="345" loading="lazy" src="interactive_terrain_details_terrain_details.png" width="512"></p>
+<p>但由於預設的 Terrain Details 只提供簡單的風模擬<br>
+使得玩家與場景之間的互動相當生硬<br>
+而這次的主要目的就是改善這個問題<br>
+在不需要進行大改動的前提下<br>
+加入可互動 Terrain Details 功能<br>
+並改善風模擬的搖擺規律<br>
+製作可互動的 Terrain Details 讓場景動起來</p>
+<hr>
+<h2>概念</h2>
+<p>要製作可互動的 Terrain Details 概念上不難理解<br>
+最主要的 Know-how 是需要找到 WavingGrassBillboard 這個內建 Shader<br>
+這個 Shader 主要負責繪製 Terrain Details Billboard<br>
+開發者透過 Terrain 種植的 Terrain Details 都會透過這個 Shader 進行繪製</p>
+<p><b>如何找到 BillboardWavingDoublePass Shader?</b><br>
+1. 查看 Unity 版本<br>
+2. 至<a href="https://unity3d.com/get-unity/download/archive" rel="noopener noreferrer" target="_blank">官網</a>下載對應版本的 Build in shaders<br>
+<img alt="Interactive Terrain Details – 製作可互動的 Terrain Details 讓場景動起來 插圖" decoding="async" height="372" loading="lazy" src="interactive_terrain_details_build_in_shaders.png" width="1282"><br>
+3. 將 Build in shaders 解壓縮<br>
+4. DefaultResourcesExtra/TerrainShaders/Details/WavingGrassBillboard.shader</p>
+<hr>
+<h2>調整方向</h2>
+<p><b>Grass Bending</b><br>
+1. 定義 _BendingData 儲存互動物位置及互動半徑<br>
+2. 計算頂點世界位置<br>
+3. 計算頂點世界位置與互動物位置的距離<br>
+4. 計算互動強度<br>
+5. 計算互動方向<br>
+6. 改變頂點位置</p>
+<p><b>Wind Simulation</b><br>
+1. 定義 _WindTex 儲存風強度<br>
+2. 計算頂點世界位置<br>
+3. 使用頂點世界位置對 _WindTex 進行取樣取得風強度<br>
+4. 調整風強度<br>
+5. 改變頂點位置</p>
+<hr>
+<h2>實作</h2>
+<p><b>Grass Bending</b></p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">void updateGrassBending(inout appdata_full v)
+{
+    float bendingRadius = _BendingData.w;
+    float3 bendingWorldPos = _BendingData.xyz;
+    float3 vertexWorldPos = mul(unity_ObjectToWorld, v.vertex);
+    float dist = distance(vertexWorldPos, bendingWorldPos);
+    float bendingStrength = 1 - saturate(dist / bendingRadius);
+    float3 bendingDir = normalize(vertexWorldPos - bendingWorldPos);
+    bendingDir *= bendingStrength * _BendingStrength * v.tangent.y;
+    v.vertex.xz += bendingDir.xz;
+}</code></pre>
+<p><b>Wind Simulation</b></p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">void updateWind(inout appdata_full v)
+{
+    float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
+    float windStrength = tex2Dlod(_WindTex, float4(worldPos.xz / _WindSize + float2(_Time.x * _WindSpeed + v.tangent.y * 0.01, 0), 0, 0)).r;
+    windStrength -= 0.5;
+    windStrength *= v.tangent.y * _WindStrength;
+    v.vertex.xy += float2(windStrength, windStrength * _GrassCurve);
+}</code></pre>
+<p><b>Vertex Shader</b></p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">v2f vert(appdata_full v)
+{
+    v2f o;
+    UNITY_SETUP_INSTANCE_ID(v);
+    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+    updateGrassBending(v);
+    updateWind(v);
+    TerrainBillboardGrass (v.vertex, v.tangent.xy);
+
+    float waveAmount = v.tangent.y;
+    o.color = TerrainWaveGrass (v.vertex, waveAmount, v.color);
+
+    o.pos = UnityObjectToClipPos(v.vertex);
+    o.texcoord = v.texcoord;
+
+    return o;
+}</code></pre>
+<hr>
+<h2>成果展示</h2>
+<p><video aria-label="Interactive Terrain Details – 製作可互動的 Terrain Details 讓場景動起來 插圖" autoplay height="358" loop muted playsinline poster="interactive_terrain_details_final_result-poster.jpg" preload="metadata" src="interactive_terrain_details_final_result.mp4" width="640"></video></p>

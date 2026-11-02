@@ -1,0 +1,75 @@
+<!--
+{
+  "title": "【Unite 2017 Austin】Understanding GPU Budgets in Mobile Game Development",
+  "date": "2017-11-29",
+  "category": "Unite",
+  "excerpt": "fragCycleBudget = (GPU 核心數 * GPU 時脈(Hz) / (目標 FPS * pixel 數) vertCycleBudget =…",
+  "image": "unite-2017-austin-single-pass.png",
+  "imageAlt": "【Unite 2017 Austin】Understanding GPU Budgets in Mobile Game Development 封面",
+  "source": "https://tedsieblog.wordpress.com/2017/11/29/unite-2017-austin-understanding-gpu-budgets-in-mobile-game-development/"
+}
+-->
+<p><div class="note-embed"><iframe allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube-nocookie.com/embed/oCc0hyERUo8?rel=0" title="YouTube 影片"></iframe></div></p>
+<h2>如何計算 GPU Budget</h2>
+<p>fragCycleBudget = (GPU 核心數 * GPU 時脈(Hz) / (目標 FPS * pixel 數)<br>
+vertCycleBudget = (GPU 核心數 * GPU 時脈(Hz) / (目標 FPS * 頂點數)</p>
+<p>計算範例：<br>
+Device: Samsung Galaxy S7<br>
+GPU: Mali-T880 MP12<br>
+GPU 核心數: 12<br>
+GPU 時脈: 650M Hz<br>
+螢幕解析度: 2560 x 1440<br>
+pixel 數: 2560 x 1440 = 3686400<br>
+目標 FPS: 60<br>
+頂點數: 671,436</p>
+<p>fragCycleBudget = (12 * 650M) / (60 * 3686400) = 35.265 ~ 35 cycles/frame/pixel<br>
+vertCycleBudget = (12 * 650M) / (60 * 671436) = 193.615 ~ 194 cycles/frame/vertex</p>
+
+<h2>Mali Graphics Debugger 功能</h2>
+<p>1. Draw-call by Draw-call stepping<br>
+2. Texture View<br>
+3. Shader Statistics<br>
+4. Vertex Attribute / Uniform View<br>
+5. State View<br>
+6. Dynamic Optimization Advice</p>
+<p><a href="https://developer.arm.com/products/software-development-tools/graphics-development-tools/mali-graphics-debugger" rel="noopener noreferrer" target="_blank">Mali Graphics Debugger</a></p>
+
+<h2>如何在 Unity 中整合 Mali Graphics Debugger</h2>
+<p>1. 將 MGD library 匯入 Unity 專案<br>
+2. 在 Build Settings 完成設定<br>
+3. 連接裝置並進行測試</p>
+<p><a href="http://www.develop-online.net/tools-and-tech/how-to-use-arm-s-mali-graphics-debugger-in-unity/0231634" rel="noopener noreferrer" target="_blank">How to use ARM’s Mali Graphics Debugger in Unity</a><br>
+<a href="http://www.jianshu.com/p/35096e796aa3" rel="noopener noreferrer" target="_blank">使用Mali Graphics Debugger调优Unity程序（Killer示例）</a></p>
+
+<h2>Single-Pass Stereo rendering 優勢</h2>
+<p>1. Draw calls 數量減半<br>
+2. 降低 Vertex 數量<br>
+3. 降低 bandwidth usage</p>
+<p><a href="https://docs.unity3d.com/Manual/SinglePassStereoRendering.html" rel="noopener noreferrer" target="_blank">Single-Pass Stereo rendering</a></p>
+
+<h2>如何開啟 Single-Pass Stereo rendering</h2>
+<p>1. Edit &gt; Project Settings &gt; Player<br>
+2. 勾選 Virtual Reality Supported<br>
+3. 將 Stereo Rendering Method 切換到 Single Pass<br>
+<img alt="【Unite 2017 Austin】Understanding GPU Budgets in Mobile Game Development 插圖" decoding="async" height="200" loading="lazy" src="unite-2017-austin-single-pass.png" width="1000"></p>
+
+<h2>行動平台 VR 指南</h2>
+<p>1. 使用 4x Multi Sampling, 可嘗試使用 8x Multi Sampling 獲得最高品質畫面<br>
+路徑: Editor/Project Settings/Quality/Anti Aliasing<br>
+<img alt="【Unite 2017 Austin】Understanding GPU Budgets in Mobile Game Development 插圖" decoding="async" height="40" loading="lazy" src="unite-2017-austin-msaa.png" width="1030"></p>
+<p>2. 使用 ASTC 圖片壓縮格式<br>
+路徑: 點選圖片/Inspector/Format<br>
+<img alt="【Unite 2017 Austin】Understanding GPU Budgets in Mobile Game Development 插圖" decoding="async" height="250" loading="lazy" src="unite-2017-austin-texture-format.png" width="1036"><br>
+<img alt="【Unite 2017 Austin】Understanding GPU Budgets in Mobile Game Development 插圖" decoding="async" height="386" loading="lazy" src="unite-2017-austin-astc.png" width="408"></p>
+<p>3. 優化渲染技術</p>
+
+<h2>推薦渲染優化技術</h2>
+<p><a href="https://www.assetstore.unity3d.com/en/#!/content/61640" rel="noopener noreferrer" target="_blank">Dynamic Soft Shadows Based on Local Cubemaps</a><br>
+<div class="note-embed"><iframe allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube-nocookie.com/embed/VR4x__JApQ0?rel=0" title="YouTube 影片"></iframe></div></p>
+<p><a href="https://community.arm.com/graphics/b/blog/posts/combined-reflections-stereo-reflections-in-vr" rel="noopener noreferrer" target="_blank">Combined Reflections: Stereo Reflections in VR</a><br>
+<img alt="【Unite 2017 Austin】Understanding GPU Budgets in Mobile Game Development 插圖" decoding="async" height="747" loading="lazy" src="unite-2017-austin-reflection.png" width="1664"></p>
+<p><a href="https://community.arm.com/groups/arm-mali-graphics/blog/2015/04/13/refraction-based-on-local-cubemaps" rel="noopener noreferrer" target="_blank">Refraction Based on Local Cubemaps</a><br>
+<img alt="【Unite 2017 Austin】Understanding GPU Budgets in Mobile Game Development 插圖" decoding="async" height="470" loading="lazy" src="unite-2017-austin-refraction.png" width="831"></p>
+
+<h2>影片來源</h2>
+<p><a href="https://www.youtube.com/watch?v=oCc0hyERUo8" rel="noopener noreferrer" target="_blank">Unite Austin 2017 – Understanding GPU Budgets in Mobile Game Development</a></p>

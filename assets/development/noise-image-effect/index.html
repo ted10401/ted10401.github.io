@@ -1,0 +1,159 @@
+<!--
+{
+  "title": "Noise Image Effect – 雜訊濾鏡",
+  "date": "2016-07-14",
+  "category": "Unity · Shader",
+  "excerpt": "這次利用 Image Effect 製作了一個模擬畫面被雜訊干擾的效果 主要可以應用在一些不同畫面效果處理 例如：夜視效果、復古效果、回顧畫面…等",
+  "image": "cover-noise.png",
+  "imageAlt": "Noise Image Effect – 雜訊濾鏡 封面",
+  "shortTitle": "Noise Image Effect",
+  "heading": "Noise Image Effect<br><span>雜訊濾鏡</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/14/noise-image-effect/"
+}
+-->
+<p>這次利用 Image Effect<br>
+製作了一個模擬畫面被雜訊干擾的效果<br>
+主要可以應用在一些不同畫面效果處理<br>
+例如：夜視效果、復古效果、回顧畫面…等</p>
+<p>Noise Effect.shader</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">Shader "Unlit/Noise Effect"
+{
+	Properties
+	{
+		_MainTex ("Main Texture", 2D) = "white" {}
+		_NoiseTex ("Noise Texture", 2D) = "white" {}
+		_NoiseXSpeed ("Noise X Speed", Float) = 100.0
+		_NoiseYSpeed ("Noise Y Speed", Float) = 100.0
+		_Cutoff ("Cutoff Value", Range(0, 1.0)) = 0
+	}
+	SubShader
+	{
+		Tags { "RenderType"="Transparent" }
+		LOD 100
+
+		Blend SrcAlpha OneMinusSrcAlpha
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+			};
+
+			struct v2f
+			{
+				float2 uv : TEXCOORD0;
+				float4 vertex : SV_POSITION;
+			};
+
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+			sampler2D _NoiseTex;
+			fixed _NoiseXSpeed;
+			fixed _NoiseYSpeed;
+			fixed _Cutoff;
+
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+				return o;
+			}
+
+			fixed4 frag (v2f i) : COLOR
+			{
+				fixed4 col = tex2D(_MainTex, i.uv);
+				fixed2 noiseUV = i.uv.xy + fixed2(_NoiseXSpeed, _NoiseYSpeed) * _SinTime.z;
+				fixed4 noiseTex = tex2D(_NoiseTex, noiseUV);
+
+				if(noiseTex.r &gt; _Cutoff)
+					noiseTex.a = 0;
+
+				return noiseTex * col;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+<p>這個 Shader 主要是利用了一張雜訊貼圖<br>
+透過改變雜訊貼圖的 UV 來做動畫<br>
+並用這張雜訊貼圖與 Image Effect 混合<br>
+達到畫面看似被干擾的效果</p>
+<p>NoiseImageEffect.cs</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+[ExecuteInEditMode]
+public class NoiseImageEffect : MonoBehaviour
+{
+	public Texture noiseTexture;
+	public float noiseXSpeed = 100f;
+	public float noiseYSpeed = 100f;
+	[Range(0, 1.0f)]
+	public float cutoff = 0.35f;
+
+	private string m_noiseTexPropertyName = "_NoiseTex";
+	private string m_noiseXSpeedPropertyName = "_NoiseXSpeed";
+	private string m_noiseYSpeedPropertyName = "_NoiseYSpeed";
+	private string m_cutoffPropertyName = "_Cutoff";
+
+	private int m_noiseTexID;
+	private int m_noiseXSpeedID;
+	private int m_noiseYSpeedID;
+	private int m_cutoffID;
+
+	private Material m_material;
+
+	void Awake ()
+	{
+		InitPropertyIDs();
+		OnValidate();
+	}
+
+	private void InitPropertyIDs()
+	{
+		if(m_material == null)
+			m_material = new Material( Shader.Find("Unlit/Noise Effect") );
+
+		m_noiseTexID = Shader.PropertyToID(m_noiseTexPropertyName);
+		m_noiseXSpeedID = Shader.PropertyToID(m_noiseXSpeedPropertyName);
+		m_noiseYSpeedID = Shader.PropertyToID(m_noiseYSpeedPropertyName);
+		m_cutoffID = Shader.PropertyToID(m_cutoffPropertyName);
+	}
+
+	private void OnValidate()
+	{
+		if(m_material == null)
+			m_material = new Material( Shader.Find("Unlit/Noise Effect") );
+
+		m_material.SetTexture(m_noiseTexID, noiseTexture);
+		m_material.SetFloat(m_noiseXSpeedID, noiseXSpeed);
+		m_material.SetFloat(m_noiseYSpeedID, noiseYSpeed);
+		m_material.SetFloat(m_cutoffID, cutoff);
+	}
+
+	void OnRenderImage (RenderTexture source, RenderTexture destination)
+	{
+		Graphics.Blit (source, destination, m_material);
+	}
+}</code></pre>
+<p><a href="https://docs.unity3d.com/ScriptReference/ExecuteInEditMode.html" rel="noopener noreferrer" target="_blank">ExecuteInEditMode</a><br>
+<a href="http://docs.unity3d.com/ScriptReference/MonoBehaviour.OnValidate.html" rel="noopener noreferrer" target="_blank">MonoBehaviour.OnValidate</a><br>
+<a href="http://docs.unity3d.com/ScriptReference/MonoBehaviour.OnRenderImage.html" rel="noopener noreferrer" target="_blank">MonoBehaviour.OnRenderImage</a></p>
+<p>附上這個教學中使用的雜訊貼圖<br>
+<img alt="NoiseTexture" decoding="async" height="1006" loading="lazy" src="noisetexture.png" width="1010"></p>
+<p>將 NoiseImageEffect.cs 附加到 Camera 上<br>
+即可看到修改成果<br>
+<img alt="Screen Shot 2016-07-14 at 4.22.23 PM" decoding="async" height="222" loading="lazy" src="screen-shot-2016-07-14-at-4-22-23-pm.png" width="900"></p>
+<p>無雜訊<br>
+<img alt="Screen Shot 2016-07-14 at 4.21.58 PM" decoding="async" height="830" loading="lazy" src="screen-shot-2016-07-14-at-4-21-58-pm.png" width="1336"></p>
+<p>開啟雜訊<br>
+<img alt="Noise" decoding="async" height="832" loading="lazy" src="noise.png" width="1332"></p>

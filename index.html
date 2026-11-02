@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#aebccb">
+  <title>存檔點 — 我的像素書房</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/scene.js" defer></script>
+  <script src="js/reading-library.js" defer></script>
+  <script src="js/development-library.js" defer></script>
+  <script src="js/portfolio-data.js" defer></script>
+  <script src="js/portfolio.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <main class="room" aria-label="互動像素書房">
+    <!-- Scene layers, bottom to top. All share the 960×720 scene coordinates. -->
+    <canvas id="room-canvas" width="960" height="720" role="img" aria-label="以程式繪製的等角像素書房，包含電腦、書桌、書架與窗邊植物"></canvas>
+    <canvas id="daylight" class="daylight" width="960" height="720" aria-hidden="true"></canvas>
+    <div class="room-shade"></div>
+    <canvas id="desk-glow" class="desk-glow" width="960" height="720" aria-hidden="true"></canvas>
+    <canvas id="monitor-light" class="monitor-light" width="960" height="720" aria-hidden="true"></canvas>
+
+    <!-- Interactive objects -->
+    <button class="hotspot monitor" data-open="works" aria-label="電腦螢幕：作品集">
+      <span class="monitor-content"><span class="screen-label">WELCOME TO MY SPACE</span><strong>HELLO,<br>WORLD<span class="cursor">_</span></strong><span class="screen-menu">↳ 點擊螢幕，查看作品集</span></span>
+    </button>
+    <button class="hotspot books" data-open="reading" aria-label="上層書架：閱讀日常"><span class="pin" aria-hidden="true"></span><span class="tooltip">閱讀日常</span></button>
+    <button class="hotspot notebook" data-open="notes" aria-label="桌上資料：開發筆記"><span class="pin" aria-hidden="true"></span><span class="tooltip">開發筆記</span></button>
+    <button class="hotspot artwork" data-open="about" aria-label="牆上畫作：關於我"><span class="pin" aria-hidden="true"></span><span class="tooltip">關於我</span></button>
+
+    <div class="soundbar" role="img" aria-label="喇叭時鐘"><span class="speaker-grille" aria-hidden="true"></span><span id="clock">11:30</span><span class="speaker-grille" aria-hidden="true"></span></div>
+  </main>
+
+  <header>
+    <div class="brand">
+      <a class="wordmark" href="#">存檔點<span>SAVE POINT</span></a>
+      <div class="room-caption"><h1>螢幕還亮著，<br>今天也在寫點什麼。</h1></div>
+    </div>
+    <button id="theme" aria-label="切換夜晚模式" aria-pressed="false">☼ <span>日光</span></button>
+  </header>
+
+  <footer>
+    <button id="help" aria-label="顯示所有可點擊物件">探索房間 ↗</button>
+  </footer>
+
+  <dialog id="panel">
+    <div class="window-bar"><span id="window-name">MY COMPUTER</span><button id="close" aria-label="關閉視窗">×</button></div>
+    <div id="panel-content"></div>
+  </dialog>
+</body>
+</html>

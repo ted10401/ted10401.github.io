@@ -1,0 +1,69 @@
+<!--
+{
+  "title": "Unity Game View Overdraw – 在遊戲視窗上顯示 Overdraw",
+  "date": "2020-01-30",
+  "category": "Shader",
+  "excerpt": "Overdraw 是在同一個像素上重複進行多次繪製的一種狀況。 在理解為什麼會產生這種狀況之前，需要先了解物件的渲染順序。 在 Unity 中的物件都需要透…",
+  "image": "cover-unity-game-view-overdraw-gameviewoverdraw.jpg",
+  "imageAlt": "Unity Game View Overdraw – 在遊戲視窗上顯示 Overdraw 封面",
+  "shortTitle": "Unity Game View Overdraw",
+  "heading": "Unity Game View Overdraw<br><span>在遊戲視窗上顯示 Overdraw</span>",
+  "source": "https://tedsieblog.wordpress.com/2020/01/30/unity-game-view-overdraw/"
+}
+-->
+<h2>什麼是 Overdraw?</h2>
+<p>Overdraw 是在同一個像素上重複進行多次繪製的一種狀況。<br>
+在理解為什麼會產生這種狀況之前，需要先了解物件的渲染順序。<br>
+在 Unity 中的物件都需要透過 Shader 來進行渲染，透過調整 Render Queue 能夠改變物件的渲染順序。<br>
+由 <a href="https://docs.unity3d.com/ScriptReference/Rendering.RenderQueue.html" rel="noopener noreferrer" target="_blank">Rendering.RenderQueue</a> 中可以得知有許多不同的渲染隊列<br>
+Background 對應為 1000<br>
+Geometry 對應為 2000<br>
+AlphaTest 對應為 2450<br>
+Transparent 對應為 3000<br>
+Overlay 對應為 4000</p>
+<p>在不同的隊列中物體會按照不同的順序進行繪製。<br>
+在 Geometry 隊列中，物件會以<b>由前到後 (Front-to-Back)</b>的順序繪製，藉此來避免 Overdraw 的狀況發生。<br>
+在 Transparent 隊列中，由於需要呈現透明的疊加效果，所以物件會以<b>由後到前 (Back-to-Front)</b>的順序繪製，因此 Overdraw 的優化絕大部分都是在處理 Transparent 對列中的物件。</p>
+<p><b>如何減少透明物件重疊的情況就是優化 Overdraw 的關鍵。</b></p>
+<hr>
+<h2>為什麼要關注 Overdraw?</h2>
+<p>隨著透明物件重疊的情況越來越嚴重，會開始發現瓶頸漸漸的出現在 GPU 端。<br>
+而大多數 GPU 效能瓶頸問題來自於<b>填充率 (Fill Rate)</b>，若該幀的輸出像素數量超過了 GPU 負載限制，就需要針對填充率進行調整。</p>
+<p>檢查是否因為填充率導致 GPU 瓶頸很簡單<br>
+<b>1. 執行遊戲</b><br>
+<b>2. 調整專案 Game 視窗的解析度</b><br>
+<b>3. 觀察 GPU 效率是否有改變</b></p>
+<p>若調整解析度後效能出現改變即表示填充率導致 GPU 瓶頸<br>
+基本有兩種優化方案<br>
+<b>1. 優化 Fragment Shader</b><br>
+<b>2. 優化 Overdraw</b></p>
+<hr>
+<h2>如何查看 Overdraw?</h2>
+<p>Unity 中提供了 Scene 視窗的 Overdraw<br>
+<b>1. 選擇 Scene 視窗</b><br>
+<b>2. 開啟 Shaded 面板</b><br>
+<b>3. 選擇 Overdraw</b><br>
+<img alt="Unity Game View Overdraw – 在遊戲視窗上顯示 Overdraw 插圖" decoding="async" height="183" loading="lazy" src="unity-game-view-overdraw-sceneview.jpg" width="209"></p>
+<p><b>透過下圖可以得知，越白的地方即表示該處的 Overdraw 情況越嚴重。</b><br>
+<img alt="Unity Game View Overdraw – 在遊戲視窗上顯示 Overdraw 插圖" decoding="async" height="538" loading="lazy" src="unity-game-view-overdraw-sceneviewoverdraw.jpg" width="935"></p>
+<hr>
+<h2>實作 Game 設窗 Overdraw</h2>
+<p>雖然 Unity 有提供上述 Overdraw 查看方法，卻只能透過 Scene 視窗查看，無法得知真實遊戲視角下的 Overdraw 情況。<br>
+若是要查看 Game 視窗下的 Overdraw 只要進行簡單的調整即可。</p>
+<p><b>1. 找到 SceneView/SceneViewShowOverdraw.shader</b><br>
+SceneViewShowOverdraw 就是 Scene 視窗下顯示 Overdraw 所使用的 Shader<br>
+如果想要使用自己的 Overdraw Shader 也能自行調整</p>
+<p><b>2. 讀取 Shader</b><br>
+由於是編輯環境所以可以直接使用 <a>EditorGUIUtility.LoadRequired</a> 來進行讀取</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">Shader overdrawShader = EditorGUIUtility.LoadRequired("SceneView/SceneViewShowOverdraw.shader") as Shader;</code></pre>
+<p><b>3. 套用 Shader</b><br>
+使用 <a href="https://docs.unity3d.com/ScriptReference/Camera.SetReplacementShader.html" rel="noopener noreferrer" target="_blank">Camera.SetReplacementShader</a> 將 Overdraw Shader </p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">tempCamera.SetReplacementShader(overdrawShader, "");</code></pre>
+<hr>
+<h2>最終成果</h2>
+<p><video aria-label="Unity Game View Overdraw – 在遊戲視窗上顯示 Overdraw 插圖" autoplay height="382" loop muted playsinline poster="unity-game-view-overdraw-gameview-poster.jpg" preload="metadata" src="unity-game-view-overdraw-gameview.mp4" width="640"></video><br>
+<video aria-label="Unity Game View Overdraw – 在遊戲視窗上顯示 Overdraw 插圖" autoplay height="382" loop muted playsinline poster="unity-game-view-overdraw-gameviewoverdraw-poster.jpg" preload="metadata" src="unity-game-view-overdraw-gameviewoverdraw.mp4" width="640"></video></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://zhuanlan.zhihu.com/p/36613009" rel="noopener noreferrer" target="_blank">Render- 关于Unity渲染方面的优化（下）</a><br>
+<a href="https://blog.csdn.net/KiTok/article/details/76998881" rel="noopener noreferrer" target="_blank">Unity3D 在Game窗口下查看Overdraw视图</a></p>

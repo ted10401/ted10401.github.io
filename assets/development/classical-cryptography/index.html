@@ -1,0 +1,1057 @@
+<!--
+{
+  "title": "Classical Cryptography – 古典密碼學",
+  "date": "2018-11-02",
+  "category": "Algorithm",
+  "excerpt": "古典密碼學是密碼學中的一個類型，其加密方式大部分都是使用替換式加密或移項式加密。 由於現代已經很少使用，故稱為古典密碼學。 加密有助於防止遊戲被破解的風險…",
+  "image": "cover-classical-cryptography.png",
+  "imageAlt": "Classical Cryptography – 古典密碼學 封面",
+  "shortTitle": "Classical Cryptography",
+  "heading": "Classical Cryptography<br><span>古典密碼學</span>",
+  "source": "https://tedsieblog.wordpress.com/2018/11/02/classical-cryptography/"
+}
+-->
+<p>古典密碼學是密碼學中的一個類型，其加密方式大部分都是使用替換式加密或移項式加密。<br>
+由於現代已經很少使用，故稱為古典密碼學。<br>
+加密有助於防止遊戲被破解的風險，但任何形式的加密都只會增加破解的難易度，並不能保證被破解的風險為零。<br>
+其中古典密碼學更是只要取得密鑰就能夠輕易破解的程度。</p>
+<p>本篇文章會粗略的介紹密碼學中的基本概念，並分享古典密碼學中的幾種加密演算法。</p>
+<p>關鍵字快搜：<b>古典密碼學</b>、<b>凱撒密碼</b>、<b>仿射密碼</b>、<b>簡易替換密碼</b>、<b>乘法逆元</b></p>
+<h2>基本概念</h2>
+<p><b>明文 Plain Text</b><br>
+傳送方傳送的可讀信息，不僅只限於文檔，音檔、圖片、影片都可以作為明文存在。</p>
+<p><b>密文 Cipher Text</b><br>
+由明文經過加密算法後產生的結果。</p>
+<p><b>加密 Encryption</b><br>
+將明文資料轉變成密文的過程。</p>
+<p><b>解密 Decryption</b><br>
+在對稱密碼學中，解密方需要知道密鑰及解密方法，經由解密後，才能將密文還原成正常的可讀信息。</p>
+<p><b>加密演算法 Cipher</b><br>
+加密演算法就是加密的方法，可分為兩類：<b>對稱加密</b>和<b>非對稱加密</b>。<br>
+對稱加密在加密及解密時<b>使用同樣的密鑰</b>。<br>
+非對稱加密在加密及解密時<b>使用不同的密鑰</b>。</p>
+<p><b>密鑰 Key</b><br>
+指用來完成加密、解密、驗證時的秘密信息。<br>
+對稱密碼學中，由於加密和解密使用同一個密鑰，因此<b>密鑰需要保密</b>。<br>
+非對稱密碼學中，加密和解密使用的密鑰不同，通常一個是公開的，稱為<b>公鑰</b>，另一個保密，稱為<b>私鑰</b>。</p>
+<p><b>mod</b><br>
+<b>取餘數</b>，替換式密碼中常用到的數學運算。<br>
+<img alt="10\mod 3=1" class="math" height="12" src="math-001.png" width="100"><br>
+<img alt="15\mod 13=2" class="math" height="12" src="math-002.png" width="109"><br>
+<img alt="29\mod 26=3" class="math" height="12" src="math-003.png" width="110"></p>
+
+<h2>加密演算法</h2>
+<h3>凱撒密碼 Caesar Cipher</h3>
+<p>在密碼學中，凱撒密碼是最簡單且廣為人知的加密技術。<br>
+利用替換加密的技術，透過將明文中的字母按照一個固定數<b>向前或向後偏移</b>替換成密文。</p>
+<p><b>加密函數</b><br>
+<img alt="E(x) = (x + n)\mod 26" class="math" height="17" src="math-004.png" width="172"><br>
+<img alt="n:" class="math" height="8" src="math-005.png" width="18">  密鑰</p>
+<p><b>解密函數</b><br>
+<img alt="D(x) = (x - n)\mod 26" class="math" height="17" src="math-006.png" width="173"></p>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>加密對照表</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><b>以 <img alt="n = 10" class="math" height="11" src="math-007.png" width="48"> 為例</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>明文</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>D</td>
+<td>E</td>
+<td>F</td>
+<td>G</td>
+<td>H</td>
+<td>I</td>
+<td>J</td>
+<td>K</td>
+<td>L</td>
+<td>M</td>
+<td>N</td>
+<td>O</td>
+<td>P</td>
+<td>Q</td>
+<td>R</td>
+<td>S</td>
+<td>T</td>
+<td>U</td>
+<td>V</td>
+<td>W</td>
+<td>X</td>
+<td>Y</td>
+<td>Z</td>
+</tr>
+<tr>
+<td>密文</td>
+<td>K</td>
+<td>L</td>
+<td>M</td>
+<td>N</td>
+<td>O</td>
+<td>P</td>
+<td>Q</td>
+<td>R</td>
+<td>S</td>
+<td>T</td>
+<td>U</td>
+<td>V</td>
+<td>W</td>
+<td>X</td>
+<td>Y</td>
+<td>Z</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>D</td>
+<td>E</td>
+<td>F</td>
+<td>G</td>
+<td>H</td>
+<td>I</td>
+<td>J</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>加密演算</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>明文</td>
+<td>C</td>
+<td>A</td>
+<td>E</td>
+<td>S</td>
+<td>A</td>
+<td>R</td>
+<td>C</td>
+<td>I</td>
+<td>P</td>
+<td>H</td>
+<td>E</td>
+<td>R</td>
+</tr>
+<tr>
+<td><img alt="x" class="math" height="8" src="math-008.png" width="9"></td>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+<td>18</td>
+<td>0</td>
+<td>17</td>
+<td>2</td>
+<td>8</td>
+<td>15</td>
+<td>7</td>
+<td>4</td>
+<td>17</td>
+</tr>
+<tr>
+<td><img alt="x + 10" class="math" height="13" src="math-009.png" width="45"></td>
+<td>12</td>
+<td>10</td>
+<td>14</td>
+<td>28</td>
+<td>10</td>
+<td>27</td>
+<td>12</td>
+<td>18</td>
+<td>25</td>
+<td>17</td>
+<td>14</td>
+<td>27</td>
+</tr>
+<tr>
+<td><img alt="x + 10\mod 26" class="math" height="14" src="math-010.png" width="109"></td>
+<td>12</td>
+<td>10</td>
+<td>14</td>
+<td>2</td>
+<td>10</td>
+<td>1</td>
+<td>12</td>
+<td>18</td>
+<td>25</td>
+<td>17</td>
+<td>14</td>
+<td>1</td>
+</tr>
+<tr>
+<td>密文</td>
+<td>M</td>
+<td>K</td>
+<td>O</td>
+<td>C</td>
+<td>K</td>
+<td>B</td>
+<td>M</td>
+<td>S</td>
+<td>Z</td>
+<td>R</td>
+<td>O</td>
+<td>B</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>解密演算</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>密文</td>
+<td>M</td>
+<td>K</td>
+<td>O</td>
+<td>C</td>
+<td>K</td>
+<td>B</td>
+<td>M</td>
+<td>S</td>
+<td>Z</td>
+<td>R</td>
+<td>O</td>
+<td>B</td>
+</tr>
+<tr>
+<td><img alt="x" class="math" height="8" src="math-011.png" width="9"></td>
+<td>12</td>
+<td>10</td>
+<td>14</td>
+<td>2</td>
+<td>10</td>
+<td>1</td>
+<td>12</td>
+<td>18</td>
+<td>25</td>
+<td>17</td>
+<td>14</td>
+<td>1</td>
+</tr>
+<tr>
+<td><img alt="x - 10" class="math" height="11" src="math-012.png" width="45"></td>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+<td>-8</td>
+<td>0</td>
+<td>-9</td>
+<td>2</td>
+<td>8</td>
+<td>15</td>
+<td>7</td>
+<td>4</td>
+<td>-9</td>
+</tr>
+<tr>
+<td><img alt="x - 10\mod 26" class="math" height="12" src="math-013.png" width="110"></td>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+<td>18</td>
+<td>0</td>
+<td>17</td>
+<td>2</td>
+<td>8</td>
+<td>15</td>
+<td>7</td>
+<td>4</td>
+<td>17</td>
+</tr>
+<tr>
+<td>明文</td>
+<td>C</td>
+<td>A</td>
+<td>E</td>
+<td>S</td>
+<td>A</td>
+<td>R</td>
+<td>C</td>
+<td>I</td>
+<td>P</td>
+<td>H</td>
+<td>E</td>
+<td>R</td>
+</tr>
+</tbody>
+</table></div>
+<p>凱撒密碼根據密鑰的不同，也有著不同稱呼<br>
+密鑰 = 6：Cassic（A -&gt; G）<br>
+密鑰 = 7：Cassette（A -&gt; H）<br>
+密鑰 = 10：Avocat（A -&gt; K)<br>
+密鑰 = 13：ROT13（A -&gt; N）</p>
+<p><b>程式碼範例</b></p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">private char Encrypt(char c, int key)
+{
+    if (!char.IsLetter(c))
+    {
+        return c;
+    }
+
+    char firstChar = char.IsUpper(c) ? 'A' : 'a';
+    int x = c - firstChar;
+    int result = (x + 10) % 26;
+    if (result &lt; 0)
+    {
+        result += 26;
+    }
+
+    return (char)(firstChar + result);
+}
+
+private char Decrypt(char c, int key)
+{
+    if (!char.IsLetter(c))
+    {
+        return c;
+    }
+
+    char firstChar = char.IsUpper(c) ? 'A' : 'a';
+    int x = c - firstChar;
+    int result = (x - 10) % 26;
+    if (result &lt; 0)
+    {
+        result += 26;
+    }
+
+    return (char)(firstChar + result);
+}</code></pre>
+
+<h3>仿射密碼 Affine Cipher</h3>
+<p>仿射密碼也屬於替換密碼的一種，透過加密函數及解密函數的計算可產生出對應的「替換表」，將明文替換成密文。</p>
+<p><b>加密函數</b><br>
+<img alt="E(x) = (ax + b)\mod m" class="math" height="17" src="math-014.png" width="176"><br>
+<img alt="a" class="math" height="8" src="math-015.png" width="9"> 和 <img alt="m" class="math" height="8" src="math-016.png" width="14"> 需互質，即最大公因數 <img alt="gcd(a, m) = 1" class="math" height="17" src="math-017.png" width="95"><br>
+<img alt="m:" class="math" height="8" src="math-018.png" width="23"> 字母數量</p>
+<p><b>解密函數</b><br>
+<img alt="D(x) =a^{-1}(x - b)\mod m" class="math" height="18" src="math-019.png" width="193"><br>
+<img alt="a^{-1}" class="math" height="14" src="math-020.png" width="23"> 是 <img alt="a" class="math" height="8" src="math-021.png" width="9"> 在 <img alt="Z_{m}" class="math" height="15" src="math-022.png" width="22"> 群的乘法逆元，即 <img alt="(a*a^{-1})\mod m=1" class="math" height="18" src="math-023.png" width="151"></p>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>以 <img alt="\mod 26" class="math" height="12" src="math-024.png" width="53"> 為例</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>可能值 <img alt="a" class="math" height="8" src="math-025.png" width="9"></td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>7</td>
+<td>9</td>
+<td>11</td>
+<td>15</td>
+<td>17</td>
+<td>19</td>
+<td>21</td>
+<td>23</td>
+<td>25</td>
+</tr>
+<tr>
+<td>乘法逆元 <img alt="a^{-1}" class="math" height="14" src="math-026.png" width="23"></td>
+<td>1</td>
+<td>9</td>
+<td>21</td>
+<td>15</td>
+<td>3</td>
+<td>19</td>
+<td>7</td>
+<td>23</td>
+<td>11</td>
+<td>5</td>
+<td>17</td>
+<td>25</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>加密對照表</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><b>以 <img alt="a = 17, b = 10" class="math" height="16" src="math-027.png" width="99"> 為例</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>明文</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>D</td>
+<td>E</td>
+<td>F</td>
+<td>G</td>
+<td>H</td>
+<td>I</td>
+<td>J</td>
+<td>K</td>
+<td>L</td>
+<td>M</td>
+<td>N</td>
+<td>O</td>
+<td>P</td>
+<td>Q</td>
+<td>R</td>
+<td>S</td>
+<td>T</td>
+<td>U</td>
+<td>V</td>
+<td>W</td>
+<td>X</td>
+<td>Y</td>
+<td>Z</td>
+</tr>
+<tr>
+<td>密文</td>
+<td>K</td>
+<td>B</td>
+<td>S</td>
+<td>J</td>
+<td>A</td>
+<td>R</td>
+<td>I</td>
+<td>Z</td>
+<td>Q</td>
+<td>H</td>
+<td>Y</td>
+<td>P</td>
+<td>G</td>
+<td>X</td>
+<td>O</td>
+<td>F</td>
+<td>W</td>
+<td>N</td>
+<td>E</td>
+<td>V</td>
+<td>M</td>
+<td>D</td>
+<td>U</td>
+<td>L</td>
+<td>C</td>
+<td>T</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>加密演算</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>明文</td>
+<td>A</td>
+<td>F</td>
+<td>F</td>
+<td>I</td>
+<td>N</td>
+<td>E</td>
+<td>C</td>
+<td>I</td>
+<td>P</td>
+<td>H</td>
+<td>E</td>
+<td>R</td>
+</tr>
+<tr>
+<td><img alt="x" class="math" height="8" src="math-028.png" width="9"></td>
+<td>0</td>
+<td>5</td>
+<td>5</td>
+<td>8</td>
+<td>13</td>
+<td>4</td>
+<td>2</td>
+<td>8</td>
+<td>15</td>
+<td>7</td>
+<td>4</td>
+<td>17</td>
+</tr>
+<tr>
+<td><img alt="17x + 10" class="math" height="13" src="math-029.png" width="60"></td>
+<td>10</td>
+<td>95</td>
+<td>95</td>
+<td>146</td>
+<td>231</td>
+<td>78</td>
+<td>44</td>
+<td>146</td>
+<td>265</td>
+<td>129</td>
+<td>78</td>
+<td>299</td>
+</tr>
+<tr>
+<td><img alt="(17x + 10)\mod 26" class="math" height="17" src="math-030.png" width="137"></td>
+<td>10</td>
+<td>17</td>
+<td>17</td>
+<td>16</td>
+<td>23</td>
+<td>0</td>
+<td>18</td>
+<td>16</td>
+<td>5</td>
+<td>25</td>
+<td>0</td>
+<td>13</td>
+</tr>
+<tr>
+<td>密文</td>
+<td>K</td>
+<td>R</td>
+<td>R</td>
+<td>Q</td>
+<td>X</td>
+<td>A</td>
+<td>S</td>
+<td>Q</td>
+<td>F</td>
+<td>Z</td>
+<td>A</td>
+<td>N</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>解密演算</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>密文</td>
+<td>K</td>
+<td>R</td>
+<td>R</td>
+<td>Q</td>
+<td>X</td>
+<td>A</td>
+<td>S</td>
+<td>Q</td>
+<td>F</td>
+<td>Z</td>
+<td>A</td>
+<td>N</td>
+</tr>
+<tr>
+<td><img alt="x" class="math" height="8" src="math-031.png" width="9"></td>
+<td>10</td>
+<td>17</td>
+<td>17</td>
+<td>16</td>
+<td>23</td>
+<td>0</td>
+<td>18</td>
+<td>16</td>
+<td>5</td>
+<td>25</td>
+<td>0</td>
+<td>13</td>
+</tr>
+<tr>
+<td><img alt="23(x - 10)" class="math" height="17" src="math-032.png" width="73"></td>
+<td>0</td>
+<td>161</td>
+<td>161</td>
+<td>138</td>
+<td>299</td>
+<td>-230</td>
+<td>184</td>
+<td>138</td>
+<td>-115</td>
+<td>345</td>
+<td>-230</td>
+<td>69</td>
+</tr>
+<tr>
+<td><img alt="23(x - 10)\mod 26" class="math" height="17" src="math-033.png" width="138"></td>
+<td>0</td>
+<td>5</td>
+<td>5</td>
+<td>8</td>
+<td>13</td>
+<td>4</td>
+<td>2</td>
+<td>8</td>
+<td>15</td>
+<td>7</td>
+<td>4</td>
+<td>17</td>
+</tr>
+<tr>
+<td>明文</td>
+<td>A</td>
+<td>F</td>
+<td>F</td>
+<td>I</td>
+<td>N</td>
+<td>E</td>
+<td>C</td>
+<td>I</td>
+<td>P</td>
+<td>H</td>
+<td>E</td>
+<td>R</td>
+</tr>
+</tbody>
+</table></div>
+<p><b>程式碼範例</b></p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">private char Encrypt(char c)
+{
+    if (!char.IsLetter(c))
+    {
+        return c;
+    }
+
+    char firstChar = char.IsUpper(c) ? 'A' : 'a';
+    int x = c - firstChar;
+    int result = (17 * x + 10) % 26;
+    if(result &lt; 0)
+    {
+        result = result + 26;
+    }
+
+    return (char)(result + firstChar);
+}
+
+private char Decrypt(char c)
+{
+    if (!char.IsLetter(c))
+    {
+        return c;
+    }
+
+    char firstChar = char.IsUpper(c) ? 'A' : 'a';
+    int x = c - firstChar;
+    int result = (23 * (x - 17)) % 26;
+    if(result &lt; 0)
+    {
+        result = result + 26;
+    }
+
+    return (char)(result + firstChar);
+}</code></pre>
+
+<h3>簡易替換密碼 Simple Substitution Cipher</h3>
+<p>一種以特定方式改變字母表的字母順序，並以此順序修改的加密方式，利用此方法產生的對照表可稱為「替換表」。<br>
+傳統做法上，會在替換表前頭加入<b>關鍵字</b>，依序將字母填入並刪去重複字母，最後再將<b>剩餘字母按照排序填入</b>。</p>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>加密對照表</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><b>以 HELLO WORLD 為例</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>明文</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>D</td>
+<td>E</td>
+<td>F</td>
+<td>G</td>
+<td>H</td>
+<td>I</td>
+<td>J</td>
+<td>K</td>
+<td>L</td>
+<td>M</td>
+<td>N</td>
+<td>O</td>
+<td>P</td>
+<td>Q</td>
+<td>R</td>
+<td>S</td>
+<td>T</td>
+<td>U</td>
+<td>V</td>
+<td>W</td>
+<td>X</td>
+<td>Y</td>
+<td>Z</td>
+</tr>
+<tr>
+<td>密文</td>
+<td>H</td>
+<td>E</td>
+<td>L</td>
+<td>O</td>
+<td>W</td>
+<td>R</td>
+<td>D</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>F</td>
+<td>G</td>
+<td>I</td>
+<td>J</td>
+<td>K</td>
+<td>M</td>
+<td>N</td>
+<td>P</td>
+<td>Q</td>
+<td>S</td>
+<td>T</td>
+<td>U</td>
+<td>V</td>
+<td>X</td>
+<td>Y</td>
+<td>Z</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<td><b>加密、解密演算</b></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>明文</td>
+<td>S</td>
+<td>I</td>
+<td>M</td>
+<td>P</td>
+<td>L</td>
+<td>E</td>
+<td>S</td>
+<td>U</td>
+<td>B</td>
+<td>S</td>
+<td>T</td>
+<td>I</td>
+<td>T</td>
+<td>U</td>
+<td>T</td>
+<td>I</td>
+<td>O</td>
+<td>N</td>
+<td>C</td>
+<td>I</td>
+<td>P</td>
+<td>H</td>
+<td>E</td>
+<td>R</td>
+</tr>
+<tr>
+<td>密文</td>
+<td>P</td>
+<td>F</td>
+<td>J</td>
+<td>M</td>
+<td>I</td>
+<td>A</td>
+<td>P</td>
+<td>T</td>
+<td>E</td>
+<td>P</td>
+<td>Q</td>
+<td>F</td>
+<td>Q</td>
+<td>T</td>
+<td>Q</td>
+<td>F</td>
+<td>L</td>
+<td>K</td>
+<td>B</td>
+<td>F</td>
+<td>M</td>
+<td>D</td>
+<td>A</td>
+<td>O</td>
+</tr>
+</tbody>
+</table></div>
+<p><b>程式碼範例</b></p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">private string m_plainAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+private string m_cipherAlphabet = "HELOWRDABCFGIJKMNPQSTUVXYZ";
+
+private char Encrypt(char c)
+{
+    if (!char.IsLetter(c))
+    {
+        return c;
+    }
+
+    int index = m_plainAlphabet.IndexOf(char.ToUpper(c));
+    if(char.IsUpper(c))
+    {
+        return m_cipherAlphabet[index];
+    }
+    else
+    {
+        return char.ToLower(m_cipherAlphabet[index]);
+    }
+}
+
+private char Decrypt(char c)
+{
+    if (!char.IsLetter(c))
+    {
+        return c;
+    }
+
+    int index = m_cipherAlphabet.IndexOf(char.ToUpper(c));
+    if (char.IsUpper(c))
+    {
+        return m_plainAlphabet[index];
+    }
+    else
+    {
+        return char.ToLower(m_plainAlphabet[index]);
+    }
+}</code></pre>
+<h2>參考資料</h2>
+<p><a href="https://en.wikipedia.org/wiki/Classical_cipher" rel="noopener noreferrer" target="_blank">Classical cipher – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Caesar_cipher" rel="noopener noreferrer" target="_blank">Caesar cipher – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Affine_cipher" rel="noopener noreferrer" target="_blank">Affine cipher – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Modular_multiplicative_inverse" rel="noopener noreferrer" target="_blank">Modular multiplicative inverse – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Substitution_cipher" rel="noopener noreferrer" target="_blank">Substitution cipher – Wikipedia</a></p>

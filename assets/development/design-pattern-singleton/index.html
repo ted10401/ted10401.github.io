@@ -1,0 +1,196 @@
+<!--
+{
+  "title": "Singleton Pattern – 獨體模式、單例模式",
+  "date": "2016-07-10",
+  "category": "Unity · Design Pattern",
+  "excerpt": "首先，什麼是獨體模式呢? 獨體模式又要用在什麼地方呢?",
+  "image": "assets/development-cover.png",
+  "imageAlt": "Singleton Pattern – 獨體模式、單例模式 封面",
+  "shortTitle": "Singleton Pattern",
+  "heading": "Singleton Pattern<br><span>獨體模式、單例模式</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/design-pattern-singleton/"
+}
+-->
+<p>前一陣子看了一本設計模式的書</p>
+<p>學到了一些專有名詞</p>
+<p>這裡先來介紹一下</p>
+<p>很簡單但卻很實用的獨體模式</p>
+
+<p>首先，什麼是獨體模式呢? 獨體模式又要用在什麼地方呢?</p>
+
+<p>獨體模式是一種常用的設計模式</p>
+<p>在使用這個模式時，可以確保生成對象只有一個實例存在</p>
+
+<p>而獨體模式可以應用的範圍非常廣泛</p>
+<p>簡而言之的話</p>
+<p>只要在開發遊戲時希望某個類別只會有一個實例化物件</p>
+<p>就可以使用到獨體模式</p>
+<p>例如：伺服器溝通系統、遊戲主管理類等等</p>
+
+<p>獨體模式的初始化有很多種作法</p>
+<p>靜態初始化、靜態延遲初始化等等</p>
+<p>個人比較喜歡延遲初始化</p>
+<p>延遲初始化是在需要時才進行初始化</p>
+<p>而靜態初始化就是在遊戲一進行就進行初始化</p>
+
+<p>第一種：</p>
+<p>最簡易版本，有線程問題</p>
+
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class Singleton : MonoBehaviour
+{
+	private static Singleton _instance;
+
+	public static Singleton Instance
+	{
+		get
+		{
+			if( _instance == null )
+			{
+				if( _instance == null )
+				{
+					GameObject singleton = new GameObject();
+
+					_instance = singleton.AddComponent&lt;Singleton&gt;();
+					singleton.name = "[Singleton] " + typeof(Singleton).ToString();
+
+					DontDestroyOnLoad( singleton );
+
+					Debug.Log( "[Singleton] An instance of " + typeof(Singleton) +
+					          " is needed in the scene, so '" + singleton +
+					          "' was created with DontDestroyOnLoad.");
+				}
+				else
+				{
+					Debug.Log( "[Singleton] Using instance already created: " +
+					          _instance.gameObject.name );
+				}
+			}
+
+			return _instance;
+		}
+	}
+}</code></pre>
+
+<p>第二種：</p>
+<p>針對線程問題修改，使用 lock</p>
+
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class Singleton : MonoBehaviour
+{
+	private static Singleton _instance;
+
+	private static object _lock = new object();
+
+	public static Singleton Instance
+	{
+		get
+		{
+			lock( _lock )
+			{
+				if( _instance == null )
+				{
+					if( _instance == null )
+					{
+						GameObject singleton = new GameObject();
+
+						_instance = singleton.AddComponent&lt;Singleton&gt;();
+						singleton.name = "[Singleton] " + typeof(Singleton).ToString();
+
+						DontDestroyOnLoad( singleton );
+
+						Debug.Log( "[Singleton] An instance of " + typeof(Singleton) +
+						          " is needed in the scene, so '" + singleton +
+						          "' was created with DontDestroyOnLoad.");
+					}
+					else
+					{
+						Debug.Log( "[Singleton] Using instance already created: " +
+						          _instance.gameObject.name );
+					}
+				}
+			}
+
+			return _instance;
+		}
+	}
+}</code></pre>
+
+<p>第三種：</p>
+<p>看到網路上的高手的寫法拿來自己用</p>
+<p>使用泛型、使用 Double-Checked Locking</p>
+
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class Singleton&lt;T&gt; : MonoBehaviour where T : MonoBehaviour
+{
+	private static T _instance;
+
+	private static object _lock = new object();
+
+	public static T Instance
+	{
+		get
+		{
+			if( applicationIsQuitting )
+			{
+				Debug.LogWarning( "[Singleton] Instance '" + typeof(T) +
+				                 "' already destroyed on application quit." +
+				                 " Won't create again - returning null." );
+
+				return null;
+			}
+
+			lock( _lock )
+			{
+				if( _instance == null )
+				{
+					_instance = (T) FindObjectOfType( typeof(T) );
+
+					if( FindObjectsOfType( typeof(T) ).Length &gt; 1 )
+					{
+						Debug.LogError( "[Singleton] Something went really wrong " +
+						               " - there should never be more than 1 singleton!" +
+						               " Reopenning the scene might fix it.");
+
+						return _instance;
+					}
+
+					if( _instance == null )
+					{
+						GameObject singleton = new GameObject();
+
+						_instance = singleton.AddComponent&lt;T&gt;();
+						singleton.name = "[Singleton] " + typeof(T).ToString();
+
+						DontDestroyOnLoad( singleton );
+
+						Debug.Log( "[Singleton] An instance of " + typeof(T) +
+						          " is needed in the scene, so '" + singleton +
+						          "' was created with DontDestroyOnLoad.");
+					}
+					else
+					{
+						Debug.Log( "[Singleton] Using instance already created: " +
+						          _instance.gameObject.name );
+					}
+				}
+			}
+
+			return _instance;
+		}
+
+	}
+
+	private static bool applicationIsQuitting = false;
+
+	void OnDestroy()
+	{
+		applicationIsQuitting = true;
+	}
+}</code></pre>

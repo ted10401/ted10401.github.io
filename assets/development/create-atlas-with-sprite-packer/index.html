@@ -1,0 +1,60 @@
+<!--
+{
+  "title": "Create Atlas with Sprite Packer – Sprite Packer 圖集製作",
+  "date": "2016-07-11",
+  "category": "Unity · UGUI",
+  "excerpt": "uGUI 是 Unity 從 4.6 開始推出的內建 UI 系統 這個系列主要是讓大家能夠了解 uGUI的基礎操作流程",
+  "image": "f68ea51cfe5969ac2e443f00915092e6.png",
+  "imageAlt": "Create Atlas with Sprite Packer – Sprite Packer 圖集製作 封面",
+  "shortTitle": "Create Atlas with Sprite Packer",
+  "heading": "Create Atlas with Sprite Packer<br><span>Sprite Packer 圖集製作</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/create-atlas-with-sprite-packer/"
+}
+-->
+<p>uGUI 是 Unity 從 4.6 開始推出的內建 UI 系統<br>
+這個系列主要是讓大家能夠了解 uGUI的基礎操作流程</p>
+
+<p>一開始這邊提取了 NGUI 內建圖集中的圖片來作為教學中的示範</p>
+<p><img alt="Create Atlas with Sprite Packer – Sprite Packer 圖集製作 插圖" decoding="async" height="1430" loading="lazy" src="f68ea51cfe5969ac2e443f00915092e6.png" width="1022"></p>
+
+<p>將 Texture Type 切換為 Sprite (2D and UI)</p>
+<p><img alt="Create Atlas with Sprite Packer – Sprite Packer 圖集製作 插圖" decoding="async" height="664" loading="lazy" src="de2ee091d1b71d7859f27c4fe41c7682.png" width="554"></p>
+
+<p>這個步驟是將貼圖的形態轉換</p>
+<p>按下 Apply 後貼圖形態就會轉換成功</p>
+<p>接下來看一下 Sprite (2D and UI) 裡的參數</p>
+
+<p>Sprite Mode : 選擇圖片提取方式</p>
+<p>Single : 單獨圖片</p>
+<p>Multiple : 圖片中包含多個關聯圖片</p>
+<p>PackingTag : 圖片打包標簽</p>
+<p>Pixels Per Unit : 單位像素大小</p>
+<p>Pivot : 圖片中心</p>
+
+<p>詳細請看官方講解</p>
+<p><a href="http://docs.unity3d.com/Manual/class-TextureImporter.html" rel="noopener noreferrer" target="_blank">http://docs.unity3d.com/Manual/class-TextureImporter.html</a></p>
+
+<p>接下來進行製作圖集的動作</p>
+<p>將 Sprite Mode 切換為 Single</p>
+<p>並將 Packing Tag 設定為 Atlas (隨意命名)<br>
+<img alt="Create Atlas with Sprite Packer – Sprite Packer 圖集製作 插圖" decoding="async" height="672" loading="lazy" src="1efcd4756ca6000ec6c5d063a9cfddbc.png" width="552"></p>
+
+<p>按下 Apply 後一定會有個疑問<br>
+為什麼好像什麼都沒發生…</p>
+
+<p>讓我們開啟 Sprite Packer 看看有什麼發生</p>
+<p>若是點選 Window 發現 Sprite Packer 無法選取</p>
+<p><img alt="Create Atlas with Sprite Packer – Sprite Packer 圖集製作 插圖" decoding="async" height="880" loading="lazy" src="442a358cc5c4de09d53376c7e07819bb.png" width="376"></p>
+
+<p>到 Edit -&gt; Project Settings -&gt; Editor</p>
+<p>將 Sprite Packer 切換為 Always Enabled</p>
+<p><img alt="Create Atlas with Sprite Packer – Sprite Packer 圖集製作 插圖" decoding="async" height="756" loading="lazy" src="215175c6be2eac326fcec785e41123ee.png" width="552"></p>
+
+<p>如果切換了還是無法打開 Sprite Packer 是因為這功能只支持 Pro 版…..</p>
+<p>在 4.6 中 Sprite Packer 需要 pro licence 才能開啟</p>
+<p>而 5.0 後的版本則不需要 pro licence<br>
+所以我也無法開啟 Sprite Packer 視窗</p>
+
+<p>開啟後</p>
+<p>點選 Pack 按鈕後</p>
+<p>Unity 就會自動進行打包</p>

@@ -1,0 +1,191 @@
+<!--
+{
+  "title": "HSBC Image Effect",
+  "date": "2016-07-14",
+  "category": "Unity · Shader",
+  "excerpt": "在各種影像處理軟體中 常常會處理影像的各種數值 例如：曝光、對比、飽和度、色相…等等",
+  "image": "cover-hsbc_0-5hue.png",
+  "imageAlt": "HSBC Image Effect 封面",
+  "source": "https://tedsieblog.wordpress.com/2016/07/14/hsbc-image-effect/"
+}
+-->
+<p>在各種影像處理軟體中<br>
+常常會處理影像的各種數值<br>
+例如：曝光、對比、飽和度、色相…等等</p>
+<p><img alt="mavs_adj_color_window" decoding="async" height="950" loading="lazy" src="mavs_adj_color_window.png" width="636"></p>
+<p>在這篇教學中<br>
+撰寫了一個用來調整這些參數的 Shader<br>
+並且運用在 Image Effect 上<br>
+使整個場景都能受到這個 Shader 影響</p>
+<p>HSBC Effect.shader</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">Shader "Unlit/HSBC Effect"
+{
+	Properties
+	{
+		_MainTex ("Texture", 2D) = "white" {}
+		_Hue ("Hue", Range(0, 1.0)) = 0
+		_Saturation ("Saturation", Range(0, 1.0)) = 0.5
+		_Brightness ("Brightness", Range(0, 1.0)) = 0.5
+		_Contrast ("Contrast", Range(0, 1.0)) = 0.5
+	}
+	SubShader
+	{
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+
+			inline float3 applyHue(float3 aColor, float aHue)
+            {
+                float angle = radians(aHue);
+                float3 k = float3(0.57735, 0.57735, 0.57735);
+                float cosAngle = cos(angle);
+
+                return aColor * cosAngle + cross(k, aColor) * sin(angle) + k * dot(k, aColor) * (1 - cosAngle);
+            }
+
+			inline float4 applyHSBCEffect(float4 startColor, fixed4 hsbc)
+            {
+                float hue = 360 * hsbc.r;
+                float saturation = hsbc.g * 2;
+                float brightness = hsbc.b * 2 - 1;
+                float contrast = hsbc.a * 2;
+
+                float4 outputColor = startColor;
+                outputColor.rgb = applyHue(outputColor.rgb, hue);
+                outputColor.rgb = (outputColor.rgb - 0.5f) * contrast + 0.5f;
+                outputColor.rgb = outputColor.rgb + brightness;
+                float3 intensity = dot(outputColor.rgb, float3(0.39, 0.59, 0.11));
+    			outputColor.rgb = lerp(intensity, outputColor.rgb, saturation);
+
+                return outputColor;
+            }
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+				fixed4 color : COLOR;
+			};
+
+			struct v2f
+			{
+				float4 vertex : SV_POSITION;
+				float2 uv : TEXCOORD0;
+				fixed4 hsbc : COLOR;
+			};
+
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+			fixed _Hue, _Saturation, _Brightness, _Contrast;
+
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+				o.hsbc = fixed4(_Hue, _Saturation, _Brightness, _Contrast);
+
+				return o;
+			}
+
+			fixed4 frag (v2f i) : COLOR
+			{
+				fixed4 startColor = tex2D(_MainTex, i.uv);
+				float4 hsbcColor = applyHSBCEffect(startColor, i.hsbc);
+
+				return hsbcColor;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+<p>這個 Shader 中包含四個可調參數<br>
+Hue：色相<br>
+Saturation：飽和度<br>
+Brightness：亮度<br>
+Contrast：對比</p>
+<p>這時候已經可以利用 Material 來對單一物件進行調整<br>
+但我們這篇多利用了 Post Effect 來對整個畫面做調整</p>
+<p>HSBCImageEffect.cs</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+[ExecuteInEditMode]
+public class HSBCImageEffect : MonoBehaviour
+{
+	[Range(0, 1.0f)]
+	public float hue = 0;
+	[Range(0, 1.0f)]
+	public float saturation = 0.5f;
+	[Range(0, 1.0f)]
+	public float brightness = 0.5f;
+	[Range(0, 1.0f)]
+	public float constract = 0.5f;
+
+	private string m_huePropertyName = "_Hue";
+	private string m_saturationPropertyName = "_Saturation";
+	private string m_brightnessPropertyName = "_Brightness";
+	private string m_constractPropertyName = "_Contrast";
+
+	private int m_hueID;
+	private int m_saturationID;
+	private int m_brightnessID;
+	private int m_constractID;
+
+	private Material m_material;
+
+	void Awake ()
+	{
+		InitPropertyIDs();
+	}
+
+	private void InitPropertyIDs()
+	{
+		if(m_material == null)
+			m_material = new Material( Shader.Find("Unlit/HSBC Effect") );
+
+		m_hueID = Shader.PropertyToID(m_huePropertyName);
+		m_saturationID = Shader.PropertyToID(m_saturationPropertyName);
+		m_brightnessID = Shader.PropertyToID(m_brightnessPropertyName);
+		m_constractID = Shader.PropertyToID(m_constractPropertyName);
+	}
+
+	private void OnValidate()
+	{
+		if(m_material == null)
+			m_material = new Material( Shader.Find("Unlit/HSBC Effect") );
+
+		m_material.SetFloat(m_hueID, hue);
+		m_material.SetFloat(m_saturationID, saturation);
+		m_material.SetFloat(m_brightnessID, brightness);
+		m_material.SetFloat(m_constractID, constract);
+	}
+
+	void OnRenderImage (RenderTexture source, RenderTexture destination)
+	{
+		Graphics.Blit (source, destination, m_material);
+	}
+}</code></pre>
+<p><a href="https://docs.unity3d.com/ScriptReference/ExecuteInEditMode.html" rel="noopener noreferrer" target="_blank">ExecuteInEditMode</a><br>
+<a href="http://docs.unity3d.com/ScriptReference/MonoBehaviour.OnValidate.html" rel="noopener noreferrer" target="_blank">MonoBehaviour.OnValidate</a><br>
+<a href="http://docs.unity3d.com/ScriptReference/MonoBehaviour.OnRenderImage.html" rel="noopener noreferrer" target="_blank">MonoBehaviour.OnRenderImage</a></p>
+<p>將 HSBCImageEffect.cs 附加到 Camera 上<br>
+即可看到修改成果</p>
+<p>H = 0, S = 0.5, B = 0.5, C = 0.5<br>
+<img alt="HSBC_normal" decoding="async" height="832" loading="lazy" src="hsbc_normal.png" width="1332"></p>
+<p>H = 0.5, S = 0.5, B = 0.5, C = 0.5<br>
+<img alt="HSBC_0.5Hue" decoding="async" height="832" loading="lazy" src="hsbc_0-5hue.png" width="1330"></p>
+<p>H = 0, S = 0, B = 0.5, C = 0.5<br>
+<img alt="HSBC_0S" decoding="async" height="828" loading="lazy" src="hsbc_0s.png" width="1330"></p>
+<p>H = 0, S = 1, B = 0.5, C = 0.5<br>
+<img alt="HSBC_1S" decoding="async" height="830" loading="lazy" src="hsbc_1s.png" width="1332"></p>
+<p>H = 0, S = 0.5, B = 0.5, C = 1<br>
+<img alt="HSBC_1C" decoding="async" height="830" loading="lazy" src="hsbc_1c.png" width="1328"></p>
+<p>參考來源：<br>
+<a href="http://forum.unity3d.com/threads/hue-saturation-brightness-contrast-shader.260649/" rel="noopener noreferrer" target="_blank">Hue, saturation, brightness, contrast shader</a></p>
+<p>使用資源：<br>
+<a href="https://www.assetstore.unity3d.com/en/#!/content/52977" rel="noopener noreferrer" target="_blank">Nature Starter Kit 2</a></p>

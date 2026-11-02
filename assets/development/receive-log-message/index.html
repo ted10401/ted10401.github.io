@@ -1,0 +1,191 @@
+<!--
+{
+  "title": "Receive Log Message – 獲取日誌資訊",
+  "date": "2018-11-15",
+  "category": "Unity",
+  "excerpt": "開發各種軟體時，開發者往往會在許多地方埋入日誌 ，以便在執行軟體的過程中輔助辨別軟體的運行狀態。在 Unity 中可以使用 Debug 並在編輯器中搭配 C…",
+  "image": "cover-receive_log_message_runtime_console.png",
+  "imageAlt": "Receive Log Message – 獲取日誌資訊 封面",
+  "shortTitle": "Receive Log Message",
+  "heading": "Receive Log Message<br><span>獲取日誌資訊</span>",
+  "source": "https://tedsieblog.wordpress.com/2018/11/15/receive-log-message/"
+}
+-->
+<p>開發各種軟體時，開發者往往會在許多地方埋入日誌 ，以便在執行軟體的過程中輔助辨別軟體的運行狀態。在 Unity 中可以使用 <a href="https://docs.unity3d.com/ScriptReference/Debug.html" rel="noopener noreferrer" target="_blank">Debug</a> 並在編輯器中搭配 <a href="https://docs.unity3d.com/Manual/Console.html" rel="noopener noreferrer" target="_blank">Console</a> 視窗來追蹤開發者、系統所發送的日誌資訊。只要開發者仍在編輯器上進行開發，則能透過 <a href="https://docs.unity3d.com/Manual/Console.html" rel="noopener noreferrer" target="_blank">Console</a> 視窗來觀察系統資訊，但也衍生出另一個問題。</p>
+<p>當遊戲開發至一定程度時，會開始將遊戲打包並交給 QA 進行測試以確保遊戲品質及 Bug 都能被有效驗證。當 QA 回報問題時，若能提供問題的重現步驟，甚至提供日誌資訊，將大大的降低開發者除錯的難易度。然而 <a href="https://docs.unity3d.com/Manual/Console.html" rel="noopener noreferrer" target="_blank">Console</a> 視窗並無法在非編輯器的環境下開啟，導致實機測試時往往需要透過其他方法來擷取這些資訊。</p>
+<p>在這篇文章中能夠學到，<b>如何發送日誌</b>、<b>如何觀察日誌</b>、<b>如何獲取日誌</b>。</p>
+<hr>
+<h2>如何發送日誌</h2>
+<p>Unity 提供了方便的日誌工具，有五種類型的日誌可以使用。</p>
+<div class="table-scroll"><table>
+<tr>
+<td><a href="https://docs.unity3d.com/ScriptReference/Debug.Log.html" rel="noopener noreferrer" target="_blank">Debug.Log</a></td>
+<td>發送一般日誌</td>
+</tr>
+<tr>
+<td><a href="https://docs.unity3d.com/ScriptReference/Debug.LogWarning.html" rel="noopener noreferrer" target="_blank">Debug.LogWarning</a></td>
+<td>發送警告日誌</td>
+</tr>
+<tr>
+<td><a href="https://docs.unity3d.com/ScriptReference/Debug.LogError.html" rel="noopener noreferrer" target="_blank">Debug.LogError</a></td>
+<td>發送錯誤日誌</td>
+</tr>
+<tr>
+<td><a href="https://docs.unity3d.com/ScriptReference/Debug.LogException.html" rel="noopener noreferrer" target="_blank">Debug.LogException</a></td>
+<td>發送例外日誌</td>
+</tr>
+<tr>
+<td><a href="https://docs.unity3d.com/ScriptReference/Debug.LogAssertion.html" rel="noopener noreferrer" target="_blank">Debug.LogAssertion</a></td>
+<td>發送斷言日誌</td>
+</tr>
+</table></div>
+<p>使用這些 API 後，即可在運行的狀態下取得遊戲的執行資訊。</p>
+<p><img alt="Receive Log Message – 獲取日誌資訊 插圖" decoding="async" height="424" loading="lazy" src="receive_log_message_example_class.png" width="1046"><br>
+<img alt="Receive Log Message – 獲取日誌資訊 插圖" decoding="async" height="326" loading="lazy" src="receive_log_message_console.png" width="548"></p>
+<hr>
+<h2>如何觀察日誌</h2>
+<p>在 Unity 編輯器中的觀察方法相當簡單。<br>
+開啟 MenuItem/Windows/General/Conosle</p>
+<p><img alt="Receive Log Message – 獲取日誌資訊 插圖" decoding="async" height="790" loading="lazy" src="receive_log_message_window_general_console.png" width="742"></p>
+<div class="table-scroll"><table>
+<tr>
+<td><b>對應功能</b></td>
+<td></td>
+</tr>
+<tr>
+<td>Clear</td>
+<td>清除所有日誌資訊</td>
+</tr>
+<tr>
+<td>Collapse</td>
+<td>摺疊日誌資訊，將相同日誌合併</td>
+</tr>
+<tr>
+<td>Clear on Play</td>
+<td>開始運行遊戲時清除所有日誌資訊</td>
+</tr>
+<tr>
+<td>Error Pause</td>
+<td>出現錯誤日誌時暫停遊戲</td>
+</tr>
+<tr>
+<td>Log Toggle</td>
+<td>顯示一般日誌</td>
+</tr>
+<tr>
+<td>Warning Toggle</td>
+<td>顯示警告日誌</td>
+</tr>
+<tr>
+<td>Error Toggle</td>
+<td>顯示錯誤日誌</td>
+</tr>
+</table></div>
+<p><img alt="Receive Log Message – 獲取日誌資訊 插圖" decoding="async" height="712" loading="lazy" src="receive_log_message_console_window.png" width="926"></p>
+<hr>
+<h2>如何獲取日誌</h2>
+<p>如同上面所述，<a href="https://docs.unity3d.com/Manual/Console.html" rel="noopener noreferrer" target="_blank">Console</a> 視窗只限定於編輯器環境下使用，但能透過其他方法捕捉並獲取這些資訊。</p>
+<div class="table-scroll"><table>
+<tr>
+<td><a href="https://docs.unity3d.com/ScriptReference/Application.LogCallback.html" rel="noopener noreferrer" target="_blank">Application.LogCallback</a></td>
+<td>搭配 Application.logMessageReceived 及 Application.logMessageReceivedThreaded 的委派方法</td>
+</tr>
+<tr>
+<td><a href="https://docs.unity3d.com/ScriptReference/Application-logMessageReceived.html" rel="noopener noreferrer" target="_blank">Application.logMessageReceived</a></td>
+<td>在主執行緒中收到日誌訊息時觸發的事件</td>
+</tr>
+<tr>
+<td><a href="https://docs.unity3d.com/ScriptReference/Application-logMessageReceivedThreaded.html" rel="noopener noreferrer" target="_blank">Application.logMessageReceivedThreaded</a></td>
+<td>在非主執行緒中收到日誌訊息時觸發的事件</td>
+</tr>
+</table></div>
+<hr>
+<h2>實作範例 – 在遊戲畫面中顯示最新的 10 條日誌</h2>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections.Generic;
+
+public class ExampleClass : MonoBehaviour
+{
+    private class LogData
+    {
+        public string LogString;
+        public string StackTrace;
+        public LogType LogType;
+
+        public LogData(string logString, string stackTrace, LogType logType)
+        {
+            LogString = logString;
+            StackTrace = stackTrace;
+            LogType = logType;
+        }
+    }
+
+    private List&lt;LogData&gt; m_logDatas = new List&lt;LogData&gt;();
+    private string m_onGUIString;
+
+    private void Awake ()
+    {
+        Application.logMessageReceived += OnLogMessageReceived;
+    }
+
+    private void OnDestroy()
+    {
+        Application.logMessageReceived -= OnLogMessageReceived;
+    }
+
+    private void OnLogMessageReceived(string logString, string stackTrace, LogType logType)
+    {
+        m_logDatas.Add(new LogData(logString, stackTrace, logType));
+
+        if(m_logDatas.Count &gt; 10)
+        {
+            m_logDatas.RemoveAt(0);
+        }
+
+        m_onGUIString = string.Empty;
+        int count = m_logDatas.Count - 1;
+        for (int i = count; i &gt;= 0; i--)
+        {
+            if(i != count)
+            {
+                m_onGUIString += "\n";
+            }
+
+            switch(m_logDatas[i].LogType)
+            {
+                case LogType.Log:
+                    m_onGUIString += "&lt;color=white&gt;";
+                    break;
+                case LogType.Warning:
+                    m_onGUIString += "&lt;color=yellow&gt;";
+                    break;
+                case LogType.Error:
+                case LogType.Exception:
+                case LogType.Assert:
+                    m_onGUIString += "&lt;color=red&gt;";
+                    break;
+            }
+
+            m_onGUIString += m_logDatas[i].LogString;
+            m_onGUIString += "&lt;/color&gt;";
+        }
+    }
+
+    private void OnGUI()
+    {
+        GUI.Label(new Rect(0, 0, Screen.width, Screen.height), m_onGUIString);
+    }
+}</code></pre>
+<p><img alt="Receive Log Message – 獲取日誌資訊 插圖" decoding="async" height="346" loading="lazy" src="receive_log_message_example.gif" width="616"></p>
+<hr>
+<h2>Runtime Console</h2>
+<p>知道如何獲取日誌資訊後，接下來只要稍加包裝，即可完成在實機上運行的 Runtime Console<br>
+<img alt="Receive Log Message – 獲取日誌資訊 插圖" decoding="async" height="764" loading="lazy" src="receive_log_message_runtime_console.png" width="1238"><br>
+<img alt="Receive Log Message – 獲取日誌資訊 插圖" decoding="async" height="382" loading="lazy" src="receive_log_message_runtime_console.gif" width="620"></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://docs.unity3d.com/Manual/Console.html" rel="noopener noreferrer" target="_blank">Unity – Manual: Console Window</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/Debug.html" rel="noopener noreferrer" target="_blank">Unity – Scripting API: Debug</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/Application.LogCallback.html" rel="noopener noreferrer" target="_blank">Unity – Scripting API: Application.LogCallback</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/Application-logMessageReceived.html" rel="noopener noreferrer" target="_blank">Unity – Scripting API: Application.logMessageReceived</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/Application-logMessageReceivedThreaded.html" rel="noopener noreferrer" target="_blank">Unity – Scripting API: Application.logMessageReceivedThreaded</a></p>

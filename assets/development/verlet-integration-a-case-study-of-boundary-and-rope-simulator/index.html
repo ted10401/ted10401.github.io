@@ -1,0 +1,131 @@
+<!--
+{
+  "title": "Verlet Integration – A Case Study of Boundary and Rope Simulator",
+  "date": "2020-03-04",
+  "category": "Unity · Physics",
+  "excerpt": "一般而言在實作物體移動時會使用 Kinematic Equation 運動方程式 由於運動方程式需要速度 加速度等資訊才能夠有效運算 Verlet Inte…",
+  "image": "cover-verlet_integration_rope_final3.gif",
+  "imageAlt": "Verlet Integration – A Case Study of Boundary and Rope Simulator 封面",
+  "shortTitle": "Verlet Integration",
+  "heading": "Verlet Integration<br><span>A Case Study of Boundary and Rope Simulator</span>",
+  "source": "https://tedsieblog.wordpress.com/2020/03/04/verlet-integration-a-case-study-of-boundary-and-rope-simulator/"
+}
+-->
+<p>一般而言在實作物體移動時會使用<b>Kinematic Equation 運動方程式</b><br>
+由於運動方程式需要速度<br>
+加速度等資訊才能夠有效運算<br>
+<b>Verlet Integration 韋爾萊積分法</b>則是另一種運動方程式的解決方案<br>
+能夠在不需要速度的前提下<br>
+只依靠物體的當前位置、前一幀位置就模擬出結果</p>
+<hr>
+<h2>Kinematic Equation 運動方程式</h2>
+<p><img alt="x = x_{0} + v_{0}t + \frac{1}{2}at^{2} + \frac{1}{6}bt^{3} \cdots" class="math" height="20" src="math-001.png" width="208"></p>
+<p>在離地五公尺的地方放開一顆球<br>
+想要知道這顆球的位置與時間的關係<br>
+從高中物理等加速度運動公式可以得知</p>
+<p><img alt="\begin{aligned}  \\ S &amp;= v_{0}t + \frac{1}{2}at^{2}  \\ v_{0} &amp;= 0  \\ a &amp;= 10 &amp;m/s^{2}  \\ \frac{a}{2} &amp;= 5 &amp;m/s^{2}  \\  \\ x &amp;= 5t^{2}  \\ x_{0} &amp;= 5 * 0^{2} &amp;&amp;= 0  \\ x_{1} &amp;= 5 * 0.1^{2} &amp;&amp;= 0.05  \\ x_{2} &amp;= 5 * 0.2^{2} &amp;&amp;= 0.2  \\ x_{3} &amp;= 5 * 0.3^{2} &amp;&amp;= 0.45  \\ x_{4} &amp;= 5 * 0.4^{2} &amp;&amp;= 0.8  \\ x_{5} &amp;= 5 * 0.5^{2} &amp;&amp;= 1.25  \\ x_{6} &amp;= 5 * 0.6^{2} &amp;&amp;= 1.8  \\ x_{7} &amp;= 5 * 0.7^{2} &amp;&amp;= 2.45  \\ x_{8} &amp;= 5 * 0.8^{2} &amp;&amp;= 3.2  \\ x_{9} &amp;= 5 * 0.9^{2} &amp;&amp;= 4.05  \\ x_{10} &amp;= 5 * 1.0^{2} &amp;&amp;= 5  \end{aligned}  " class="math" height="431" src="math-002.png" width="218"></p>
+<hr>
+<h2>Verlet Integration 韋爾萊積分法</h2>
+<p>本質上是運動方程式的一種解決方案<br>
+將時間變化量帶入運動方程式 <img alt="x = x_{0} + v_{0}t + \frac{1}{2}at^{2} + \frac{1}{6}bt^{3} \cdots" class="math" height="20" src="math-003.png" width="208"><br>
+調整為<br>
+<img alt="\begin{aligned}  \\ x(t) &amp;= x(t) + v(t) + \frac{1}{2}a(t) + \frac{1}{6}b(t) \cdots  \\ x(t + \Delta t) &amp;= x(t) + v(t)\Delta t + \frac{1}{2}a(t)\Delta t^{2} + \frac{1}{6}b(t)\Delta t^{3} + O(\Delta t^{4}) &amp;\cdots\left ( 1 \right )  \\ x(t - \Delta t) &amp;= x(t) - v(t)\Delta t + \frac{1}{2}a(t)\Delta t^{2} - \frac{1}{6}b(t)\Delta t^{3} + O(\Delta t^{4}) &amp;\cdots\left ( 2 \right )  \\  \\ x(t + \Delta t) + x(t - \Delta t) &amp;= 2x(t) + a(t)\Delta t^{2} + O(\Delta t^{4}) &amp;\cdots\left ( 1 \right ) + \left ( 2 \right )  \\ x(t + \Delta t) &amp;= 2x(t) -x(t - \Delta t) + a(t)\Delta t^{2} + O(\Delta t^{4})  \\ x(t + \Delta t) &amp;\cong 2x(t) -x(t - \Delta t) + a(t)\Delta t^{2}  \end{aligned}  " class="math" height="208" src="math-004.png" width="606"></p>
+<p>由此可知<br>
+只要知道當前位置 <img alt="x(t)" class="math" height="17" src="math-005.png" width="26">、前一位置 <img alt="x(t - \Delta t)" class="math" height="17" src="math-006.png" width="67">、加速度 <img alt="a(t)" class="math" height="17" src="math-007.png" width="26">、時間變化量 <img alt="\Delta t" class="math" height="12" src="math-008.png" width="20"><br>
+在不需要物體速度的前提下<br>
+即可求得物體的下一位置<br>
+<img alt="\begin{aligned}  \\x(t + \Delta t) &amp;= 2x(t) -x(t - \Delta t) + a(t)\Delta t^{2}  \\ a(t)\Delta t^{2} &amp;= 10 * 0.1^{2} = 0.1  \\  \\ x_{0} &amp;= 0  \\ x_{1} &amp;= 0.05  \\ x_{2} &amp;= 2x_{1} - x_{0} + a(t)\Delta t^{2} &amp;&amp;= 2 * 0.05 - 0 + 0.1 &amp;&amp;= 0.2  \\ x_{3} &amp;= 2x_{2} - x_{1} + a(t)\Delta t^{2} &amp;&amp;= 2 * 0.2 - 0.05 + 0.1 &amp;&amp;= 0.45  \\ x_{4} &amp;= 2x_{3} - x_{2} + a(t)\Delta t^{2} &amp;&amp;= 2 * 0.45 - 0.2 + 0.1 &amp;&amp;= 0.8  \\ x_{5} &amp;= 2x_{4} - x_{3} + a(t)\Delta t^{2} &amp;&amp;= 2 * 0.8 - 0.45 + 0.1 &amp;&amp;= 1.25  \\ x_{6} &amp;= 2x_{5} - x_{4} + a(t)\Delta t^{2} &amp;&amp;= 2 * 1.25 - 0.8 + 0.1 &amp;&amp;= 1.8  \\ x_{7} &amp;= 2x_{6} - x_{5} + a(t)\Delta t^{2} &amp;&amp;= 2 * 1.8 - 1.25 + 0.1 &amp;&amp;= 2.45  \\ x_{8} &amp;= 2x_{7} - x_{6} + a(t)\Delta t^{2} &amp;&amp;= 2 * 2.45 - 1.8 + 0.1 &amp;&amp;= 3.2  \\ x_{9} &amp;= 2x_{8} - x_{7} + a(t)\Delta t^{2} &amp;&amp;= 2 * 3.2 - 2.45 + 0.1 &amp;&amp;= 4.05  \\ x_{10} &amp;= 2x_{9} - x_{8} + a(t)\Delta t^{2} &amp;&amp;= 2 * 4.05 - 3.2 + 0.1 &amp;&amp;= 5  \end{aligned}  " class="math" height="334" src="math-009.png" width="521"></p>
+<hr>
+<h2>實作範例 – 邊界限制</h2>
+<p><b>1. 定義移動點</b></p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">public struct Dot
+{
+    public Vector3 position;
+    public Vector3 prevPosition;
+
+    public Dot(Vector3 position, float defaultVelocity)
+    {
+        this.position = position;
+        prevPosition = position - Quaternion.Euler(0, 0, Random.Range(0f, 360f)) * Vector3.up * defaultVelocity;
+    }
+}</code></pre>
+<p><b>2. 計算 Verlet Integration</b></p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">//定義加速度為 0
+Vector3 newPosition = 2 * position - prevPosition;</code></pre>
+<p><b>3. 邊界條件判斷</b></p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：判斷下一位置是否超過邊界" decoding="async" height="783" loading="lazy" src="verlet_integration_boundary_step1-2.jpg" width="786">判斷下一位置是否超過邊界</p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：將移動方向投影至邊界法向量求得新當前座標" decoding="async" height="785" loading="lazy" src="verlet_integration_boundary_step2-1.jpg" width="786">將移動方向投影至邊界法向量求得新當前座標</p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：以邊界法向量求得新移動方向" decoding="async" height="784" loading="lazy" src="verlet_integration_boundary_step3-2.jpg" width="787">以邊界法向量求得新移動方向</p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：下一座標 = 新當前座標 + 新移動方向" decoding="async" height="784" loading="lazy" src="verlet_integration_boundary_step4-2.jpg" width="786">下一座標 = 新當前座標 + 新移動方向</p>
+<p><b>4. 完成</b></p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：邊界限制成果展示1 – 等速度版本" decoding="async" height="324" loading="lazy" src="verlet_integration_boundary_final.gif" width="324">邊界限制成果展示1 – 等速度版本</p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：邊界限制成果展示2 – 加入彈力及重力版本" decoding="async" height="324" loading="lazy" src="verlet_integration_boundary_final2.gif" width="324">邊界限制成果展示2 – 加入彈力及重力版本</p>
+<hr>
+<h2>實作範例 – 繩索模擬</h2>
+<p><b>1. 定義繩索節點</b></p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">public struct Node
+{
+    public Vector3 position;
+    public Vector3 prevPosition;
+    public bool pinned;
+
+    public Node(Vector3 position)
+    {
+        this.position = position;
+        prevPosition = position;
+        pinned = false;
+    }
+}</code></pre>
+<p><b>2. 生成繩索節點</b><br>
+<b>3. 計算 Verlet Integration</b></p>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">for(int i = 0; i &lt; m_lastNodeCount; i++)
+{
+    Node node = m_nodes[i];
+    Vector3 position = node.position;
+    Vector3 prevPosition = node.prevPosition;
+    Vector3 newPosition = 2 * position - prevPosition + m_finalGravity;
+    node.position = newPosition;
+    node.prevPosition = position;
+
+    m_nodes[i] = node;
+}</code></pre>
+<p><b>4. 繩索位置約束</b><br>
+當繩索兩端為固定點時，用於約束繩索兩端</p>
+<pre aria-label="C# 程式碼 5" tabindex="0"><code class="language-csharp">private void ApplyPinned(TargetData targetData)
+{
+    int index = targetData.index;
+    Node node = m_nodes[index];
+    node.pinned = targetData.IsPinned();
+
+    if(node.pinned)
+    {
+        node.position = targetData.GetPosition();
+        m_nodePositions[index] = node.position;
+    }
+
+    m_nodes[index] = node;
+}</code></pre>
+<p><b>5. 繩索長度約束</b></p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：當相鄰節點距離大於約束長度時，往節點中心方向約束" decoding="async" height="610" loading="lazy" src="verlet_integration_rope_constraint1.jpg" width="612">當相鄰節點距離大於約束長度時，往節點中心方向約束</p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：當相鄰節點距離小於約束長度時，往節點中心反方向約束" decoding="async" height="610" loading="lazy" src="verlet_integration_rope_constraint2.jpg" width="611">當相鄰節點距離小於約束長度時，往節點中心反方向約束</p>
+<p><b>6. 更新節點位置</b><br>
+<b>7. 完成</b></p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：繩索模擬成果展示1" decoding="async" height="324" loading="lazy" src="verlet_integration_rope_final1.gif" width="324">繩索模擬成果展示1</p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：繩索模擬成果展示2" decoding="async" height="324" loading="lazy" src="verlet_integration_rope_final2.gif" width="324">繩索模擬成果展示2</p>
+<p><img alt="Verlet Integration – A Case Study of Boundary and Rope Simulator：繩索模擬成果展示3" decoding="async" height="324" loading="lazy" src="verlet_integration_rope_final3.gif" width="324">繩索模擬成果展示3</p>
+<hr>
+<h2>Patreon 連結</h2>
+<p><a href="https://www.patreon.com/tedsieblog" rel="noopener noreferrer" target="_blank">阿祥的開發日常 is creating game development tutorial | Patreon</a></p>
+<hr>
+<h2>範例原始碼</h2>
+<p><a href="https://www.patreon.com/posts/verlet-wei-er-ji-34580659" rel="noopener noreferrer" target="_blank">Verlet Integration 韋爾萊積分法 – 以邊緣檢測與繩索模擬為例 (完整原始碼)</a></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://www.youtube.com/watch?v=AZ8IGOHsjBk" rel="noopener noreferrer" target="_blank">Math for Game Developers – Verlet Integration</a><br>
+<a href="https://www.youtube.com/watch?v=FcnvwtyxLds" rel="noopener noreferrer" target="_blank">2D Rope Tutorial – Make Swinging Rope in Unity (Verlet Integration)</a><br>
+<a href="https://www.youtube.com/watch?v=k32g4ujzxP0" rel="noopener noreferrer" target="_blank">Create Rope Bridge, String in Unity – Verlet Integration Part 2</a><br>
+<a href="https://www.algorithm-archive.org/contents/verlet_integration/verlet_integration.html" rel="noopener noreferrer" target="_blank">Verlet Integration · GitBook</a><br>
+<a href="https://www.youtube.com/watch?v=3HjO_RGIjCU" rel="noopener noreferrer" target="_blank">Coding Math: Episode 37 – Verlet Integration Part I</a><br>
+<a href="https://www.youtube.com/watch?v=pBMivz4rIJY" rel="noopener noreferrer" target="_blank">Coding Math: Episode 36 – Verlet Integration Part II</a><br>
+<a href="https://www.youtube.com/watch?v=tAd7ttKbugA" rel="noopener noreferrer" target="_blank">Coding Math: Episode 38 – Verlet Integration Part III</a><br>
+<a href="https://www.youtube.com/watch?v=YgRZDCBLDfs" rel="noopener noreferrer" target="_blank">Coding Math: Episode 39 – Verlet Integration Part IV</a></p>

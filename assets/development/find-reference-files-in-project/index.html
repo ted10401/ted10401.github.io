@@ -1,0 +1,278 @@
+<!--
+{
+  "title": "Find Reference Files in Unity Project – 搜尋 Unity 專案相依資源",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "此工具中有使用到 NGUI Plugin 若專案中沒有使用 NGUI Plugin，請自行移除相關腳本",
+  "image": "cover-findreference.png",
+  "imageAlt": "Find Reference Files in Unity Project – 搜尋 Unity 專案相依資源 封面",
+  "shortTitle": "Find Reference Files in Unity Project",
+  "heading": "Find Reference Files in Unity Project<br><span>搜尋 Unity 專案相依資源</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/find-reference-files-in-project/"
+}
+-->
+<p>PS:</p>
+<p>此工具中有使用到 NGUI Plugin<br>
+若專案中沒有使用 NGUI Plugin，請自行移除相關腳本</p>
+
+<p>有時候我們會需要查詢哪些資源有被什麼佔用</p>
+<p>而在 Unity 中雖然有 Find References In Scene 這個功能</p>
+<p><img alt="Find Reference Files in Unity Project – 搜尋 Unity 專案相依資源 插圖" decoding="async" height="732" loading="lazy" src="94da46813a0694a5b633386890bd7400.png" width="468"></p>
+
+<p>但這個功能只能搜尋場景中的相依資源</p>
+<p>在這次的專案中為了能夠方便搜尋</p>
+<p>需要搜尋整個專案中的資源</p>
+<p>所以寫了這個小工具來使用</p>
+
+<p>腳本如下</p>
+
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using UnityEditor;
+using System.Collections.Generic;
+
+public class FindReferenceWindow : EditorWindow
+{
+    private Object m_resource;
+    private Dictionary&lt;string, List&lt;Object&gt;&gt; m_referencePath;
+    private string m_log;
+    private Vector2 m_scrollPosition;
+
+    [MenuItem ("TEDTool/Find Reference Window")]
+    private static void Init ()
+    {
+        FindReferenceWindow window = (FindReferenceWindow)EditorWindow.GetWindow (typeof (FindReferenceWindow));
+        window.Show();
+    }
+
+    void OnGUI ()
+    {
+        GUILayout.BeginVertical ();
+        m_scrollPosition = GUILayout.BeginScrollView(m_scrollPosition);
+
+        m_resource = EditorGUILayout.ObjectField("Resource Object", m_resource,typeof(Object), false);
+
+        DisplayReferences ();
+
+        if (m_resource != null)
+        {
+            if(m_referencePath == null || m_referencePath.Count == 0)
+            {
+                m_log = "No reference found.";
+            }
+
+            DisplayButtons();
+        }
+        else
+        {
+            m_log = "Please select an object first.";
+        }
+
+        if(!string.IsNullOrEmpty(m_log))
+            GUILayout.Label(m_log);
+
+        GUILayout.EndScrollView();
+
+        EditorGUILayout.EndVertical ();
+    }
+
+    private void DisplayReferences()
+    {
+        if(m_referencePath != null &amp;&amp; m_referencePath.Count != 0)
+        {
+            m_log = "";
+
+            foreach(KeyValuePair&lt;string, List&lt;Object&gt;&gt; pair in m_referencePath)
+            {
+                for(int cnt = 0; cnt &lt; pair.Value.Count; cnt++)
+                {
+                    EditorGUILayout.ObjectField(pair.Key, pair.Value[cnt], typeof(Object),false);
+                }
+            }
+        }
+    }
+
+    private void DisplayButtons()
+    {
+        if (GUILayout.Button("Find All References"))
+            FindReference(m_resource);
+        if (GUILayout.Button("Find Prefab References"))
+            FindReference(m_resource, new string[] {"prefab"});
+        if (GUILayout.Button("Find Material References"))
+            FindReference(m_resource, new string[] {"mat"});
+        if (GUILayout.Button("Find Texture References"))
+            FindReference(m_resource, new string[] {"png", "jpg"});
+        if (GUILayout.Button("Find Script References"))
+            FindReference(m_resource, new string[] {"cs"});
+        if (GUILayout.Button("Find NGUI Atlas References"))
+            FindReference(m_resource, new string[] {"prefab"}, true);
+    }
+
+    private void FindReference(Object resource, string[] formats = null, bool isAtlas =false)
+    {
+        InitDictionary ();
+
+        string resourcePath = AssetDatabase.GetAssetPath (resource);
+
+        List&lt;string&gt; referenceList = new List&lt;string&gt; ();
+        List&lt;string&gt; removeList = new List&lt;string&gt;();
+
+        string[] allAssets = AssetDatabase.GetAllAssetPaths ();
+
+        if(allAssets.Length == 0)
+        {
+            m_log = "No asset reference in this project.";
+            return;
+        }
+
+        for(int cnt = 0; cnt &lt; allAssets.Length; cnt++)
+        {
+            referenceList.Add(allAssets[cnt]);
+        }
+
+        removeList = GetRemoveList (referenceList, formats);
+
+        if(removeList.Count != 0)
+        {
+            for(int cnt = 0; cnt &lt; removeList.Count; cnt++)
+            {
+                referenceList.Remove(removeList[cnt]);
+            }
+        }
+
+        if(!isAtlas)
+            FindNormalReference(resourcePath, referenceList);
+        else
+            FindAtlasReference(resource.name, referenceList);
+    }
+
+    private void InitDictionary()
+    {
+        m_referencePath = new Dictionary&lt;string, List&lt;Object&gt;&gt; ();
+    }
+
+    private List&lt;string&gt; GetRemoveList(List&lt;string&gt; referenceList, string[] formats)
+    {
+        List&lt;string&gt; removeList = new List&lt;string&gt; ();
+
+        if(formats != null &amp;&amp; formats.Length != 0)
+        {
+            for(int cnt = 0; cnt &lt; referenceList.Count; cnt++)
+            {
+                if(!IsCorrectFormat(referenceList[cnt], formats))
+                {
+                    removeList.Add(referenceList[cnt]);
+                }
+            }
+        }
+
+        return removeList;
+    }
+
+    private bool IsCorrectFormat(string path, string[] formats)
+    {
+        bool isCorrect = false;
+
+        for(int i = 0; i &lt; formats.Length; i++)
+        {
+            if(GetObjectFormat(path) == formats[i])
+            {
+                isCorrect = true;
+                break;
+            }
+        }
+
+        return isCorrect;
+    }
+
+    private void FindNormalReference(string resourcePath, List&lt;string&gt; referenceList)
+    {
+        for(int cnt = 0; cnt &lt; referenceList.Count; cnt++)
+        {
+            string[] dependencies = AssetDatabase.GetDependencies(new string[] {referenceList[cnt]});
+
+            if(dependencies.Length == 0)
+            {
+                continue;
+            }
+
+            for(int count = 0; count &lt; dependencies.Length; count++)
+            {
+                if(dependencies[count] == resourcePath)
+                {
+                    string format = GetObjectFormat(referenceList[cnt]);
+
+                    if(!m_referencePath.ContainsKey(format))
+                        m_referencePath.Add(format, new List&lt;Object&gt;());
+
+                    m_referencePath[format].Add(AssetDatabase.LoadAssetAtPath(referenceList[cnt],typeof(Object)));
+                }
+            }
+        }
+    }
+
+    private void FindAtlasReference(string resourceName, List&lt;string&gt; referenceList)
+    {
+        for(int cnt = 0; cnt &lt; referenceList.Count; cnt++)
+        {
+            Object asset = AssetDatabase.LoadAssetAtPath(referenceList[cnt],typeof(Object));
+            GameObject assetObject = null;
+
+            if(asset is GameObject)
+            {
+                assetObject = (GameObject)asset;
+            }
+
+            if(assetObject == null)
+                continue;
+
+            UIAtlas uiAtlas = assetObject.GetComponent&lt;UIAtlas&gt;();
+
+            if(uiAtlas == null)
+                continue;
+
+            for(int aCnt = 0; aCnt &lt; uiAtlas.spriteList.Count; aCnt++)
+            {
+                if(uiAtlas.spriteList[aCnt].name == resourceName)
+                {
+                    string format = GetObjectFormat(referenceList[cnt]);
+
+                    if(!m_referencePath.ContainsKey(format))
+                        m_referencePath.Add(format, new List&lt;Object&gt;());
+
+                    m_referencePath[format].Add(AssetDatabase.LoadAssetAtPath(referenceList[cnt],typeof(Object)));
+                }
+            }
+        }
+    }
+
+    private string GetObjectFormat(string path)
+    {
+        char[] chars = new char[] {'.'};
+        string[] splits = path.Split(chars, System.StringSplitOptions.RemoveEmptyEntries);
+
+        return splits[splits.Length - 1];
+    }
+}</code></pre>
+
+<p>使用方法</p>
+<p>1.點選 TEDTool/Find Reference Window</p>
+<p><img alt="Find Reference Files in Unity Project – 搜尋 Unity 專案相依資源 插圖" decoding="async" height="98" loading="lazy" src="85baaf8bef7281ee7c3173471f50d863.png" width="1386"></p>
+
+<p>2.開啟頁面</p>
+<p><img alt="Find Reference Files in Unity Project – 搜尋 Unity 專案相依資源 插圖" decoding="async" height="116" loading="lazy" src="ce79f86cf60b9edbb778bec4f53aa9f0.png" width="862"></p>
+
+<p>3.拖拉想要查詢的資源到 Resource Object</p>
+<p><img alt="Find Reference Files in Unity Project – 搜尋 Unity 專案相依資源 插圖" decoding="async" height="364" loading="lazy" src="6fb6230a23e30b8d6fc66aa874369e4a.png" width="864"></p>
+
+<p>目前的功能有</p>
+<p>Find All References：搜尋所有相關資源</p>
+<p>Find Prefab References：搜尋相關 Prefab 資源 (.prefab)</p>
+<p>Find Material References：搜尋相關 Material 資源 (.mat)</p>
+<p>Find Texture References：搜尋相關 Texture 資源 (.png、.jpg)</p>
+<p>Find Script References：搜尋相關 Script 資源 (.cs)</p>
+<p>Find NGUI Atlas References：搜尋相關 NGUI Atlas 資源 (.prefab)</p>
+
+<p>這裡我使用的功能是搜尋該圖片在 NGUI 中的相關圖集資源</p>
+
+<p>4.點選 Find NGUI Atlas References</p>
+<p><img alt="Find Reference Files in Unity Project – 搜尋 Unity 專案相依資源 插圖" decoding="async" height="368" loading="lazy" src="02e0c0595b077fc966a605fb7cc55c42.png" width="866"></p>

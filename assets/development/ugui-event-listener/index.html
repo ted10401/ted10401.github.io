@@ -1,0 +1,122 @@
+<!--
+{
+  "title": "UGUI Event Listener – UGUI 事件接收器",
+  "date": "2016-07-11",
+  "category": "Unity · UGUI",
+  "excerpt": "由於有人問到了 uGUI 的觸發事件如何使用",
+  "image": "assets/development-cover.png",
+  "imageAlt": "UGUI Event Listener – UGUI 事件接收器 封面",
+  "shortTitle": "UGUI Event Listener",
+  "heading": "UGUI Event Listener<br><span>UGUI 事件接收器</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/ugui-event-listener/"
+}
+-->
+<p>由於有人問到了 uGUI 的觸發事件如何使用</p>
+<p>所以就參考了網路上的資料</p>
+<p>以 NGUI 的 UIEventListener 為底所實作出來的 uGUI 事件接收器</p>
+
+<p>腳本如下</p>
+
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class EventListener : EventTrigger
+{
+    public delegate void VoidDelegate (GameObject go);
+
+    public VoidDelegate onClick;
+    public VoidDelegate onDown;
+    public VoidDelegate onEnter;
+    public VoidDelegate onExit;
+    public VoidDelegate onUp;
+
+    static public EventListener Get (GameObject go)
+    {
+        EventListener listener = go.GetComponent&lt;EventListener&gt;();
+
+        if (listener == null)
+            listener = go.AddComponent&lt;EventListener&gt;();
+
+        return listener;
+    }
+
+    public override void OnPointerClick(PointerEventData eventData)
+    {
+        if(onClick != null)
+            onClick(gameObject);
+    }
+
+    public override void OnPointerDown(PointerEventData eventData)
+    {
+        if(onDown != null)
+            onDown(gameObject);
+    }
+
+    public override void OnPointerEnter(PointerEventData eventData)
+    {
+        if(onEnter != null)
+            onEnter(gameObject);
+    }
+
+    public override void OnPointerExit(PointerEventData eventData)
+    {
+        if(onExit != null)
+            onExit(gameObject);
+    }
+
+    public override void OnPointerUp(PointerEventData eventData)
+    {
+        if(onUp != null)
+            onUp(gameObject);
+    }
+}</code></pre>
+
+<p>使用方式：</p>
+
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class TestEventListener : MonoBehaviour
+{
+    void Awake()
+    {
+        EventListener.Get(gameObject).onClick = OnClick;
+        EventListener.Get(gameObject).onDown = OnDown;
+        EventListener.Get(gameObject).onEnter = OnEnter;
+        EventListener.Get(gameObject).onExit = OnExit;
+        EventListener.Get(gameObject).onUp = OnUp;
+    }
+
+    private void OnClick(GameObject button)
+    {
+        Debug.Log(button.name + " click");
+    }
+
+    private void OnDown(GameObject button)
+    {
+        Debug.Log(button.name + " down");
+    }
+
+    private void OnEnter(GameObject button)
+    {
+        Debug.Log(button.name + " enter");
+    }
+
+    private void OnExit(GameObject button)
+    {
+        Debug.Log(button.name + " exit");
+    }
+
+    private void OnUp(GameObject button)
+    {
+        Debug.Log(button.name + " up");
+    }
+}</code></pre>
+
+<p>將 TestEventListener 附加到 uGUI 元件上即可使用</p>
+<p>在 NGUI 中需要另外附加 Collider 來作為媒介</p>
+<p>而在 uGUI 中並不需要額外的 Collider</p>
+
+<p>資料來源</p>
+<p><a href="http://www.xuanyusong.com/archives/3325" rel="noopener noreferrer" target="_blank">uGUI研究院之控件以及按钮的监听事件系统（五）</a> （強力推薦）</p>
+<p><a href="http://docs.unity3d.com/462/Documentation/ScriptReference/EventSystems.EventTrigger.html" rel="noopener noreferrer" target="_blank">Unity ScriptReference – EventTrigger</a></p>

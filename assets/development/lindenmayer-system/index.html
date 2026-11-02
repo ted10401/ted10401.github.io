@@ -1,0 +1,144 @@
+<!--
+{
+  "title": "Lindenmayer System 分形圖形學",
+  "date": "2020-04-09",
+  "category": "Algorithm",
+  "excerpt": "Lindenmayer System 簡稱為 L 系統是一種分形圖形學，根據給定的規則進行迭代過程，最終生成擁有特殊結構的圖形，被廣泛的應用在植物生長過程的…",
+  "image": "cover-l_system_fractal_plant_2.gif",
+  "imageAlt": "Lindenmayer System 分形圖形學 封面",
+  "source": "https://tedsieblog.wordpress.com/2020/04/09/lindenmayer-system/"
+}
+-->
+<hr>
+<p>Lindenmayer System 簡稱為 L 系統是一種分形圖形學，根據給定的規則進行迭代過程，最終生成擁有特殊結構的圖形，被廣泛的應用在植物生長過程的研究上。</p>
+<h2>系統結構</h2>
+<p>L 系統的主要的結構包含<b>變數</b>、<b>常數</b>、<b>旋轉角度</b>、<b>初始狀態</b>、<b>迭代規則</b></p>
+<p><b>變數：</b>每次疊代過程中，根據迭代規則而改變的參數<br>
+<b>常數：</b>每次疊代過程中，不會改變的參數<br>
+<b>旋轉角度：</b>當方向旋轉時所旋轉的角度值<br>
+<b>初始狀態：</b>疊代次數為零時的初始輸出<br>
+<b>迭代規則：</b>每次疊代過程中，變數替換的規則</p>
+<hr>
+<h2>參數定義</h2>
+<p>A：沿著方向畫一線段<br>
+B：沿著方向畫一線段<br>
+X：純標記<br>
+Y：純標記<br>
+[：紀錄當前位置、方向<br>
+]：取出上一位置、方向<br>
++：方向順時針旋轉<br>
+-：方向逆時針旋轉</p>
+<hr>
+<h2>Algae</h2>
+<p>變數：A、B<br>
+初始狀態：A<br>
+迭代規則：<br>
+A -&gt; AB<br>
+B -&gt; A</p>
+<p><img alt="Lindenmayer System 分形圖形學：Algae 輸出結果" decoding="async" height="228" loading="lazy" src="l_system_algae.png" width="334">Algae 輸出結果</p>
+<hr>
+<h2>Fractal Tree</h2>
+<p>變數：A、B<br>
+常數：[、]、+、-<br>
+旋轉角度：45<br>
+初始狀態：B<br>
+迭代規則：<br>
+A -&gt; A[-B]+B<br>
+B -&gt; AA</p>
+<p><img alt="Lindenmayer System 分形圖形學：Fractal Tree 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_fractal_tree.gif" width="320">Fractal Tree 輸出結果</p>
+<hr>
+<h2>Cantor Set</h2>
+<p>變數：A、X<br>
+初始狀態：A<br>
+迭代規則：<br>
+A -&gt; AXA<br>
+X -&gt; XXX</p>
+<p><img alt="Lindenmayer System 分形圖形學：Cantor Set 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_cantor_set.gif" width="320">Cantor Set 輸出結果</p>
+<hr>
+<h2>Koch Curve</h2>
+<p>變數：A<br>
+常數：+、-<br>
+旋轉角度：90<br>
+初始狀態：A<br>
+迭代規則：<br>
+A -&gt; A-A+A+A-A</p>
+<p><img alt="Lindenmayer System 分形圖形學：Koch Curve 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_koch_curve.gif" width="320">Koch Curve 輸出結果</p>
+<hr>
+<h2>Koch Snowflake</h2>
+<p>變數：A<br>
+常數：+、-<br>
+旋轉角度：60<br>
+初始狀態：A++A++A<br>
+迭代規則：<br>
+A -&gt; A-A++A-A</p>
+<p><img alt="Lindenmayer System 分形圖形學：Koch Snowflake 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_koch_snowflake.gif" width="320">Koch Snowflake 輸出結果</p>
+<hr>
+<h2>Sierpinski Triangle</h2>
+<p>變數：A、B<br>
+常數：+、-<br>
+旋轉角度：120<br>
+初始狀態：A-B-B<br>
+迭代規則：<br>
+A -&gt; A-B+A+B-A<br>
+B -&gt; BB</p>
+<p><img alt="Lindenmayer System 分形圖形學：Sierpinski Triangle 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_sierpinski_triangle.gif" width="320">Sierpinski Triangle 輸出結果</p>
+<hr>
+<h2>Sierpinski Curve</h2>
+<p>變數：X<br>
+常數：A、B、+、-<br>
+旋轉角度：45<br>
+初始狀態：A–XA–A–XA<br>
+迭代規則：<br>
+X -&gt; XA+B+XA–A–XA+B+X</p>
+<p><img alt="Lindenmayer System 分形圖形學：Sierpinski Curve 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_sierpinski_curve.gif" width="320">Sierpinski Curve 輸出結果</p>
+<hr>
+<h2>Sierpinski Square Curve</h2>
+<p>變數：X<br>
+常數：A、+、-<br>
+初始狀態：A-XA-A-XA<br>
+旋轉角度：90<br>
+迭代規則：<br>
+X -&gt; XA+A-A+XA-A-XA+A-A+X</p>
+<p><img alt="Lindenmayer System 分形圖形學：Sierpinski Square Curve 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_sierpinski_square_curve.gif" width="320">Sierpinski Square Curve 輸出結果</p>
+<hr>
+<h2>Sierpinski Arrowhead Curve</h2>
+<p>變數：A、B<br>
+常數：+、-<br>
+旋轉角度：60<br>
+初始狀態：A<br>
+迭代規則：<br>
+A -&gt; B+A+B<br>
+B -&gt; A-B-A</p>
+<p><img alt="Lindenmayer System 分形圖形學：Sierpinski Arrowhead Curve 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_sierpinski_arrowhead_curve.gif" width="320">Sierpinski Arrowhead Curve 輸出結果</p>
+<hr>
+<h2>Dragon Curve</h2>
+<p>變量：X、Y<br>
+常數：A、+、-<br>
+初始狀態：AX<br>
+旋轉角度：90<br>
+迭代規則：<br>
+X -&gt; X-YA-<br>
+Y -&gt; +AX+Y</p>
+<p><img alt="Lindenmayer System 分形圖形學：Dragon Curve 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_dragon_curve.gif" width="320">Dragon Curve 輸出結果</p>
+<hr>
+<h2>Fractal Plant</h2>
+<p>變量：X、A<br>
+常數：[、]、+、-<br>
+旋轉角度：25<br>
+初始狀態：X<br>
+迭代規則：<br>
+X -&gt; A-[[X]+X]+A[+AX]-X<br>
+A -&gt; AA</p>
+<p><img alt="Lindenmayer System 分形圖形學：Fractal Plant 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_fractal_plant.gif" width="320">Fractal Plant 輸出結果</p>
+<p><img alt="Lindenmayer System 分形圖形學：Fractal Plant 輸出結果" decoding="async" height="320" loading="lazy" src="l_system_fractal_plant_2.gif" width="320">Fractal Plant 輸出結果</p>
+<hr>
+<h2>Patreon</h2>
+<p><a href="https://www.patreon.com/tedsieblog" rel="noopener noreferrer" target="_blank">訂閱 Patreon</a></p>
+<hr>
+<h2>範例原始碼</h2>
+<p><a href="https://www.patreon.com/posts/34843484" rel="noopener noreferrer" target="_blank">Lindenmayer System 分形圖形學（完整原始碼）</a></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://en.wikipedia.org/wiki/L-system" rel="noopener noreferrer" target="_blank">L-system – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Koch_snowflake" rel="noopener noreferrer" target="_blank">Koch snowflake – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Sierpi%C5%84ski_curve#Arrowhead_curve" rel="noopener noreferrer" target="_blank">Sierpiński curve – Wikipedia</a></p>

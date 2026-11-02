@@ -1,0 +1,157 @@
+<!--
+{
+  "title": "Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion",
+  "date": "2018-10-22",
+  "category": "Shader",
+  "excerpt": "本篇文章會逐步介紹如何製作客製化全屏濾鏡效果，並與 Unity Post Processing Stack V2 進行整合。",
+  "image": "cover-writingcustompostprocessingstack-profile1.jpg",
+  "imageAlt": "Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 封面",
+  "shortTitle": "Writing Custom Post-Processing Effect",
+  "heading": "Writing Custom Post-Processing Effect<br><span>A Case Study of Cubic Lens Distortion</span>",
+  "source": "https://tedsieblog.wordpress.com/2018/10/22/writing-custom-post-processing-effect-a-case-study-of-cubic-lens-distortion/"
+}
+-->
+<h2>建立客製化 Post-Processing 效果，以 Cubic Lens Distortion 為例</h2>
+<p>本篇文章會逐步介紹如何製作客製化全屏濾鏡效果，並與 Unity Post Processing Stack V2 進行整合。</p>
+<p>關鍵字快搜：<a href="https://github.com/Unity-Technologies/PostProcessing" rel="noopener noreferrer" target="_blank">Post Processing Stack V2</a>、<a href="https://docs.unity3d.com/Packages/com.unity.package-manager-ui@1.8/manual/index.html" rel="noopener noreferrer" target="_blank">Package Manager</a>、<a href="http://www.francois-tarlier.com/blog/cubic-lens-distortion-shader/" rel="noopener noreferrer" target="_blank">Cubic Lens Distortion</a>、<a href="https://github.com/Unity-Technologies/PostProcessing/wiki/Writing-Custom-Effects" rel="noopener noreferrer" target="_blank">Writing Custom Effects</a></p>
+<h2>Post Processing Stack 簡介</h2>
+<p>Post Processing Stack 是在顯示圖像到螢幕前，將全屏濾鏡效果應用到攝影機緩衝區的過程，透過這個功能能夠在短時間內大幅改善產品的視覺呈現效果。</p>
+<p><img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" loading="lazy" src="https://d2ujflorbtfzji.cloudfront.net/package-screenshot/c9d4780c-918c-4805-8b45-65a86d343804_scaled.jpg"><br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" loading="lazy" src="https://d2ujflorbtfzji.cloudfront.net/package-screenshot/22734967-70b7-4f8d-8823-c9f93e59c198_scaled.jpg"><br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" loading="lazy" src="https://d2ujflorbtfzji.cloudfront.net/package-screenshot/9278940e-4bf7-4b83-8436-fc3e69fb48cc_scaled.jpg"><br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" loading="lazy" src="https://d2ujflorbtfzji.cloudfront.net/package-screenshot/9415131f-36ca-4024-8b0a-fff4d3d2f8f4_scaled.jpg"></p>
+
+<h2>Post Processing Stack 匯入</h2>
+<p>Unity 2017 開始提供了 Package Manager 這個整合插件的新功能，也因此誕生出 Post-Processing Stack V2 的版本，透過 Package Manager 能夠很方便的將 Post Processing Stack 匯入專案內使用。</p>
+<p>開啟 Package Manager<br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" height="300" loading="lazy" src="writingcustompostprocessingstack-packagemanager.png" width="436"></p>
+<p>安裝 Postprocessing<br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" height="1074" loading="lazy" src="writingcustompostprocessingstack-packagemanagerinstall.png" width="1396"></p>
+
+<h2>Cubic Lens Distortion Shader</h2>
+<p>在 Post Processing Stack 之前，常見的全屏濾鏡效果需要使用 <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnRenderImage.html" rel="noopener noreferrer" target="_blank">OnRenderImage</a>、<a href="https://docs.unity3d.com/ScriptReference/Graphics.Blit.html" rel="noopener noreferrer" target="_blank">Graphics.Blit</a> 及 Shader 製作。<br>
+而在建立客製化 Post Processing Effect 時，同樣也需要撰寫 Shader。</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">Shader "Hidden/Cubic Lens Distortion"
+{
+    Properties
+    {
+        _MainTex ("Texture", 2D) = "white" {}
+        _K ("K", Float) = -0.15
+        _KCube ("KCube", Float) = 0.5
+    }
+    SubShader
+    {
+        // No culling or depth
+        Cull Off ZWrite Off ZTest Always
+
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct v2f
+            {
+                float2 uv : TEXCOORD0;
+                float4 vertex : SV_POSITION;
+            };
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.uv = v.uv;
+                return o;
+            }
+
+            sampler2D _MainTex;
+            fixed _K;
+            fixed _KCube;
+
+            fixed4 frag (v2f i) : SV_Target
+            {
+                fixed2 r = i.uv - 0.5;
+                fixed r2 = r.x * r.x + r.y * r.y;
+                fixed f = 0;
+
+                if(_KCube == 0)
+                {
+                    f = 1 + r2 * _K;
+                }
+                else
+                {
+                    f = 1 + r2 * (_K + _KCube * sqrt(r2));
+                }
+
+                fixed2 uv = f * (i.uv - 0.5) + 0.5;
+
+                fixed4 col = tex2D(_MainTex, uv);
+                return col;
+            }
+            ENDCG
+        }
+    }
+}</code></pre>
+<p>無效果<br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" height="830" loading="lazy" src="writingcustompostprocessingstack-normal.png" width="830"></p>
+<p>K = -1, KCube = 0.5<br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" height="830" loading="lazy" src="writingcustompostprocessingstack-cubiclenseffect.png" width="832"></p>
+<p>K = -0.5, KCube = 1.5<br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" height="832" loading="lazy" src="writingcustompostprocessingstack-cubiclenseffect2.png" width="834"></p>
+
+<h2>Custom Post-Processing Settings</h2>
+<p>CubicLensDistortionSettings.cs</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using System;
+using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
+
+[Serializable]
+[PostProcess(typeof(CubicLensDistortionRenderer), PostProcessEvent.AfterStack, "Custom/Cubic Lens Distortion")]
+public sealed class CubicLensDistortionSettings : PostProcessEffectSettings
+{
+    [Tooltip("Cubic Lens Distortion K value")]
+    public FloatParameter K = new FloatParameter { value = -1 };
+
+    [Tooltip("Cubic Lens Distortion KCube value")]
+    public FloatParameter KCube = new FloatParameter { value = 0 };
+}</code></pre>
+<p>CubicLensDistortionSettings 負責處理效果的參數部分，繼承 PostProcessEffectSettings 並宣告需要調整的參數。</p>
+<p>FloatParameter 對應 ShaderLab Parameter Float<br>
+ColorParameter 對應 ShaderLab Parameter Color<br>
+Vector4Parameter 對應 ShaderLab Parameter Vector<br>
+TextureParameter 對應 ShaderLab Parameter 2D</p>
+
+<h2>Custom Post-Processing Renderer</h2>
+<p>CubicLensDistortionRenderer.cs</p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
+
+public sealed class CubicLensDistortionRenderer : PostProcessEffectRenderer&lt;CubicLensDistortionSettings&gt;
+{
+    public override void Render(PostProcessRenderContext context)
+    {
+        PropertySheet sheet = context.propertySheets.Get(Shader.Find("Custom/CubicLensDistortion"));
+        sheet.properties.SetFloat("_K", settings.K);
+        sheet.properties.SetFloat("_KCube", settings.KCube);
+        context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+    }
+}</code></pre>
+<p>完成 Settings 設定後，需要進行最後的腳本撰寫，透過 Shader 取得 PropertySheet，並指派 Setting 中的參數資料。</p>
+
+<h2>使用客製化效果</h2>
+<p>完成 Settings 及 Renderer 的部分後，就可以在 Post Processing Profile 中選擇並加入客製化效果。<br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" height="378" loading="lazy" src="writingcustompostprocessingstack-customeffect.png" width="852"><br>
+<img alt="Writing Custom Post-Processing Effect – A Case Study of Cubic Lens Distortion 插圖" decoding="async" height="372" loading="lazy" src="writingcustompostprocessingstack-customeffect2.png" width="848"></p>
+
+<h2>參考資料</h2>
+<p><a href="https://github.com/Unity-Technologies/PostProcessing" rel="noopener noreferrer" target="_blank">GitHub – Unity-Technologies/PostProcessing: Post Processing Stack</a><br>
+<a href="http://www.francois-tarlier.com/blog/cubic-lens-distortion-shader/" rel="noopener noreferrer" target="_blank">CUBIC LENS DISTORTION SHADER</a><br>
+<a href="https://www.geeks3d.com/20140213/glsl-shader-library-fish-eye-and-dome-and-barrel-distortion-post-processing-filters/" rel="noopener noreferrer" target="_blank">(Shader Library) Fish Eye, Dome and Barrel Distortion GLSL Post Processing Filters</a></p>

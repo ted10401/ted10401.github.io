@@ -1,0 +1,76 @@
+<!--
+{
+  "title": "【Unite 2017 Tokyo】Unity UI 最佳化指南和新功能介紹",
+  "date": "2017-06-04",
+  "category": "Unite",
+  "excerpt": "1. Visual Text, Image, RawImage",
+  "image": "assets/development-cover.png",
+  "imageAlt": "【Unite 2017 Tokyo】Unity UI 最佳化指南和新功能介紹 封面",
+  "source": "https://tedsieblog.wordpress.com/2017/06/04/unite-2017-tokyo-unity-ui-optimize-guide-and-new-feature/"
+}
+-->
+<h2>Unity UI 三大分類</h2>
+<p>1. Visual<br>
+Text, Image, RawImage</p>
+<p>2. Interactive<br>
+Button, Toggle, Slider, etc.</p>
+<p>3. Layout<br>
+Vertical Group, Content Size Filter, Layout Element, etc.</p>
+
+<h2>UI 最佳化</h2>
+<p>UI 最佳化會依賴於每個案例而有所不同<br>
+1. 平台（Mobile, Console, VR）<br>
+2. UI 類型（2D, 3D, 混合）<br>
+3. 遊戲類型（競速、射擊…等）</p>
+<p>不同案例有不同的優化方向<br>
+並不是所有的優化建議都適用於所有案例</p>
+
+<h2>UI Batching</h2>
+<p>批次處理規則<br>
+1. 使用相同的 Canvas<br>
+2. 使用相同的 Material<br>
+3. 使用相同的 Sprite<br>
+4. 使用相同的 Mask<br>
+5. 擁有相同的 RectTransform Position Z</p>
+
+<h2>UI Shaders</h2>
+<p>UI 元件的預設 Shader 為 UI/Default</p>
+<p>Build-In Unity Shader Source Code 可以在下列連結下載<br>
+<a href="https://unity3d.com/get-unity/download/archive" rel="noopener noreferrer" target="_blank">https://unity3d.com/get-unity/download/archive</a></p>
+
+<h2>TextMesh Pro</h2>
+<p><a href="https://www.assetstore.unity3d.com/en/#!/content/84126" rel="noopener noreferrer" target="_blank">AssetStore – TextMesh Pro</a></p>
+<p>TextMesh Pro 最初是由 Stephan Bouchard 開發<br>
+並上架到 Asset Store 的一套 UI 插件<br>
+前些日子 Unity 宣布 Stephan Bouchard 與 TextMesh Pro 加入的消息<br>
+所以 TextMesh Pro 目前是以免費的形式提供給 Unity 開發者使用<br>
+<a href="https://blogs.unity3d.com/2017/03/20/textmesh-pro-joins-unity/" rel="noopener noreferrer" target="_blank">TextMesh Pro Joins Unity</a></p>
+
+<h2>The Rebuild Process</h2>
+<p>Set ‘Dirty’<br>
+1. UI Element Layout changes<br>
+2. UI Element Graphic changes</p>
+<p>只要 UI 元件被設為 Dirty<br>
+就會重新計算該 Components 或物件</p>
+<p>Unity Profiler Canvas.SendWillRenderCanvases 用來觀察這個進程</p>
+
+<h2>Unity UI – Source Code</h2>
+<p><a href="https://bitbucket.org/Unity-Technologies/ui/" rel="noopener noreferrer" target="_blank">Unity UI Source Code</a></p>
+<p>Layout 使用建議<br>
+1. 需要更新 UI 佈局時在開啟，不需要時則關閉<br>
+2. 減少需要更新的 UI 元件（組合 UI 元件）<br>
+3. 建立自己的 Layout Manager 用來管理 Layout 何時更新<br>
+4. 用物件池進行管理使 UI 元件能夠重複使用</p>
+
+<h2>Sub Canvases</h2>
+<p>當一個 Canvas 為另一個 Canvas 的子物件則為 Sub-Canvas</p>
+<p>Sub-Canvas 特性<br>
+1. 擁有獨立的環境設定（例如：Pixel Perfect）<br>
+2. 需要時可以針對 Sub-Canvas 進行批次處理<br>
+3. 能夠獨立 Canvas 所管理的 UI 元件，針對 Canvas 下的子元件進行開關</p>
+
+<h2>資料來源</h2>
+<p><a href="https://www.slideshare.net/UnityTechnologiesJapan/unite-2017-tokyounity-ui" rel="noopener noreferrer" target="_blank">Unity UI最適化ガイド 〜ベストプラクティスと新機能 – SlideShare</a><br>
+<a href="https://www.youtube.com/watch?v=13Qwh2UkFmU&amp;feature=youtu.be" rel="noopener noreferrer" target="_blank">Unity UI最適化ガイド 〜ベストプラクティスと新機能 – YouTube</a><br>
+<a href="https://unity3d.com/learn/tutorials/topics/best-practices/other-ui-optimization-techniques-and-tips" rel="noopener noreferrer" target="_blank">Other UI Optimization Techniques and Tips</a><br>
+<a href="https://unity3d.com/learn/tutorials/topics/best-practices" rel="noopener noreferrer" target="_blank">Unity Best Practices – Optimizing Unity UI</a></p>

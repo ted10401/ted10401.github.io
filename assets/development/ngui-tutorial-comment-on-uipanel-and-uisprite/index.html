@@ -1,0 +1,56 @@
+<!--
+{
+  "title": "Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片",
+  "date": "2016-07-10",
+  "category": "Unity · NGUI",
+  "excerpt": "建立後將場景中存在的 Main Camera 物件移除",
+  "image": "cover-uitexture.jpg",
+  "imageAlt": "Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 封面",
+  "shortTitle": "Comment on UIPanel and UISprite",
+  "heading": "Comment on UIPanel and UISprite<br><span>建立 NGUI 面板、建立第一張圖片</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/ngui-tutorial-comment-on-uipanel-and-uisprite/"
+}
+-->
+<p>前面的章節完成了圖集的解說</p>
+<p>接下來就來實際動手</p>
+<p>在場景中建立第一張圖片</p>
+
+<p><b>建立NGUI</b><b>面板</b></p>
+<p>首先先建立一個新場景</p>
+<p>建立後將場景中存在的 Main Camera 物件移除</p>
+<p>點選 NGUI → Create → 2D UI</p>
+<p><img alt="Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 插圖" decoding="async" height="315" loading="lazy" src="b57a342f0ae6cedaed619682d908a79f.jpg" width="838"></p>
+<p>場景中將會生成出一個 UI Root 物件</p>
+
+<p>這個 UI Root 可以說是 NGUI 最根本和最重要的腳本</p>
+<p>所有由 NGUI 所產生的 UI 物件都必須建立在 UI Root 之下</p>
+<p><img alt="Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 插圖" decoding="async" height="962" loading="lazy" src="f5a81b3c4094bebbf1f82ed1242e0ece.jpg" width="909"></p>
+
+<p><b>建立第一張圖片</b></p>
+<p>NGUI 中圖片的建立方法有兩種</p>
+<p>UI Sprite 及 UI Texture</p>
+
+<p>UI Sprite：提取圖集中的圖片</p>
+<p>UI Texture：可以直接選取想要顯示的單張圖片</p>
+
+<p><b>建立 UI Sprite</b></p>
+<p>點選 NGUI → Create → Sprite</p>
+<p><img alt="Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 插圖" decoding="async" height="317" loading="lazy" src="37718ebade9fc1d9cf1bbb45a8ce78b7.jpg" width="840"></p>
+<p><img alt="Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 插圖" decoding="async" height="948" loading="lazy" src="740749d25f3ef9d67cef05cd3645c5ae.jpg" width="1363"></p>
+
+<p>圖中的 Sprite 建立在 Camera 之下</p>
+<p>是因為在 Create 前先選擇了 Camera 物件</p>
+<p>若沒預先選擇 Camera 物件</p>
+<p>則會建立在 UI Root 之下</p>
+<p><img alt="Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 插圖" decoding="async" height="943" loading="lazy" src="8b0020b1cb217dc6c1c49aab479c2f5a.jpg" width="1363"></p>
+
+<p><b>建立 UI Texture</b></p>
+<p>點選 NGUI → Create → Texture</p>
+<p><img alt="Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 插圖" decoding="async" height="317" loading="lazy" src="2ea9d90902ac8f8f49384a06584a61ee.jpg" width="838"></p>
+
+<p>將想要顯示的圖片拖拉至 UITexture 腳本中的 Texture 屬性即可顯示圖片</p>
+<p><img alt="Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 插圖" decoding="async" height="949" loading="lazy" src="982fa053ba78f32237cc068f448bda63.jpg" width="1362"></p>
+
+<p>若在建立 UI Sprite 或是 UI Texture 產生出圖片失真的情況</p>
+<p>可以點選 UI Sprite 或是 UI Texture 中的 Snap 按鈕</p>
+<p><img alt="Comment on UIPanel and UISprite – 建立 NGUI 面板、建立第一張圖片 插圖" decoding="async" height="113" loading="lazy" src="a13b66a90f6bb2752ec1a56804bab30c.jpg" width="553"></p>

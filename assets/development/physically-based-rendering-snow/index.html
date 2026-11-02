@@ -1,0 +1,91 @@
+<!--
+{
+  "title": "Physically Based Rendering Snow – 基於 Unity PBR 的積雪效果",
+  "date": "2019-02-23",
+  "category": "Shader",
+  "excerpt": "當我們需要對畫面做一些客製化需求 同時又希望保留 Unity PBR 的光照計算時 該如何修改 Standard Shader 就變成一個可探討的議題 在不…",
+  "image": "cover-physically-based-rendering-snow-effect.png",
+  "imageAlt": "Physically Based Rendering Snow – 基於 Unity PBR 的積雪效果 封面",
+  "shortTitle": "Physically Based Rendering Snow",
+  "heading": "Physically Based Rendering Snow<br><span>基於 Unity PBR 的積雪效果</span>",
+  "source": "https://tedsieblog.wordpress.com/2019/02/23/physically-based-rendering-snow/"
+}
+-->
+<p>當我們需要對畫面做一些客製化需求<br>
+同時又希望保留 Unity PBR 的光照計算時<br>
+該如何修改 Standard Shader 就變成一個可探討的議題<br>
+　<br>
+在不變動 Unity PBR 的基礎上新增簡單的積雪效果<br>
+並將整個修改流程依序記錄下來</p>
+<h2>解析 Standard.shader</h2>
+<p>StandardShader.shader 中包含兩個 SubShader 用於進行 LOD 切換。<br>
+以第一個 Sub Shader 為例，共包含五個 Pass。<br>
+<b>Pass 0：正向渲染 (Forward Rendering) 的主光源計算</b><br>
+<b>Pass 1：正向渲染 (Forward Rendering) 的動態光源計算</b><br>
+<b>Pass 2：Shadow Map 的計算</b><br>
+<b>Pass 3：延遲渲染 (Deferred Rendering) 計算</b><br>
+<b>Pass 4：Lightmap 烘焙光照計算</b></p>
+<hr>
+<h2>加入積雪效果</h2>
+<h3>Standard.shader</h3>
+<p>觀察 Standard.shader Pass 0 後不難發現主要的 Shader 實現都被整合在 UnityStandardCoreForward.cginc 中，分別引用了 cginc 內的 vertBase 及 fragBase。</p>
+<p>為了實現積雪效果，需要加入三個參數。<br>
+_SnowThreashold：積雪影響閥值<br>
+_SnowDepth：積雪深度<br>
+_SnowColor：積雪顏色</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">_SnowThreshold("Snow Threshold", Range(0, 1)) = 1
+_SnowDepth("Snow Depth", Float) = 1
+_SnowColor("Snow Color", Color) = (1,1,1,1)</code></pre>
+<hr>
+<h3>UnityStandardCoreForward.cginc</h3>
+<p>觀察 vertBase 及 fragBase 函式後，會發現分別使用了 vertForwardBase 及 fragForwardBaseInternal 兩個函式，而實際的計算都實作在 UnityStandardCore.cginc。</p>
+<hr>
+<h3>UnityStandardCore.cginc</h3>
+<p>找到 vertForwardBase 並進行改寫，透過 normalWorld 及閥值計算出頂點的偏移量，用於模擬積雪深度。</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">fixed snowThreshold = dot(normalWorld, fixed3(0, 1, 0)) - lerp(1, 0, _SnowThreshold);
+snowThreshold = saturate(snowThreshold);
+o.pos.y -= lerp(0, _SnowDepth, snowThreshold);</code></pre>
+<p>接著找到 fragForwardBaseInternal 會發現計算都被包裝起來，分析內容後會發現實際的實作在 FragmentSetup 裏。<br>
+找到 FragmentSetup 後進行改寫，透過相同的計算取得閥值，並修改顏色。</p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">fixed snowThreshold = dot(o.normalWorld, fixed3(0, 1, 0)) - lerp(1, 0, _SnowThreshold);
+snowThreshold = saturate(snowThreshold);
+o.diffColor = lerp(o.diffColor, _SnowColor, snowThreshold);</code></pre>
+<hr>
+<h3>修改 UnityStandardInput.cginc</h3>
+<p>在 UnityStandardCore.cginc 中利用 UnityStandardInput.cginc 來定義所使用的參數，需要找到該檔案並加上積雪參數。</p>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">half        _SnowThreshold;
+half        _SnowDepth;
+half4       _SnowColor;</code></pre>
+<hr>
+<h3>修改 StandardShaderGUI.cs</h3>
+<p>由於 Standard.shader 透過 CustomEditor “StandardShaderGUI” 來客製化編輯器。<br>
+所以需要在 StandardShaderGUI.cs 中加入新增的三個參數，才能有效的在 Inspector 面板中新增積雪參數。</p>
+<pre aria-label="C# 程式碼 5" tabindex="0"><code class="language-csharp">MaterialProperty snowThreshold = null;
+MaterialProperty snowDepth = null;
+MaterialProperty snowColor = null;
+
+snowThreshold = FindProperty("_SnowThreshold", props);
+snowDepth = FindProperty("_SnowDepth", props);
+snowColor = FindProperty("_SnowColor", props);
+
+GUILayout.Label("Snow Settings", EditorStyles.boldLabel);
+snowThreshold.floatValue = EditorGUILayout.Slider("Snow Threshold", snowThreshold.floatValue, 0f, 1f);
+snowDepth.floatValue = EditorGUILayout.Slider("Snow Depth", snowDepth.floatValue, 0f, 10f);
+snowColor.colorValue = EditorGUILayout.ColorField("Snow Color", snowColor.colorValue);</code></pre>
+<hr>
+<h3>備份及命名調整</h3>
+<p>由於直接修改會與預置的 Standard.shader 衝突，所以需要分別進行備份及命名調整。</p>
+<pre aria-label="程式碼 6" tabindex="0"><code>Standard.shader                 &gt;   StandardSnow.shader
+UnityStandardCoreForward.cginc  &gt;   UnityStandardCoreForwardSnow.cginc
+UnityStandardCore.cginc         &gt;   UnityStandardCoreSnow.cginc
+UnityStandardInput.cginc        &gt;   UnityStandardInputSnow.cginc
+StandardShaderGUI.cs            &gt;   StandardShaderGUISnow.cs</code></pre>
+<hr>
+<h3>最終效果</h3>
+<p><img alt="Physically Based Rendering Snow – 基於 Unity PBR 的積雪效果 插圖" decoding="async" height="722" loading="lazy" src="physically-based-rendering-snow-editor.png" width="473"><br>
+<img alt="Physically Based Rendering Snow – 基於 Unity PBR 的積雪效果 插圖" decoding="async" height="1376" loading="lazy" src="physically-based-rendering-snow-normal.png" width="2874"><br>
+<img alt="Physically Based Rendering Snow – 基於 Unity PBR 的積雪效果 插圖" decoding="async" height="1376" loading="lazy" src="physically-based-rendering-snow-effect.png" width="2874"><br>
+<video aria-label="Physically Based Rendering Snow – 基於 Unity PBR 的積雪效果 插圖" autoplay height="303" loop muted playsinline poster="physically-based-rendering-snow-gif-1-poster.jpg" preload="metadata" src="physically-based-rendering-snow-gif-1.mp4" width="640"></video></p>
+<hr>
+<h3>參考資料</h3>
+<p><a href="https://zhuanlan.zhihu.com/p/26395413" rel="noopener noreferrer" target="_blank">Unity5 PBR如何实现天气系统的雪景效果</a></p>

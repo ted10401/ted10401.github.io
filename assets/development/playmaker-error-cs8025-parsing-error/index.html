@@ -1,0 +1,33 @@
+<!--
+{
+  "title": "PlayMaker Error CS8025: Parsing error",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "在測試導入 PlayMaker 1.7.7 後若出現以下 Error Code Assets/Photon Unity Networking/PlayMak…",
+  "image": "7c85681f45bd09891458906b608d3b7b.jpg",
+  "imageAlt": "PlayMaker Error CS8025: Parsing error 封面",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/playmaker-error-cs8025-parsing-error/"
+}
+-->
+<p>在測試導入 PlayMaker 1.7.7 後若出現以下 Error Code<br>
+Assets/Photon Unity Networking/PlayMaker/Actions/PhotonNetworkDestroy.cs(43,9): error CS8025: Parsing error<br>
+<img alt="PlayMaker Error CS8025: Parsing error 插圖" decoding="async" height="97" loading="lazy" src="7c85681f45bd09891458906b608d3b7b.jpg" width="868"></p>
+<p>解決方法如下：<br>
+先開啟該腳本的資料夾位置<br>
+<img alt="PlayMaker Error CS8025: Parsing error 插圖" decoding="async" height="613" loading="lazy" src="2de29fe87e69f69b65f27c7023dee9c4.jpg" width="482"></p>
+<p><b>使用記事本開啟腳本並儲存</b>後<br>
+該 Error Code 即消失</p>
+<p>另外若做了修正後<br>
+出現以下 Error Code<br>
+Assets/PlayMaker/Actions/DebugDrawShape.cs(5,2): error CS0246: The type or namespace name `Tooltip’ could not be found. Are you missing a using directive or an assembly reference?<br>
+Assets/PlayMaker/Actions/DebugDrawShape.cs(5,2): error CS0104: `TooltipAttribute’ is an ambiguous reference between `UnityEngine.TooltipAttribute’ and `HutongGames.PlayMaker.TooltipAttribute’<br>
+Assets/PlayMaker/Actions/GetMaterial.cs(9,2): error CS0246: The type or namespace name `Tooltip’ could not be found. Are you missing a using directive or an assembly reference?<br>
+Assets/PlayMaker/Actions/GetMaterial.cs(9,2): error CS0104: `TooltipAttribute’ is an ambiguous reference between `UnityEngine.TooltipAttribute’ and `HutongGames.PlayMaker.TooltipAttribute’<br>
+Assets/PlayMaker/Actions/GetMaterialTexture.cs(9,2): error CS0246: The type or namespace name `Tooltip’ could not be found. Are you missing a using directive or an assembly reference?<br>
+Assets/PlayMaker/Actions/GetMaterialTexture.cs(9,2): error CS0104: `TooltipAttribute’ is an ambiguous reference between `UnityEngine.TooltipAttribute’ and `HutongGames.PlayMaker.TooltipAttribute’<br>
+<img alt="PlayMaker Error CS8025: Parsing error 插圖" decoding="async" height="220" loading="lazy" src="ad8238036be8f2a3a99af653207c462a.jpg" width="873"></p>
+<p>解決方法如下：<br>
+點選 Error Code 進入腳本後，將腳本內的 Tooltip 更改為 HutongGames.PlayMaker.Tooltip<br>
+<img alt="PlayMaker Error CS8025: Parsing error 插圖" decoding="async" height="87" loading="lazy" src="a4e16cc17be111b32fc9c2a0b9576207.jpg" width="316"></p>
+<p><img alt="PlayMaker Error CS8025: Parsing error 插圖" decoding="async" height="86" loading="lazy" src="da88a545dfd5fb09ecb3f0010f54c29e.jpg" width="425"></p>
+<p>重複以上動作直到未產生 Error Code</p>

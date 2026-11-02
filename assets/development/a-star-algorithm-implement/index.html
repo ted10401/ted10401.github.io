@@ -1,0 +1,160 @@
+<!--
+{
+  "title": "A* Algorithm Implement – 虛擬程式碼實例化",
+  "date": "2016-07-10",
+  "category": "Unity · Algorithm",
+  "excerpt": "看到這步的人可能還是會覺得一頭霧水 怎麼前面已經三篇了可是都還沒有看到 A* 的實作成果 但這篇看完後會突然發現概念都連接起來了 ( 應該吧…..",
+  "image": "assets/development-cover.png",
+  "imageAlt": "A* Algorithm Implement – 虛擬程式碼實例化 封面",
+  "shortTitle": "A* Algorithm Implement",
+  "heading": "A* Algorithm Implement<br><span>虛擬程式碼實例化</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/a-star-algorithm-implement/"
+}
+-->
+<p><b>A* 虛擬程式碼實例化</b></p>
+<p>看到這步的人可能還是會覺得一頭霧水<br>
+怎麼前面已經三篇了可是都還沒有看到 A* 的實作成果<br>
+但這篇看完後會突然發現概念都連接起來了 ( 應該吧…..</p>
+<p>首先希望各位回想一下最一開始的 A* 演算法虛擬碼<br>
+這篇將會以那個虛擬碼來處理 A* 演算法運算<br>
+<a data-detail="development-a-star-algorithm-introduction" href="#development-a-star-algorithm-introduction">A* Algorithm Introduction – 演算法簡介</a></p>
+<p>新增一個C#腳本命名為AStar.cs</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class AStar
+{
+    public static NodeSort closedList, openList;
+
+    private static float HeuristicEstimateCost(Node curNode, Node goalNode)
+    {
+        Vector3 vectorCost = goalNode.position - curNode.position;
+
+        return vectorCost.magnitude;
+    }
+
+    public static ArrayList FindPath( Node start, Node goal )
+    {
+        openList = new NodeSort();
+        openList.Push(start);
+        start.G_Cost = 0.0f;
+        start.H_Cost = HeuristicEstimateCost(start, goal);
+
+        closedList = new NodeSort();
+        Node node = null;
+
+        while (openList.Length != 0)
+        {
+            node = openList.First();
+
+            //Push the current node to the closed list
+            closedList.Push(node);
+            //and remove it from openList
+            openList.Remove(node);
+
+            //Check if the current node is the goal node
+            if ( node.position == goal.position )
+            {
+                return CalculatePath(node);
+            }
+
+            //Create an ArrayList to store the neighboring nodes
+            ArrayList neighbours = new ArrayList();
+            NodeManager.instance.GetNeighbours(node, neighbours);
+
+            Node neighbourNode;
+
+            for ( int i = 0; i &lt; neighbours.Count; i++ )
+            {
+                neighbourNode = (Node)neighbours[i];
+
+                if ( !closedList.Contains( neighbourNode ) )
+                {
+                    float cost;
+                    float totalCost;
+
+                    float neighbourNodeEstCost;
+
+                    if ( !openList.Contains( neighbourNode ) )
+                    {
+                        //G
+                        cost = HeuristicEstimateCost( node, neighbourNode );
+                        totalCost = node.G_Cost + cost;
+
+                        //H
+                        neighbourNodeEstCost = HeuristicEstimateCost( neighbourNode, goal );
+
+                        neighbourNode.G_Cost = totalCost;
+                        neighbourNode.parent = node;
+                        neighbourNode.H_Cost = neighbourNodeEstCost;
+
+                        openList.Push(neighbourNode);
+
+                    }
+                    else
+                    {
+                        cost = HeuristicEstimateCost( node, neighbourNode );
+                        totalCost = node.G_Cost + cost;
+
+                        if( neighbourNode.G_Cost &gt; totalCost )
+                        {
+
+                            neighbourNode.G_Cost = totalCost;
+                            neighbourNode.parent = node;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ( node.position != goal.position )
+        {
+            Debug.LogError("Goal Not Found");
+            return null;
+        }
+
+        return CalculatePath(node);
+    }
+
+    private static ArrayList CalculatePath(Node node)
+    {
+        ArrayList list = new ArrayList();
+
+        while (node != null)
+        {
+            list.Add( node );
+            node = node.parent;
+        }
+
+        list.Reverse();
+        return list;
+    }
+}</code></pre>
+<p><b>6</b><br>
+一開始先分別定義 openList 以及 closeList</p>
+<p><b>8~13 HeuristicEstimateCost</b><br>
+用來計算兩個節點間的移動距離</p>
+<p><b>15~96 FindPath</b><br>
+這段是 A* 演算法實作中最複雜的一部分<br>
+可以將虛擬碼與實作互相對照</p>
+<p>在演算初期先將 openList 及 closeList 初始化<br>
+並將 StartNode 的 G_Cost 及 H_Cost 也初始化<br>
+( 小提醒：G_Cost為實際移動距離、H_Cost為到終點的預估距離 )</p>
+<p>接著將 StartNode 加入 openList 裡面<br>
+開始進行 A* 演算法中的核心計算<br>
+接下來都是將虛擬碼轉換為實際code的結果</p>
+<p>需要注意的是取得 neighbors 用到了上一篇中的 GetNeighbours 方法</p>
+<p>下一步則是判斷 neighbors 是否在 openList 裡<br>
+如果沒有再 openList 裡代表該節點沒有被運算過<br>
+所以需要將其 cost 算出來後加入 openList 裡</p>
+<p>如果 neighbors 已經在 openList 裡<br>
+代表該節點已經運算過<br>
+但若這次運算的 cost 小於之前計算過的結果<br>
+則將它更新</p>
+<p>如此一來，當程式運行到找到終點時<br>
+則會呼叫 CalculatePath 方法</p>
+<p><b>98~110 CalculatePath</b><br>
+獲得終點 Node 後<br>
+即可逐一的從終點 Node 回推回起點 Node<br>
+最後將該陣列反轉後<br>
+就可以取得 A* 移動路徑</p>

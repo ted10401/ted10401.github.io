@@ -1,0 +1,133 @@
+<!--
+{
+  "title": "iTween, HOTween, DOTween, LeanTween 不專業比較",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "最近因為將自己的小專案從 NGUI 轉到 uGUI 轉換的過程中沒有遇到特別的問題",
+  "image": "cover-tween.png",
+  "imageAlt": "iTween, HOTween, DOTween, LeanTween 不專業比較 封面",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/itween-hotween-dotween-leantween-unprofessional-review/"
+}
+-->
+<p>最近因為將自己的小專案從 NGUI 轉到  uGUI<br>
+轉換的過程中沒有遇到特別的問題</p>
+<p>但是注意到在 NGUI  裡有個非常好用的 Tweener 類別<br>
+TweenPosition, TweenRotation, TweenColor, TweenAlpha…等</p>
+<p>Tween 事實上就是一種數學庫<br>
+能夠讓使用者更加方便的處理數學動畫<br>
+這裡就不對 Tween 做詳細介紹</p>
+<p>而在 uGUI 裡因為沒有內建的 Tween 類別可以使用<br>
+所以大致上分析了四種 Tween 的差別與方便性來作為往後選擇時的取捨</p>
+<p>會以這四種 Tween 來做比較是因為這四種 Tween Plugin 都是免費的<br>
+當然還有許多 Tween Plugin 都是免費的但在這邊就不列入討論了<br>
+大家可以在 AssetStore 裡收尋 Tween 關鍵字就可以找到這四種 Tween Plugin<br>
+<img alt="iTween, HOTween, DOTween, LeanTween 不專業比較 插圖" decoding="async" height="512" loading="lazy" src="9cfd26793d239463b9ab111ee6cd5491.png" width="590"></p>
+<p>將四種 Tween Plugin 都下載並匯入到專案中<br>
+<img alt="iTween, HOTween, DOTween, LeanTween 不專業比較 插圖" decoding="async" height="218" loading="lazy" src="405b9288d01b468c46cce7ae4a35a9c0.png" width="466"></p>
+<p>在這個比較範例中<br>
+我撰寫了簡單的測試腳本<br>
+這裡所做的測試是讓物體可以做循環移動<br>
+並且移動方式都設定為線性移動</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+using Holoville.HOTween;//For HOTween
+using DG.Tweening;//For DOTween
+
+public class TweenPositionTest : MonoBehaviour
+{
+    public enum TweenType
+    {
+        iTween,
+        HOTween,
+        DOTween,
+        LeanTween
+    }
+
+    public TweenType tweenType;
+
+    public Vector3 from;
+    public Vector3 to;
+    public float duration;
+
+    void Awake()
+    {
+        switch(tweenType)
+        {
+        case TweenType.iTween:
+            iTweenPosition();
+            break;
+        case TweenType.HOTween:
+            HOTweenPosition();
+            break;
+        case TweenType.DOTween:
+            DOTweenPosition();
+            break;
+        case TweenType.LeanTween:
+            LeanTweenPosition();
+            break;
+        }
+    }
+
+    private void iTweenPosition()
+    {
+        Hashtable hash = new Hashtable();
+        hash.Add("position", to);
+        hash.Add("isLocal", true);
+        hash.Add("loopType", iTween.LoopType.pingPong);
+        hash.Add("easetype", iTween.EaseType.linear);
+        iTween.MoveTo(gameObject, hash);
+    }
+
+    private void HOTweenPosition()
+    {
+        HOTween.Init();
+        TweenParms parms = new TweenParms().Prop("localPosition", to).Loops(-1,Holoville.HOTween.LoopType.Yoyo).Ease(EaseType.Linear);
+        HOTween.To(transform, duration, parms);
+    }
+
+    private void DOTweenPosition()
+    {
+        transform.DOLocalMove(to, duration).SetLoops(-1,DG.Tweening.LoopType.Yoyo).SetEase(DG.Tweening.Ease.Linear);
+    }
+
+    private void LeanTweenPosition()
+    {
+        LeanTween.moveLocal(gameObject, to, duration).setLoopPingPong().setEase(LeanTweenType.linear);
+    }
+}</code></pre>
+將腳本賦予場上的 Unity 內建 Cube 後就可以進行測試<br>
+測試環境是場景中有一百個相同物件<br>
+開始遊戲後使用 Unity Profilier 觀察 CPU Usage1.iTween<br>
+<img alt="iTween, HOTween, DOTween, LeanTween 不專業比較 插圖" decoding="async" height="236" loading="lazy" src="b9d6fb9d68526a654b2fd82885c5ac16.png" width="1080">
+
+<p>最大值為1.29ms最小值為0.51ms</p>
+<p>2.HOTween<br>
+<img alt="iTween, HOTween, DOTween, LeanTween 不專業比較 插圖" decoding="async" height="242" loading="lazy" src="2f25be8f2c797cd31c784faa99f1f9cb.png" width="1078"><br>
+最大值為1.26ms最小值為0.71ms</p>
+<p>3.DOTween<br>
+<img alt="iTween, HOTween, DOTween, LeanTween 不專業比較 插圖" decoding="async" height="236" loading="lazy" src="a601952ce321556d6fa76362053a41b3.png" width="1078"><br>
+最大值為0.58ms最小值為0.27ms</p>
+<p>4.LeanTween<br>
+<img alt="iTween, HOTween, DOTween, LeanTween 不專業比較 插圖" decoding="async" height="238" loading="lazy" src="d193770e60d22fb7d0467505887482aa.png" width="1078"><br>
+最大值為0.62ms最小值為0.25ms</p>
+<p>以上的測試數據僅供參考，最大最小值為目測不一定準確</p>
+<p>以效能來看的話<br>
+LeanTween ≈ DoTween &gt; iTween &gt; HOTween</p>
+<p>再來回到上面分析一下代碼使用方便性</p>
+<p>1.iTween<br>
+使用 Hashtable 來作為輸入依據<br>
+在使用上需要去注意對應參數的 Key 才能做有效輸入</p>
+<p>2.HOTween<br>
+使用 TweenParms 來作為輸入依據<br>
+但在設定 LoopType 及 EaseType 等特定參數時使用函式設定</p>
+<p>3.DoTween<br>
+使用函式設定，並且支援了擴充方法</p>
+<p>4.LeanTween</p>
+
+<p>使用函式設定，但不支援擴充方法</p>
+<p>個人依照使用方便性的排列為<br>
+DOTween &gt; LeanTween &gt; iTween &gt; HOTween</p>
+<p>結論<br>
+性能：LeanTween ≈ DoTween &gt; iTween &gt; HOTween<br>
+使用性：DOTween &gt; LeanTween &gt; iTween &gt; HOTween<br>
+普及率：iTween &gt; LeanTween &gt; HOTween &gt; DOTween</p>

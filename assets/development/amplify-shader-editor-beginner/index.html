@@ -1,0 +1,300 @@
+<!--
+{
+  "title": "Amplify Shader Editor Beginner – 入門篇",
+  "date": "2017-03-22",
+  "category": "Shader",
+  "excerpt": "過往在編寫著色器效果時，都必須要透過大量的電腦圖學、數學計算、渲染流程…等知識來輔佐我們，也因為需要這麼多的事前準備，導致學習著色器的門檻相對較高，讓許多程…",
+  "image": "cover-ase_image1.png",
+  "imageAlt": "Amplify Shader Editor Beginner – 入門篇 封面",
+  "shortTitle": "Amplify Shader Editor Beginner",
+  "heading": "Amplify Shader Editor Beginner<br><span>入門篇</span>",
+  "source": "https://tedsieblog.wordpress.com/2017/03/22/amplify-shader-editor-beginner/"
+}
+-->
+<p>過往在編寫著色器效果時，都必須要透過大量的電腦圖學、數學計算、渲染流程…等知識來輔佐我們，也因為需要這麼多的事前準備，導致學習著色器的門檻相對較高，讓許多程式、非程式人員不敢輕易的轉動這扇門的把手。</p>
+<p>而在前些日子中，偶然注意到 Unity 官方所推薦的這一套可視化著色器編輯器 Amplify Shader Editor。透過這套工具，可以使開發者輕易的跨越進入著色器領域的門檻，就算是非程式人員也可以透過 Amplify Shader Editor 來嘗試製作出屬於自己的酷炫效果。</p>
+<p>透過這次的文章，希望可以幫助對著色器有興趣的開發者們，了解可視化著色器編輯器 Amplify Shader Editor 的運作方式、基礎使用方法及各項參數介紹。</p>
+<p>文章來源：<a href="https://www.facebook.com/UnityTechTaiwan/" rel="noopener noreferrer" target="_blank">Unity Taiwan</a><br>
+插件來源：<a href="https://www.assetstore.unity3d.com/en/#!/content/68570" rel="noopener noreferrer" target="_blank">Amplify Shader Editor</a></p>
+
+<h2>Amplify Shader Editor 介紹</h2>
+<p>Amplify Shader Editor 提供了一個對 Unity 開發者相當友善的開發環境，可以與 Unity 編輯器和著色器完美的融合。透過這個工具，開發者能夠輕鬆實現 AAA 級質量的作品，並且能夠相當靈活地應用在任何 Unity 開發專案中，進而縮短製作團隊在美術呈現畫面上的開發時間。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="457" loading="lazy" src="ase_image1.png" width="600"></p>
+<p>透過這個工具，可以實現一些驚人的 AAA 級效果，例如：</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="230" loading="lazy" src="ase_image3.gif" width="512"><em>溶解效果（Dissolve Burn Fx）</em></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="230" loading="lazy" src="ase_image4.gif" width="512"><em>三维映射（Triplanar Mapping）</em></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="230" loading="lazy" src="ase_image5.gif" width="512"><em>半透明（Translucency）</em></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="133" loading="lazy" src="ase_image6.gif" width="285"><em>視差映射（Parallax Mapping）</em></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="230" loading="lazy" src="ase_image7.gif" width="512"><em>抖動（Dithering）</em></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="131" loading="lazy" src="ase_image8.gif" width="293"><em>Fake Interior</em></p>
+<p>當然，Amplify Shader Editor 還包含了更多效果等你挖掘。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="412" loading="lazy" src="ase_image9.gif" width="874"></p>
+
+<p>下面就讓我們依次介紹 Amplify Shader Editor 的使用過程與細節介紹，包含<b>安裝流程</b>、<b>基本操作</b>、<b>編輯器介面</b>、<b>材質模式與著色器模式</b>、<b>節點屬性介面</b>以及 <b>ASE 著色器 Hello World</b>。</p>
+
+<h2>安裝流程</h2>
+<p>安裝 Amplify Shader Editor 的步驟相當簡單，只需要三個步驟就可以完成。</p>
+<p><b>步驟 1</b><br>
+開啟 Unity 專案，雙擊 Amplify Shader Editor.unitypackage 將工具匯入專案中。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="34" loading="lazy" src="ase_image10.png" width="462"></p>
+<p>或是透過點擊 Assets &gt; Import Package &gt; Custom Package… ，並選擇 Amplify Shader Editor.unitypackage 進行匯入。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="187" loading="lazy" src="ase_image11.png" width="387"></p>
+<p><b>步驟 2</b><br>
+匯入進度條完成後，在 Import Unity Package 畫面中選擇所有資源並點擊 Import 按鈕，將所有資源匯入專案。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="366" loading="lazy" src="ase_image12.png" width="350"></p>
+<p><b>步驟 3</b><br>
+最後為了更好地理解，說明一下 Amplify Shader Editor 目錄結構：</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="417" loading="lazy" src="screen-shot-2017-03-20-at-4-17-38-pm.png" width="672"></p>
+<p>從專案目錄中可以發現，Amplify Shader Editor 事先提供了許多著色器範例，每個範例都包含了單獨的場景（Scene）做效果展示，開發者可以根據需求來直接使用。</p>
+
+<h2>基本操作</h2>
+<p><b>開啟 Amplify Shader Editor 編輯器介面</b><br>
+依次點選 Window &gt; Amplify Shader Editor &gt; Open Canvas，或是雙擊 Amplify Shader Editor（以下簡稱 ASE）材質或著色器自動打開編輯器介面。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="150" loading="lazy" src="ase_image14.png" width="361"></p>
+<p><b>建立 Amplify Surface Shader（表面著色器）</b><br>
+在 Project 面板選取資料夾後，依次點選 Assets &gt; Create &gt; Shader &gt; Amplify Surface Shader，或是在 Project 面板中直接點擊滑鼠右鍵 Create &gt; Shader &gt; Amplify Surface Shader 進行建立。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="234" loading="lazy" src="ase_image15.png" width="600"></p>
+<p><b>開啟 ASE 著色器編輯畫面</b><br>
+雙擊 ASE 著色器就可以自動開啟編輯畫面。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="104" loading="lazy" src="ase_image16.png" width="309"></p>
+<p>或者可以在選擇 ASE 著色器的情況下，透過 Inspector 面板中的 Open in Shader Editor 按鈕開啟。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="186" loading="lazy" src="ase_image17.png" width="341"></p>
+<p><b>著色器文件命名</b><br>
+可以直接在節點屬性（Node Properties）中的著色器名稱（Shader Name）進行修改，並可以使用正斜線（/）來新增著色器類別。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="283" loading="lazy" src="ase_image18.png" width="351"></p>
+<p>PS：著色器檔案名稱是唯一的，必須在 Project 頁面中手動設置。但檔案與著色器可以使用不同名稱命名。</p>
+<p><b>ASE 著色器定位</b><br>
+此區域在 ASE 編輯介面的左下角，顯示當前的著色器，點擊這個區域可以將 ASE Shader 在專案頁面中定位出來。邊緣的綠框提示當前開啟的著色器。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="64" loading="lazy" src="ase_image19.png" width="292"></p>
+<p><b>查看 ASE 材質</b><br>
+雙擊 ASE 材質就可以在編輯頁面中開啟。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="107" loading="lazy" src="ase_image20.png" width="311"></p>
+<p><b>ASE 材質定位</b><br>
+與定位 ASE 著色器相同，可以透過點擊右下角來定位出對應的 ASE 材質，且邊緣的提示框為藍色。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="66" loading="lazy" src="ase_image21.png" width="208"></p>
+
+<h2>編輯器介面</h2>
+<p><b>節點屬性介面（Node Properties）</b><br>
+透過點擊編輯器中的各個節點，被選擇的節點會切換為橘色框狀態。該節點的屬性就會在節點屬性介面中顯示出來。若未選擇或選擇複數節點，則會顯示主節點的屬性。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="480" loading="lazy" src="ase_image22.png" width="575"><em>著色器主節點的節點屬性</em></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="272" loading="lazy" src="ase_image23.png" width="599"><em>發射器（Emission）的灰燼顏色（Ember Color Tint）節點的節點屬性</em></p>
+<p>另外，可以透過點擊節點屬性介面右上角的 “-” 按鈕來將介面最小化，點擊方塊按鈕將介面恢復。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="295" loading="lazy" src="ase_image24.gif" width="346"></p>
+<p><b>編輯器頂端區域</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="31" loading="lazy" src="ase_image25.png" width="42">  <b>保存按鈕</b>：保存/更新著色器數據。若是修改著色器名稱，需要點擊這個按鈕後才會正式生效。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="24" loading="lazy" src="ase_image26.png" width="30">  <b>自動保存按鈕</b>：開啟時自動保存著色器數據。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="25" loading="lazy" src="ase_image27.png" width="28">  <b>清除按鈕</b>：刪除所有無效節點。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="28" loading="lazy" src="ase_image28.png" width="30">  <b>文字編輯按鈕</b>：使用文字編輯器開啟著色器文件。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="27" loading="lazy" src="ase_image30.png" width="33">  <b>回歸按鈕</b>：選中並定位主節點</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="26" loading="lazy" src="ase_image31.png" width="34">  <b>定位按鈕</b>：定位選中的節點。如果沒有選擇節點，將會定位出節點集合。</p>
+<p>也可以透過雙擊滑鼠左鍵或鍵盤 F 鍵，來進行編輯器介面的自動縮放。</p>
+<p><b>節點選擇介面</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="442" loading="lazy" src="ase_image32.png" width="246"></p>
+<p>節點選擇介面位於編輯器右側，是一個可以搜尋節點類型的清單，可以找到所需要的節點類型，並直接拖放到編輯器中。和節點屬性介面一樣，可以透過點擊 “-” 按鈕來將介面最小化。</p>
+<p>此外也可以在編輯器中點擊滑鼠右鍵，開啟節點選擇介面。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="251" loading="lazy" src="ase_image33.png" width="253"></p>
+<p><b>使用快捷鍵建立節點</b></p>
+<p>編輯器中還有一個相當重要的功能，就是可以透過按住快捷鍵後單擊編輯器上的任意位置來建立新節點。在節點選擇介面中，一般會在節點名稱右邊的 [] 中顯示快捷鍵。例如：數字鍵 1 為浮點數（Float）節點，數字鍵 5 為顏色（Color）節點。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="196" loading="lazy" src="ase_image34.png" width="93"></p>
+<p><b>ASE 數據處理流程</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="211" loading="lazy" src="ase_image35.jpg" width="600"></p>
+<p>在上圖中我們可以發現，ASE 的數據處理流程是由左至右的，輸入端口 &gt; 數據處理 &gt; 輸出端口。只有直接或間接連接到主節點的節點才會運作，並用於生成著色器代碼。若節點中包含了未連接的輸入端口，ASE 會在處理流程中使用內部數據，而這些內部數據可以透過節點屬性介面來進行編輯。</p>
+<p><b>可視化編輯重點</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="211" loading="lazy" src="ase_image36.jpg" width="600"></p>
+<ul>
+<li><b>選擇節點</b>：可以透過點擊滑鼠左鍵或透過左鍵拖動範圍來選取節點。此外，可以按住 Shift 鍵並點擊節點來做複選節點的動作。也可以使用 CTRL/CMD + A 來進行全選功能。要取消選取內容時，則可以透過點擊畫面的空白處來進行取消。選取節點並按住左鍵拖移則可以移動所選節點。</li>
+</ul>
+<ul>
+<li><b>刪除節點</b>：選取節點並點擊 Delete 鍵則可以將節點刪除。</li>
+</ul>
+<ul>
+<li><b>建立連接</b>：在端口點擊滑鼠左鍵並進行拖曳就可以將輸入端口與輸出端口進行連接。也可以點擊完整連接後拖曳到另一個端口形成新的連接。此外，將連接拖曳到畫布空白處則會自動彈出節點選擇介面，可以快速的選擇並建立需要的節點。</li>
+</ul>
+<ul>
+<li><b>刪除連接</b>：透過按住 Alt 鍵並點擊節點端口，或是將端口連接拖動到畫布空白處後點擊滑鼠左鍵，就可以刪除連接。連接高亮顯示時，表示連接有由左至右的完整數據流。</li>
+</ul>
+<ul>
+<li><b>端口</b>：輸出端口可以連接複數個輸入端口，但是輸入端口只能進行單一連接。此外，連接會自動與附近端口進行匹配，在操作上更為直覺。</li>
+</ul>
+<ul>
+<li><b>可視範圍</b>：按住滑鼠右鍵或中鍵可以移動整個畫布的可視範圍。若是選中的節點離開了可視範圍後，畫布將會自動滾動。另外還可以透過滑鼠滾輪放大或縮小可視範圍，會根據畫布上的節點進行縮放。</li>
+</ul>
+<ul>
+<li><b>兩側介面</b>：當 ASE 編輯介面的寬度小於 750 px 時，節點屬性介面和節點選擇介面會自動最小化。</li>
+</ul>
+<h2>材質模式與著色器模式</h2>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="180" loading="lazy" src="ase_image37.jpg" width="598"></p>
+<p>ASE 編輯介面包含兩種編輯模式，材質模式與著色器模式，主要取決於透過什麼方式讀取著色器文件。另外可以藉由畫布的外輪廓顏色來判斷編輯模式，藍色代表材質模式，綠色代表著色器模式。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="210" loading="lazy" src="ase_image38.jpg" width="599"></p>
+<p>在著色器中設置的數值通常稱為預設值（Default Value）。對任何預設值所做的修改都會自動影響最後的結果。當同時編輯材質和著色器時，需要記得注意哪些屬性有進行變動。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="210" loading="lazy" src="ase_image39.jpg" width="599"></p>
+<p>材質預設值與著色器預設值不同，可以將材質理解成著色器實例，每個著色器實例的數據都是唯一的，但使用相同的預設值進行建立。材質參數只有在材質模式時才會顯示。在表示變量（顏色 Color、浮點數 Float、整數 Int、向量 Vector、矩陣 Matrix）的節點中有一個 Parameter Type 下拉選單，可以設置為 Property，以便在材質模式下組合出無限數量的變化。<br>
+<img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="220" loading="lazy" src="ase_image40.jpg" width="599"></p>
+<p>如上圖所示，可以在相同的 ASE 著色器之間進行參數的複製與覆蓋。也可以透過 Open in Shader Editor 按鈕快速打開 Amplify Shader Editor 來編輯著色器與材質。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="213" loading="lazy" src="ase_image41.jpg" width="600"></p>
+<p>除了使用 Open in Shader Editor 按鈕以外，還可以選擇 Open in Text Editor 按鈕，使用文字編輯器來修改著色器。</p>
+
+<h2>節點屬性介面</h2>
+<p>其中大部分內容參考 Unity 著色器官方文件：<br>
+<a href="https://docs.unity3d.com/Manual/SL-Reference.html" rel="noopener noreferrer" target="_blank">https://docs.unity3d.com/Manual/SL-Reference.html</a></p>
+<p><b>主屬性（Main Properties）</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="388" loading="lazy" src="ase_image42.jpg" width="249"></p>
+<ul>
+<li><b>著色器類型（Shader Type）</b>：顯示當前所使用的著色器類型。</li>
+</ul>
+<ul>
+<li><b>著色器名稱（Shader Name）</b>：可編輯文字框，用來定義著色器的名稱與路徑，使用正斜線（/）來區分其類別與名稱，例如 UserSamples/EnvironmentGradient。需要注意，著色器名稱與檔案名稱不同，檔案名稱需要額外設定。</li>
+</ul>
+<ul>
+<li><b>光照模型（Light Model）</b>：設定當前所使用的光照模型。ASE 提供了標準（Standard）、標準高光（Standard Specular）、Lambert 以及 Blinn Phong 光照模型。</li>
+</ul>
+<ul>
+<li><b>著色器模型（Shader Model）</b>：在編寫表面著色器或一般著色器時，HLSL 可以編譯成不同的著色器模型。越高的著色器模型可以完成更多功能，但可能會使著色器在一些較老舊的 GPU 或平台上無法使用。</li>
+</ul>
+<ul>
+<li><b>精度（Percision）</b>：定義著色器的計算精度，使用低精度類型可以獲得額外的效能提升，預設為 Float 精度。</li>
+</ul>
+<ul>
+<li><b>剔除模式（Cull Mode）</b>：定義著色器的剔除模式。提供了剔除正面（Front）、剔除背面（Back）以及剔除禁用（Off），預設為剔除背面模式。</li>
+</ul>
+<ul>
+<li><b>渲染路徑（Render Path）</b>：定義著色器所使用的渲染路徑模式。包含正向渲染（Forward）、延遲渲染（Defferred）以及全部渲染（All），預設為全部渲染模式。</li>
+</ul>
+<ul>
+<li><b>投射陰影（Cast Shadows）</b>：定義著色器是否支持投射陰影。</li>
+</ul>
+<ul>
+<li><b>接收陰影（Receive Shadows）</b>：定義著色器是否支持接受陰影。</li>
+</ul>
+<ul>
+<li><b>隊列索引（Queue Index）</b>：渲染順序偏移值。</li>
+</ul>
+<ul>
+<li><b>自定義編輯器（Custom Editor）</b>：允許開發者使用自定義的 ASE 編輯器。</li>
+</ul>
+<p><b>混合模式（Blend Mode）</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="398" loading="lazy" src="ase_image43.jpg" width="249"></p>
+<ul>
+<li><b>混合模式（Blend Mode）</b>：自動調整混合模式參數，包含不透明（Opaque）、遮罩（Masked）、透明（Transparent）、Alpha Transparent 以及自定義（Custom）。</li>
+</ul>
+<ul>
+<li><b>渲染類型（Render Type）</b>：定義著色器的渲染類型，包含不透明（Opaque）、透明（Transparent）、透明剪裁（Transparent Cutout）、背景（Background）、覆蓋（Overlay）、不透明樹（Tree Opaque）、透明剪裁樹（Tree Transparent Cutout）、布告板樹（Tree Billboard）、草（Grass） 以及布告板草（Grass Billboard）。</li>
+</ul>
+<ul>
+<li><b>渲染順序（Render Queue）</b>：調整渲染順序，從數值越小的幾何體開始進行渲染。選項包含背景（Background）、幾何（Geometry）、Alpha 測試（Alpha Test）、透明（Trasparent）和覆蓋（Overlay）。</li>
+</ul>
+<ul>
+<li><b>遮罩剔除數值（Mask Clip Value）</b>：須與不透明度 alpha 比較，若不透明度小於遮罩剔除數值，則捨棄該像素。</li>
+</ul>
+<ul>
+<li><b>混合 RGB 和混合 Alpha（Blend RGB、Blend Alpha）</b>：當像素被寫入屏幕時，會透過何種方式混合。ASE 提供了自定義（Custom）、Alpha 混合（Alpha Blend）、預乘（Premultiplied）、加法（Additive）、Soft Additive、乘法（Multiplicative）和兩倍乘法（2x Multiplicative）模式。</li>
+</ul>
+<ul>
+<li><b>混合係數（Blend Factor）（Blend Src、Blend Dst）</b>：一般分為來源係數與目標係數，透過係數間的運算來得到最後結果，若是 BlendOp 使用邏輯運算，則會忽略混合係數。</li>
+</ul>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="353" loading="lazy" src="ase_blend_factor.png" width="601"></p>
+<ul>
+<li><b>混合操作 RGB 和混合操作 Alpha（Blend Op RGB、Blend Op Alpha）</b>：包含添加（Add）、子（Sub）、修改子（Rev Sub）、最小（Min）以及最大（Max）。</li>
+</ul>
+<ul>
+<li>顏色遮罩（Color Mask）：設置顏色通道。</li>
+</ul>
+<p><b>模板緩衝（Stencil Buffer）</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="320" loading="lazy" src="ase_image45.jpg" width="249"></p>
+<p>模板緩衝器可以用來作為模板測試使用，用於保存或是拋棄像素。通常每個像素有 8 個位元，進行繪製時會調用該數值來進行模板測試，已決定是否在進入著色器前將像素計算捨棄。</p>
+<ul>
+<li><b>參考值（Reference）</b>：用來與模板緩衝區比較的數值，範圍是 0 ~ 255 整數。</li>
+</ul>
+<ul>
+<li><b>讀取遮罩值（Read Mask）</b>：讀取模板緩衝區時使用，默認值為 255，範圍是 0 ~ 255 整數。</li>
+</ul>
+<ul>
+<li><b>寫入遮罩值（Write Mask）</b>：寫入模板緩衝區時使用，默認值為 255，範圍是 0 ~ 255 整數。</li>
+</ul>
+<ul>
+<li><b>比較方法（Comparison）</b>：將參考值與模板緩衝區的當前內容進行比較的方法，包含大於（Greater）、大於等於（Greater or Equal）、小於（Less）、小於等於（Less or Equal）、等於（Equal）、不等於（Not Equal）、總是（Always）及從不（Never），預設為 Always。</li>
+</ul>
+<ul>
+<li><b>測試通過（Pass）</b>：當模板測試通過時所進行的處理，默認值為 keep。</li>
+</ul>
+<ul>
+<li><b>測試失敗（Fail）</b>：當模板測試失敗時所進行的處理，默認值為 keep。</li>
+</ul>
+<ul>
+<li><b>ZFail</b>：當模板測試通過但深度測試失敗時所進行的處理，默認為 keep。</li>
+</ul>
+<p><b>曲面細分（Tessellation）</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="282" loading="lazy" src="ase_image46.jpg" width="249"></p>
+<ul>
+<li><b>馮式曲面細分模式（Phong）</b>：修改曲面細分位置，使曲面細分稍微跟隨法線做網格生成，預設為 Off。</li>
+</ul>
+<ul>
+<li><b>類型（Type）</b>：曲面細分類型，包含基於位置（Distance-based）、固定（Fixed）、邊長（Edge Length）和 Edge Length Cull。</li>
+</ul>
+<ul>
+<li><b>曲面細分係數（Tess）</b>：範圍是 1 ~ 32。</li>
+</ul>
+<ul>
+<li><b>最小值（Min）</b>：最小細分距離。</li>
+</ul>
+<ul>
+<li><b>最大值（Max）</b>：最大細分距離。</li>
+</ul>
+<p><b>深度（Depth）</b></p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="247" loading="lazy" src="ase_image47.jpg" width="249"></p>
+<ul>
+<li><b>ZWrite 模式（ZWrite Mode）</b>：是否將此像素寫入深度緩衝區，預設為 On。若是繪製對象為不透明物件，則開啟此模式。若是繪製對象為透明物件，則關閉此模式。</li>
+</ul>
+<ul>
+<li><b>ZTest 模式（ZTest Mode）</b>：如何進行深度測試，包含小於（Less）、等於（Equal）、大於（Greater）、小於等於（LEqual）、大於等於（GEqual）、不等於（NotEqual）和隨時（Always），預設值為 LEqual。</li>
+</ul>
+<ul>
+<li><b>偏移（Offset）</b>：允許使用兩個參數來指定深度偏移，係數與單位。</li>
+</ul>
+<ul>
+<li><b>係數（Factor）</b>：相對於多邊形的 X 或 Y，縮放最大 Z 斜率。</li>
+</ul>
+<ul>
+<li><b>單位（Units）</b>：單位縮放最小可分辨深度緩衝區值。</li>
+</ul>
+<p><b>渲染平台（Rendering Platforms）</b><br>
+定義支持平台，預設勾選全部平台。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="428" loading="lazy" src="ase_image48.jpg" width="249"></p>
+<p><b>可用變量（Available Properties）</b><br>
+顯示在節點屬性介面中設置為屬性（Property）的變量，可以透過拖動來調整它們的位置。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="335" loading="lazy" src="ase_image49.jpg" width="249"></p>
+
+<h2>ASE 著色器 Hello World</h2>
+<p><b>1. 建立 ASE 著色器</b><br>
+依次點選 Create &gt; Shader &gt; Amplify Surface Shader 建立 ASE 著色器，重新命名為 MyShader。</p>
+<p><b>2. 建立 ASE 材質</b><br>
+依次點選 Create &gt; Material 建立 ASE 材質，重新命名為 MyMaterial。</p>
+<p><b>3. 開啟 ASE 著色器編輯模式</b><br>
+點選 MyShader 後，在 Inspector 面板中點選 Open in Shader Editor 開啟 ASE 編輯器。將著色器名稱修改為 MyCollection/Shader1 並保存，最後將 MyShader 著色器與 MyMaterial 材質建立關聯。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="225" loading="lazy" src="ase_image50.jpg" width="599"></p>
+<p><b>4. 修改光照模型</b><br>
+將光照模型修改為 Standard Specular。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="226" loading="lazy" src="ase_image51.jpg" width="600"></p>
+<p><b>5. 新增 Lerp（線性插值）節點</b><br>
+在畫布中點選滑鼠右鍵開啟節點選單，搜尋 Lerp 並點選新增 Lerp 節點，將 Lerp 輸出節點連接到主節點的 Albedo 輸入節點。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="226" loading="lazy" src="ase_image52.jpg" width="600"></p>
+<p><b>6. 新增 Color（顏色）節點</b><br>
+搜尋並新增兩個 Color 節點。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="226" loading="lazy" src="ase_image53.jpg" width="600"></p>
+<p><b>7. 設定 Color 節點</b><br>
+將兩個 Color 節點連接到 Lerp 節點輸入端口。並將 A 節點顏色設為灰色，B 節點顏色設為橘色。<br>
+<img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="226" loading="lazy" src="ase_image54.jpg" width="600"></p>
+<p><b>8. 建立不透明度 Float（浮點數）節點</b><br>
+搜尋並建立 Float 節點，並命名為 Color Mix。將其連接到 Lerp 節點的 Alpha 輸入端口，最小值設定為 0，最大值設定為 1，並將參數類型設定為 Property。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="226" loading="lazy" src="ase_image55.jpg" width="600"></p>
+<p><b>9. 建立平滑、高光 Float 節點</b><br>
+建立 Float 節點並重新命名為 Smoothness Level。將其連接到主節點的 Smoothnes（平滑）輸入端口，最小值設為 0，最大值設為 1，並將參數類型設定為 Property。</p>
+<p>建立另一個 Float 節點並重新命名為 Specular Level。將其連接到主節點的 Speculer（高光）輸入端口，最小值設為 0，最大值設為 1，並將參數類型設定為 Property。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="227" loading="lazy" src="ase_image56.jpg" width="599"></p>
+<p><b>10. 設定法線貼圖</b><br>
+最後我們需要找一張法線貼圖，將貼圖直接拖曳到畫布中並連接到主節點的 Normal（法線）輸入端口。因為這邊使用的法線貼圖具有金屬拉絲質感，所以可以看到著色器會呈現出金屬質感。</p>
+<p>到這邊，我們成功的完成了第一個 ASE 著色器，不要忘記點擊更新按鈕來定期保存著色器數據，確保你的工作不會遺失。</p>
+<p><img alt="Amplify Shader Editor Beginner – 入門篇 插圖" decoding="async" height="206" loading="lazy" src="ase_image57.jpg" width="598"></p>
+
+<h2>總結</h2>
+<p>透過這次的文章，可以幫助你了解 ASE 的操作流程以及參數說明，藉由這種可視化的編輯方式，可以大幅降低在編寫著色器時的入門門檻，讓無論是程式、美術以及企劃都能夠嘗試參與畫面呈現的修改與調整。而對於已經有著色器相關基礎的開發者，也可以透過這個工具來理解各種著色器的實作方式，透過文字編輯器來開啟 ASE 所生成的著色器並進行分析、優化效能，以節省著色器的開發時程。</p>

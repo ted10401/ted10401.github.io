@@ -1,0 +1,534 @@
+<!--
+{
+  "title": "Illustrative Rendering in Unity",
+  "date": "2017-07-16",
+  "category": "Shader",
+  "excerpt": "這次的研究對象是 Valve 在 2007 所發表的論文 Illustrative Rendering in Team Fortress 2 在 Unity…",
+  "image": "cover-illustrative_rendering_finalresulthorror.png",
+  "imageAlt": "Illustrative Rendering in Unity 封面",
+  "source": "https://tedsieblog.wordpress.com/2017/07/16/illustrative-rendering-in-unity/"
+}
+-->
+<h2>Abstract</h2>
+<p>這次的研究對象是 Valve 在 2007 所發表的論文 <a href="http://www.valvesoftware.com/publications/2007/NPAR07_IllustrativeRenderingInTeamFortress2.pdf" rel="noopener noreferrer" target="_blank">Illustrative Rendering in Team Fortress 2</a><br>
+在 Unity 中實現相似的 Illustrative Rendering 效果<br>
+雖然最後的實驗成果並沒有完全達到《Team Fortress 2》的畫面水準<br>
+但是透過這樣的嘗試驗證<br>
+學習到許多新的知識及想法</p>
+
+<h2>Introduction</h2>
+<p><div class="note-embed"><iframe allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube-nocookie.com/embed/sIikwDbZTCI?rel=0" title="YouTube 影片"></iframe></div></p>
+<p>《Team Fortress 2》是由 Valve 所開發的一款多人連線第一人稱射擊遊戲<br>
+在遊戲中透過美術與程式兩者的相互結合<br>
+呈現了獨特的 <a href="https://en.wikipedia.org/wiki/Non-photorealistic_rendering" rel="noopener noreferrer" target="_blank">Non-Photorealistic Renderer</a>（ NPR 非真實渲染 ）<br>
+在大部分的非真實渲染中模型與光源並不會產生交互影響<br>
+但在這篇論文中說明了能與光源及環境進行有效互動的渲染技術<br>
+這次會將重點放在 <b>Commercial Illustration Techniques</b>、<b>Interactive Character and Model Shading</b> 及 <b>Unity 實作</b>三個部分</p>
+
+<h2>Commercial Illustration Techniques</h2>
+<p>風格統一是一門很大的學問<br>
+Valve 在《Team Fortress 2》中透過規範<br>
+制定了五個風格遵循重點<br>
+1. Shading 遵守暖到冷的色彩轉換。陰影會接近冷色調，而不是黑色。<br>
+2. 在接近光源陰影交接處時，飽和度會增加。而交接處會偏向紅色。<br>
+3. 盡可能地省略高頻細節。<br>
+4. 在角色的內部細節中，如：服裝皺摺，會選擇性的繪製輪廓線條。<br>
+5. 使用 Rim Hightlights（邊緣高光）來強調輪廓線，而非使用深色輪廓線。</p>
+
+<h2>Interactive Character and Model Shading</h2>
+<p>在這個小節中討論了非真實渲染演算法<br>
+在角色及其他模型的渲染中結合了<b>非依賴視角光照與依賴視角光照</b>兩個部分</p>
+<h3>非依賴視角光照部分</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="64" loading="lazy" src="illustrative_rendering_view_independent1.png" width="306"><br>
+<img alt="k_d" class="math" height="15" src="math-001.png" width="14">：紋理映射後的反射率（Albedo）<br>
+<img alt="a(\hat{n})" class="math" height="17" src="math-002.png" width="30">：計算法線與平行環境光的函數<br>
+<img alt="_i" class="math" height="8" src="math-003.png" width="4">：光源索引<br>
+<img alt="L" class="math" height="12" src="math-004.png" width="11">：光源數量<br>
+<img alt="c_i" class="math" height="11" src="math-005.png" width="11">：光源顏色<br>
+<img alt="w()" class="math" height="17" src="math-006.png" width="23">：將 Lambertian Term（0 至 1）映射到 RGB 顏色的變形函數<br>
+<img alt="\hat{n}" class="math" height="12" src="math-007.png" width="10">：法線向量<br>
+<img alt="\hat{l_i}" class="math" height="19" src="math-008.png" width="9">：光線方向<br>
+<img alt="\hat{n}\cdot\hat{l_i}" class="math" height="19" src="math-009.png" width="31">：傳統的非限制 Lambertian Term<br>
+<img alt="\alpha" class="math" height="8" src="math-010.png" width="10">：Lambertian Term 縮放量<br>
+<img alt="\beta" class="math" height="16" src="math-011.png" width="10">：Lambertian Term 偏移量<br>
+<img alt="\gamma" class="math" height="12" src="math-012.png" width="9">：Lanbertian Term 指數量</p>
+<h3>Half Lambert</h3>
+<p>在 α、β、γ 的選擇上<br>
+從 Valve 在 1998 的第一款遊戲《Half-Life》開始<br>
+他們就使用 α = 0.5、β = 0.5、γ = 2 的配置來降低角色陰影面的細節損失<br>
+儘管在《Team Fortress 2》需要更多的真實感<br>
+他們依舊維持這個 Lambertian Term 配置<br>
+此外也透過這個配置使得 <img alt="\hat{n}\cdot\hat{l_i}" class="math" height="19" src="math-013.png" width="31"> 的結果<br>
+從 -1 到 1 映射成 0 到 1 獲得一個更好的衰減映射區域<br>
+由於縮放及偏移量都是 0.5<br>
+所以將這個配置命名為 Half Lambert</p>
+<h3>Diffuse Warping Function</h3>
+<p>透過查找美術所提供的一維紋理來取得 RGB 顏色<br>
+產生出一種卡通 “hard shading” 風格<br>
+這張紋理可以被區分成三個區塊<br>
+1. 右側的灰階梯度<br>
+2. 左側的冷色梯度<br>
+3. 中間的偏紅色陰影交界處<br>
+這個分佈區塊與上面所提到的風格遵循重點是一致的<br>
+<img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="64" loading="lazy" src="illustrative_rendering_warped_texture_team_fortress_2.png" width="1024"></p>
+
+<h3>View Dependent Lighting Terms</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="64" loading="lazy" src="illustrative_rendering_view_dependent1.png" width="548"><br>
+<img alt="_i" class="math" height="8" src="math-014.png" width="4">：光源索引<br>
+<img alt="L" class="math" height="12" src="math-015.png" width="11">：光源數量<br>
+<img alt="c_i" class="math" height="11" src="math-016.png" width="11">：光源顏色<br>
+<img alt="k_s" class="math" height="15" src="math-017.png" width="13">：在紋理通道中的高光遮罩<br>
+<img alt="f_s" class="math" height="16" src="math-018.png" width="13">：由美術調整的 Fresnel 高光參數<br>
+<img alt="\hat{v}" class="math" height="12" src="math-019.png" width="8">：視線方向<br>
+<img alt="r_i" class="math" height="11" src="math-020.png" width="11">：光源方向對於法線的反射向量<br>
+<img alt="k_{spec}" class="math" height="18" src="math-021.png" width="30">：由紋理中取得的高光指數<br>
+<img alt="f_r" class="math" height="16" src="math-022.png" width="14">：另一個 Fresnel 參數，用於調整邊緣高光，一般使用 pow(1 – NdotV, 4)<br>
+<img alt="k_r" class="math" height="15" src="math-023.png" width="14">：邊緣遮罩紋理，用於衰減特定部位的邊緣高光<br>
+<img alt="k_{rim}" class="math" height="15" src="math-024.png" width="29">：調整邊緣高光寬度<br>
+<img alt="\hat{n}" class="math" height="12" src="math-025.png" width="10">：法線向量<br>
+<img alt="\hat{u}" class="math" height="12" src="math-026.png" width="9">：世界空間 up 單位向量<br>
+<img alt="a(\hat{v})" class="math" height="17" src="math-027.png" width="28">：使用視線方向到像素點所產生的射線來計算 ambient cube 影響</p>
+<p>Multiple Phong Terms<br>
+為公式左半部分</p>
+<p>Dedicated Rim Lighting<br>
+為公式右半部分</p>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="1494" loading="lazy" src="illustrative_rendering_shading.png" width="590"></p>
+
+<h2>Unity 實作</h2>
+<p>在實作階段中<br>
+將各個階段區分出來獨立實作比變更加明白各階段的結果<br>
+其中包含了 <b>Albedo</b>、<b>Warped Diffuse</b>、<b>Specular</b>、<b>Rim Lighting</b><br>
+在最後的 Final Result 部分<br>
+使用了三種不同的 Warped Texture 來達到不同風格的呈現<br>
+分別是 <b>Team Fortress 2</b>、<b>Grayscale Gradient</b> 及 <b>Horror Style</b></p>
+<h3>Albedo</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="1370" loading="lazy" src="illustrative_rendering_albedo.png" width="1830"></p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">Shader "Custom/Illustrative Rendering/01.Albedo"
+{
+	Properties
+	{
+		_MainTex ("Texture", 2D) = "white" {}
+	}
+	SubShader
+	{
+		Tags { "RenderType"="Opaque" }
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+			};
+
+			struct v2f
+			{
+				float2 uv : TEXCOORD0;
+				float4 vertex : SV_POSITION;
+			};
+
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+				return o;
+			}
+
+			fixed4 frag (v2f i) : SV_Target
+			{
+				fixed4 col = tex2D(_MainTex, i.uv);
+				return col;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+
+<h3>Warped Diffuse</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="1374" loading="lazy" src="illustrative_rendering_warpeddiffuse.png" width="1834"></p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">Shader "Custom/Illustrative Rendering/02.WarpedDiffuse"
+{
+	Properties
+	{
+		_WarpedTex ("Warped Texture", 2D) = "white" {}
+		_WarpedScale ("Warped Scale", Float) = 1
+	}
+	SubShader
+	{
+		Tags { "RenderType"="Opaque" "LightMode"="ForwardBase" }
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+			#include "UnityLightingCommon.cginc"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+				half3 normal : NORMAL;
+			};
+
+			struct v2f
+			{
+				float2 uv : TEXCOORD0;
+				float4 vertex : SV_POSITION;
+				half NdotL : TEXCOORD1;
+			};
+
+			sampler2D _WarpedTex;
+			half4 _WarpedTex_ST;
+			half _WarpedScale;
+
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.uv = TRANSFORM_TEX(v.uv, _WarpedTex);
+
+				half3 worldNormal = UnityObjectToWorldNormal(v.normal);
+				half3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
+				o.NdotL = dot(worldNormal, lightDir);
+
+				return o;
+			}
+
+			fixed4 frag (v2f i) : SV_Target
+			{
+				half halfLambert = pow(0.5 * i.NdotL + 0.5, 2);
+				half2 warpedUV = float2(halfLambert, halfLambert);
+				half3 diffuseWarping = tex2D(_WarpedTex, warpedUV).rgb * _WarpedScale;
+
+				fixed4 finalColor;
+				finalColor.rgb = diffuseWarping;
+
+				return finalColor;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+
+<h3>Specular</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="1372" loading="lazy" src="illustrative_rendering_specular.png" width="1832"></p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">Shader "Custom/Illustrative Rendering/03.Specular"
+{
+	Properties
+	{
+		_SpecularMask ("Specular Mask", 2D) = "white" {}
+		_Fspec ("Fresnel Specular Term", Float)  = 1
+		_Kspec ("Specular Exponent Power", Float) = 1
+	}
+	SubShader
+	{
+		Tags { "RenderType"="Opaque" "LightMode"="ForwardBase" }
+		LOD 100
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+			#include "UnityLightingCommon.cginc"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+				half3 normal : NORMAL;
+			};
+
+			struct v2f
+			{
+				float2 uv : TEXCOORD0;
+				float4 vertex : SV_POSITION;
+				half3 VdotR : TEXCOORD1;
+			};
+
+			sampler2D _SpecularMask;
+			half4 _SpecularMask_ST;
+			half _Fspec;
+			half _Kspec;
+
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.uv = TRANSFORM_TEX(v.uv, _SpecularMask);
+
+				half3 worldNormal = UnityObjectToWorldNormal(v.normal);
+				half3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
+				half3 reflectDir = reflect(-lightDir, worldNormal);
+				half3 viewDir = normalize(WorldSpaceViewDir(v.vertex));
+				o.VdotR = saturate(dot(viewDir, reflectDir));
+
+				return o;
+			}
+
+			fixed4 frag (v2f i) : SV_Target
+			{
+				half4 ks = tex2D( _SpecularMask, i.uv);
+                half3 specularTerm = _Fspec * pow(i.VdotR, _Kspec);
+
+                fixed4 col;
+                col.rgb = _LightColor0.rgb * ks * specularTerm;
+                col.a = 1;
+
+				return col;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+
+<h3>Rim Lighting</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="1372" loading="lazy" src="illustrative_rendering_rimlighting.png" width="1832"></p>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">Shader "Custom/Illustrative Rendering/04.RimLighting"
+{
+	Properties
+	{
+		_SpecularMask ("Specular Mask", 2D) = "white" {}
+		_RimMask ("Rim Mask", 2D) = "white" {}
+		_RimPower ("Rim Power", Float) = 4
+		_Krim ("Rim Exponent", Float) = 1
+	}
+	SubShader
+	{
+		Tags { "RenderType"="Opaque" "LightMode"="ForwardBase" }
+		LOD 100
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+			#include "UnityLightingCommon.cginc"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+				half3 normal : NORMAL;
+			};
+
+			struct v2f
+			{
+				float2 uv : TEXCOORD0;
+				float4 vertex : SV_POSITION;
+				half3 VdotR : TEXCOORD1;
+				half3 VdotN : TEXCOORD2;
+				half3 NdotU : TEXCOORD3;
+			};
+
+			sampler2D _SpecularMask;
+			half4 _SpecularMask_ST;
+			sampler2D _RimMask;
+			half4 _RimMask_ST;
+			half _RimPower;
+			half _Krim;
+
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.uv = TRANSFORM_TEX(v.uv, _RimMask);
+
+				half3 viewDir = normalize(WorldSpaceViewDir(v.vertex));
+				half3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
+				half3 worldNormal = UnityObjectToWorldNormal(v.normal);
+				half3 reflectDir = reflect(-lightDir, worldNormal);
+				o.VdotR = saturate(dot(viewDir, reflectDir));
+				o.VdotN = saturate(dot(viewDir, worldNormal));
+
+				half3 worldUp = half3(0, 1, 0);
+				o.NdotU = dot(worldNormal, worldUp);
+
+				return o;
+			}
+
+			fixed4 frag (v2f i) : SV_Target
+			{
+				half4 ks = tex2D( _SpecularMask, i.uv);
+
+				half fresnelRim = pow(1 - i.VdotN, _RimPower);
+				half4 kr = tex2D(_RimMask, i.uv);
+                half3 rimTerm = fresnelRim * kr * pow(i.VdotN, _Krim);
+
+                half3 multiplePhongTerms = rimTerm;
+                half3 dedicatedRimLighting = i.NdotU * fresnelRim * kr;
+
+                half4 col;
+                col.rgb = multiplePhongTerms + dedicatedRimLighting;
+                col.a = 1;
+
+				return col;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+
+<h3>Final Result with Team Fortress 2</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="64" loading="lazy" src="illustrative_rendering_warped_texture_team_fortress_2.png" width="1024"><br>
+<img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="1376" loading="lazy" src="illustrative_rendering_finalresult.png" width="1832"></p>
+<pre aria-label="C# 程式碼 5" tabindex="0"><code class="language-csharp">Shader "Custom/Illustrative Rendering/05.Final"
+{
+	Properties
+	{
+		[Header(Main Map)]
+		_MainTex ("Albedo", 2D) = "white" {}
+
+		[Header(Warped Diffuce)]
+		_WarpedTex ("Warped Texture", 2D) = "white" {}
+		_WarpedScale ("Warped Scale", Float) = 1
+
+		[Header(Specular)]
+		_SpecularMask ("Specular Mask", 2D) = "white" {}
+		_Fspec ("Fresnel Specular Term", Float)  = 1
+		_Kspec ("Specular Exponent Power", Float) = 1
+
+		[Header(Rim)]
+		_RimMask ("Rim Mask", 2D) = "white" {}
+		_RimPower ("Rim Power", Float) = 4
+		_Krim ("Rim Exponent Power", Float) = 1
+	}
+	SubShader
+	{
+		Tags { "RenderType"="Opaque" "LightMode"="ForwardBase" }
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+			#include "UnityLightingCommon.cginc"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float2 uv : TEXCOORD0;
+				half3 normal : NORMAL;
+			};
+
+			struct v2f
+			{
+				float2 uv : TEXCOORD0;
+				float4 vertex : SV_POSITION;
+				half3 NdotL : TEXCOORD1;
+				half3 VdotR : TEXCOORD2;
+				half3 VdotN : TEXCOORD3;
+				half3 NdotU : TEXCOORD4;
+			};
+
+			sampler2D _MainTex;
+			half4 _MainTex_ST;
+
+			sampler2D _WarpedTex;
+			half4 _WarpedTex_ST;
+			half _WarpedScale;
+
+			sampler2D _SpecularMask;
+			half4 _SpecularMask_ST;
+			half _Fspec;
+			half _Kspec;
+
+			sampler2D _RimMask;
+			half4 _RimMask_ST;
+			half _RimPower;
+			half _Krim;
+
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+
+				half3 worldNormal = normalize(UnityObjectToWorldNormal(v.normal));
+				half3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
+				o.NdotL = dot(worldNormal, lightDir);
+
+				half3 viewDir = normalize(WorldSpaceViewDir(v.vertex));
+				half3 reflectDir = reflect(-lightDir, worldNormal);
+				o.VdotR = saturate(dot(viewDir, reflectDir));
+				o.VdotN = saturate(dot(viewDir, worldNormal));
+
+				half3 worldUp = half3(0, 1, 0);
+				o.NdotU = dot(worldNormal, worldUp);
+
+				return o;
+			}
+
+			fixed4 frag (v2f i) : SV_Target
+			{
+				//View Independent Lighting
+				half4 k = tex2D(_MainTex, i.uv);
+				half halfLambert = pow(0.5 * i.NdotL + 0.5, 2);
+				half2 warpedUV = float2(halfLambert, halfLambert);
+				half3 diffuseWarping = tex2D(_WarpedTex, warpedUV).rgb * _WarpedScale;
+
+				half3 viewIndependentLight = k * _LightColor0.rgb * diffuseWarping;
+
+				//View Dependent Lighting
+				//Multiple Phong Terms
+				half4 ks = tex2D( _SpecularMask, i.uv);
+                half3 specularTerm = _Fspec * pow(i.VdotR, _Kspec);
+
+                half fresnelRim = pow(1 - i.VdotN, _RimPower);
+				half4 kr = tex2D(_RimMask, i.uv);
+                half3 rimTerm = fresnelRim * kr * pow(i.VdotR, _Krim);
+
+                half3 multiplePhongTerms = _LightColor0.rgb * ks * max(specularTerm, rimTerm);
+
+                //Dedicated Rim Lighting
+                half3 dedicatedRimLighting = i.NdotU * fresnelRim * kr;
+
+                half3 viewDependentLight = multiplePhongTerms + dedicatedRimLighting;
+
+                //Final Result
+                fixed4 finalColor;
+                finalColor.rgb = viewIndependentLight + viewDependentLight;
+                finalColor.a = 1;
+
+				return finalColor;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+
+<h3>Final Result with Grayscale Gradient</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="64" loading="lazy" src="illustrative_rendering_warped_texture_cartoon.png" width="1024"><br>
+<img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="1376" loading="lazy" src="illustrative_rendering_finalresultcartoon.png" width="1832"></p>
+
+<h3>Final Result with Horror Style</h3>
+<p><img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="64" loading="lazy" src="illustrative_rendering_warped_texture_horror.png" width="1024"><br>
+<img alt="Illustrative Rendering in Unity 插圖" decoding="async" height="1372" loading="lazy" src="illustrative_rendering_finalresulthorror.png" width="1826"></p>
+
+<h2>Github</h2>
+<p><a href="https://github.com/ted10401/IllustrativeRendering" rel="noopener noreferrer" target="_blank">Github – IllustrativeRendering</a></p>
+
+<h2>資料、圖片、資源來源</h2>
+<p><a href="http://www.valvesoftware.com/publications/2007/NPAR07_IllustrativeRenderingInTeamFortress2.pdf" rel="noopener noreferrer" target="_blank">Illustrative Rendering in Team Fortress 2</a><br>
+<a href="http://blog.csdn.net/candycat1992/article/details/37696187" rel="noopener noreferrer" target="_blank">【Shader拓展】Illustrative Rendering in Team Fortress 2</a><br>
+<a href="https://en.wikipedia.org/wiki/Team_Fortress_2" rel="noopener noreferrer" target="_blank">Team Fortress 2 – Wikipedia</a><br>
+<a>ユニティちゃんトゥーンシェーダー</a></p>

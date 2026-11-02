@@ -1,0 +1,37 @@
+<!--
+{
+  "title": "Comment on Scroll View – 可滑動區塊 Scroll View",
+  "date": "2016-07-10",
+  "category": "Unity · NGUI",
+  "excerpt": "這篇要來講解如何創建一個可滑動的區塊 也就是 NGUI 中的 UI Scroll View 功能",
+  "image": "e7648968aa069accac2f600a49dda277.jpg",
+  "imageAlt": "Comment on Scroll View – 可滑動區塊 Scroll View 封面",
+  "shortTitle": "Comment on Scroll View",
+  "heading": "Comment on Scroll View<br><span>可滑動區塊 Scroll View</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/ngui-tutorial-comment-on-scroll-view/"
+}
+-->
+<p>這篇要來講解如何創建一個可滑動的區塊<br>
+也就是 NGUI 中的 UI Scroll View 功能</p>
+<p>首先我們在場景中建立想要顯現的圖片<br>
+這裡示範用三張圖片<br>
+<img alt="Comment on Scroll View – 可滑動區塊 Scroll View 插圖" decoding="async" height="945" loading="lazy" src="e7648968aa069accac2f600a49dda277.jpg" width="1245"></p>
+<p>建立好後為了使用 Scroll View 的功能<br>
+需要對圖片加入兩個腳本<br>
+Collider 以及 Scroll View<br>
+圖片中的 auto-adjust to match 可以使 Collider 自動對應圖片大小<br>
+<img alt="Comment on Scroll View – 可滑動區塊 Scroll View 插圖" decoding="async" height="943" loading="lazy" src="054f2ea4e4f6d0af719a005e72185578.jpg" width="509"></p>
+<p>選取 NGUI → Create → Scroll View<br>
+會在場景中生成一個 Scroll View 物件<br>
+將原本的三張圖片拖拉至 Scroll View 物件下<br>
+<img alt="Comment on Scroll View – 可滑動區塊 Scroll View 插圖" decoding="async" height="164" loading="lazy" src="ecef6bb085b6da30bf7c23566ee4584a.jpg" width="231"><br>
+<img alt="Comment on Scroll View – 可滑動區塊 Scroll View 插圖" decoding="async" height="419" loading="lazy" src="c3f7d56c80ce0a8036c0f400ac957640.jpg" width="737"></p>
+<p>會發現圖片被切割到<br>
+這是因為 Scroll View 中的 UI Panel 腳本<br>
+可以設定顯示的大小<br>
+可以把它解釋成一個針對滑動區塊的 Mask<br>
+將 Size 調整成適當大小<br>
+<img alt="Comment on Scroll View – 可滑動區塊 Scroll View 插圖" decoding="async" height="946" loading="lazy" src="88cc67a4f451ad46b79eb1b1250e9033.jpg" width="1247"></p>
+<p>按下開始按鈕<br>
+就完成了可滑動區塊的製作<br>
+<img alt="Comment on Scroll View – 可滑動區塊 Scroll View 插圖" decoding="async" height="474" loading="lazy" src="c361315202c96fcf16b394f6bc681af8.jpg" width="735"></p>

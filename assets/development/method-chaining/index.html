@@ -1,0 +1,244 @@
+<!--
+{
+  "title": "Method Chaining – 方法鏈",
+  "date": "2018-11-08",
+  "category": "Unity",
+  "excerpt": "方法鏈（鏈式編程、鏈接編程），第一次看到這個名詞可能會認為這是一種困難的設計技巧，但就如同設計模式一般，這種技巧已時常運用至軟體開發中，但開發者渾然不知。",
+  "image": "cover-methodchain_profile.png",
+  "imageAlt": "Method Chaining – 方法鏈 封面",
+  "shortTitle": "Method Chaining",
+  "heading": "Method Chaining<br><span>方法鏈</span>",
+  "source": "https://tedsieblog.wordpress.com/2018/11/08/method-chaining/"
+}
+-->
+<p>方法鏈（鏈式編程、鏈接編程），第一次看到這個名詞可能會認為這是一種困難的設計技巧，但就如同設計模式一般，這種技巧已時常運用至軟體開發中，但開發者渾然不知。</p>
+<p>關鍵字快搜：Method chaining、Fluent interface</p>
+<hr>
+<h2>基礎概念</h2>
+<p>方法鏈是物件導向程式設計中調用多個方法的常用語法。<br>
+每個方法都會回傳物件本身，允許在單個語句中將方法鏈接在一起，而不需要參數來儲存過渡結果。<br>
+在每個過渡階段中，鏈接編程消除了額外的參數，降低開發者在命名參數及記住參數時的認知負擔。</p>
+<hr>
+<h2>第三方套件範例</h2>
+<p>在 Unity 中已有許多第三方套件運用了方法鏈的概念，如 DoTween、UniRX。</p>
+<p><a href="https://assetstore.unity.com/packages/tools/animation/dotween-hotween-v2-27676" rel="noopener noreferrer" target="_blank">DoTween</a></p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using DG.Tweening;
+
+public class NewBehaviourScript : MonoBehaviour
+{
+    private void Awake()
+    {
+        transform
+            .DOMoveX(1.0f, 1.0f)
+            .SetEase(Ease.Linear)
+            .OnComplete(() =&gt; Debug.Log("Complete"));
+    }
+}</code></pre>
+<p><a href="https://assetstore.unity.com/packages/tools/integration/unirx-reactive-extensions-for-unity-17276" rel="noopener noreferrer" target="_blank">UniRX</a></p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UniRx;
+using UniRx.Triggers;
+
+public class DangerousDragAndDrop : MonoBehaviour
+{
+    void Start()
+    {
+        this.gameObject.OnMouseDownAsObservable()
+            .SelectMany(_ =&gt; this.gameObject.UpdateAsObservable())
+            .TakeUntil(this.gameObject.OnMouseUpAsObservable())
+            .Select(_ =&gt; Input.mousePosition)
+            .Repeat() // dangerous!!! Repeat cause infinite repeat subscribe at GameObject was destroyed.(If in UnityEditor, Editor is freezed)
+            .Subscribe(x =&gt; Debug.Log(x));
+    }
+}</code></pre>
+<hr>
+<h2>範例實作 – 已計算機為例</h2>
+<p>Calculator.cs</p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">using UnityEngine;
+
+public class Calculator
+{
+    private float m_value;
+
+    public Calculator()
+    {
+        m_value = 0;
+    }
+
+    public Calculator Add(float value)
+    {
+        m_value += value;
+        return this;
+    }
+
+    public Calculator Subtract(float value)
+    {
+        m_value -= value;
+        return this;
+    }
+
+    public Calculator Multiply(float value)
+    {
+        m_value *= value;
+        return this;
+    }
+
+    public Calculator Divide(float value)
+    {
+        m_value /= value;
+        return this;
+    }
+
+    public Calculator Print()
+    {
+        Debug.LogFormat("Result = {0}", m_value);
+        return this;
+    }
+}</code></pre>
+<p>ExampleClass.cs</p>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">using UnityEngine;
+
+public class ExampleClass : MonoBehaviour
+{
+    private void Awake()
+    {
+        new Calculator()
+            .Add(1.5f)
+            .Multiply(10f)
+            .Subtract(5.0f)
+            .Divide(2.0f)
+            .Print();
+    }
+}</code></pre>
+<hr>
+<h2>實作範例 – 以計時器為例</h2>
+<p>Timer.cs</p>
+<pre aria-label="C# 程式碼 5" tabindex="0"><code class="language-csharp">using System;
+
+public class Timer
+{
+    public bool IsDone;
+
+    private float m_duration;
+    private Action&lt;float&gt; m_onUpdate;
+    private Action m_onComplete;
+
+    public void Update(float deltaTime)
+    {
+        m_duration -= deltaTime;
+
+        if (m_duration &lt;= 0 &amp;&amp; !IsDone)
+        {
+            IsDone = true;
+
+            if(m_onComplete != null)
+            {
+                m_onComplete();
+            }
+        }
+        else
+        {
+            if (m_onUpdate != null)
+            {
+                m_onUpdate(m_duration);
+            }
+        }
+    }
+
+    public Timer SetDuration(float duration)
+    {
+        m_duration = duration;
+        return this;
+    }
+
+    public Timer OnUpdate(Action&lt;float&gt; onUpdate)
+    {
+        m_onUpdate = onUpdate;
+        return this;
+    }
+
+    public Timer OnComplete(Action onComplete)
+    {
+        m_onComplete = onComplete;
+        return this;
+    }
+}</code></pre>
+<p>TimerManager.cs</p>
+<pre aria-label="C# 程式碼 6" tabindex="0"><code class="language-csharp">using System.Collections.Generic;
+
+public class TimerManager
+{
+    private List&lt;Timer&gt; m_timers;
+    private Queue&lt;Timer&gt; m_removeTimers;
+    private Timer m_cacheTimer;
+
+    public TimerManager()
+    {
+        m_timers = new List&lt;Timer&gt;();
+        m_removeTimers = new Queue&lt;Timer&gt;();
+    }
+
+    public void Update(float deltaTime)
+    {
+        if (null == m_timers)
+        {
+            return;
+        }
+
+        if (m_timers.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i &lt; m_timers.Count; i++)
+        {
+            m_cacheTimer = m_timers[i];
+            m_cacheTimer.Update(deltaTime);
+
+            if (m_cacheTimer.IsDone)
+            {
+                m_removeTimers.Enqueue(m_cacheTimer);
+            }
+        }
+
+        while (m_removeTimers.Count &gt; 0)
+        {
+            m_timers.Remove(m_removeTimers.Dequeue());
+        }
+
+    }
+
+    public Timer Create()
+    {
+        Timer newTimer = new Timer();
+        m_timers.Add(newTimer);
+
+        return newTimer;
+    }
+}</code></pre>
+<p>ExampleClass.cs</p>
+<pre aria-label="C# 程式碼 7" tabindex="0"><code class="language-csharp">using UnityEngine;
+
+public class ExampleClass : MonoBehaviour
+{
+    private TimerManager m_timerManager;
+
+    private void Awake()
+    {
+        m_timerManager = new TimerManager();
+
+        m_timerManager.Create()
+                      .SetDuration(0.1f)
+                      .OnUpdate((float obj) =&gt; Debug.Log("OnUpdate = " + obj.ToString()))
+                      .OnComplete(() =&gt; Debug.Log("OnComplete"));
+    }
+
+    private void Update()
+    {
+        m_timerManager.Update(Time.deltaTime);
+    }
+}</code></pre>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://en.wikipedia.org/wiki/Method_chaining" rel="noopener noreferrer" target="_blank">Method chaining – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Fluent_interface" rel="noopener noreferrer" target="_blank">Fluent interface – Wikipedia</a></p>

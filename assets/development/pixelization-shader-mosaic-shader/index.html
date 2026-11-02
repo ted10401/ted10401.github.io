@@ -1,0 +1,200 @@
+<!--
+{
+  "title": "Pixelization Shader (Mosaic Shader) – 像素、馬賽克濾鏡",
+  "date": "2016-07-21",
+  "category": "Unity · Shader",
+  "excerpt": "像素化效果又或是稱作馬賽克效果 常常運用在特殊風格的遊戲中 這次用了三種不同方式實作了馬賽克效果",
+  "image": "cover-pixelization-image-effect-effect.png",
+  "imageAlt": "Pixelization Shader (Mosaic Shader) – 像素、馬賽克濾鏡 封面",
+  "shortTitle": "Pixelization Shader (Mosaic Shader)",
+  "heading": "Pixelization Shader (Mosaic Shader)<br><span>像素、馬賽克濾鏡</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/21/pixelization-shader-mosaic-shader/"
+}
+-->
+<p>像素化效果又或是稱作馬賽克效果<br>
+常常運用在特殊風格的遊戲中<br>
+這次用了三種不同方式實作了馬賽克效果</p>
+<p>1.單一物體表面</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">Shader "Unlit/Pixelization Shader"
+{
+	Properties
+	{
+		_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
+		_PixelSize ("Pixel Size", Range(0, 1.0)) = 100
+	}
+
+	SubShader
+	{
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+
+			sampler2D _MainTex;
+			fixed _PixelSize;
+
+			struct appdata
+			{
+				fixed4 vertex : POSITION;
+				fixed2 uv : TEXCOORD0;
+			};
+
+			struct v2f
+			{
+				fixed4 vertex : SV_POSITION;
+				fixed2 uv : TEXCOORD0;
+			};
+
+			v2f vert(appdata v)
+			{
+				v2f o;
+				o.uv = v.uv;
+				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+
+				return o;
+			}
+
+			fixed4 frag(v2f i) : COLOR
+			{
+				fixed2 uv = i.uv;
+
+				if(_PixelSize != 0)
+				{
+					uv = fixed2((int)(uv.x / _PixelSize), (int)(uv.y / _PixelSize)) * _PixelSize;
+				}
+
+				fixed4 col = tex2D(_MainTex, uv);
+
+				return col;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+<p>原始畫面<br>
+<img alt="pixelization object normal" decoding="async" height="832" loading="lazy" src="pixelization-object-normal.png" width="1334"></p>
+<p>馬賽克效果<br>
+<img alt="pixelization object effect" decoding="async" height="834" loading="lazy" src="pixelization-object-effect.png" width="1334"></p>
+<p>2.Image Effect<br>
+將 PixelizationImageEffect.cs 附加到場景中的 Camera<br>
+並配合上面的 Pixelization Shader</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+[ExecuteInEditMode]
+public class PixelizationImageEffect : MonoBehaviour
+{
+	[Range(0, 1.0f)]
+	public float pixelSize = 0.0f;
+
+	private string m_pixelSizePropertyName = "_PixelSize";
+
+	private int m_pixelSizeID;
+
+	private Material m_material;
+
+	void Awake ()
+	{
+		InitPropertyIDs();
+	}
+
+	private void InitPropertyIDs()
+	{
+		if(m_material == null)
+			m_material = new Material( Shader.Find("Unlit/Pixelization Shader") );
+
+		m_pixelSizeID = Shader.PropertyToID(m_pixelSizePropertyName);
+	}
+
+	private void OnValidate()
+	{
+		if(m_material == null)
+			m_material = new Material( Shader.Find("Unlit/Pixelization Shader") );
+
+		m_material.SetFloat(m_pixelSizeID, pixelSize);
+	}
+
+	void OnRenderImage (RenderTexture source, RenderTexture destination)
+	{
+		Graphics.Blit (source, destination, m_material);
+	}
+}</code></pre>
+<p>原始畫面<br>
+<img alt="pixelization image effect normal" decoding="async" height="830" loading="lazy" src="pixelization-image-effect-normal.png" width="1336"></p>
+<p>馬賽克效果<br>
+<img alt="pixelization image effect effect" decoding="async" height="832" loading="lazy" src="pixelization-image-effect-effect.png" width="1332"></p>
+<p>3.特定螢幕區域<br>
+常常我們會有這種特殊需求<br>
+需要為特定範圍的螢幕做特殊處理<br>
+這時候無論是處理一般物體的表面或是 Image Effect 都不能達到這個效果<br>
+所以我們利用了 GrabPass 這個渲染通道<br>
+來抓取螢幕的特定區域並做效果處理</p>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">Shader "Unlit/Grab Pixelization Shader"
+{
+	Properties
+	{
+		_PixelSize ("Pixel Size", Range(0, 1.0)) = 100
+	}
+
+	SubShader
+	{
+		Tags { "Queue" = "Transparent+1" }
+
+		GrabPass {}
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+
+			sampler2D _GrabTexture;
+			float4 _GrabTexture_TexelSize;
+			fixed _PixelSize;
+
+			struct appdata
+			{
+				fixed4 vertex : POSITION;
+			};
+
+			struct v2f
+			{
+				fixed4 vertex : SV_POSITION;
+				fixed4 uv : TEXCOORD0;
+			};
+
+			v2f vert(appdata v)
+			{
+				v2f o;
+				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.uv = ComputeScreenPos(o.vertex);
+
+				return o;
+			}
+
+			fixed4 frag(v2f i) : COLOR
+			{
+				fixed4 uv = i.uv;
+
+				if(_PixelSize != 0)
+				{
+					uv.xy = fixed2((int)(uv.x / _PixelSize), (int)(uv.y / _PixelSize)) * _PixelSize;
+				}
+
+				fixed4 col = tex2Dproj(_GrabTexture, UNITY_PROJ_COORD(uv));
+
+				return col;
+			}
+			ENDCG
+		}
+	}
+}</code></pre>
+<p>在場景中新增 Quad 並將賦有 Grab Pixelization Shader 的 Material 附上<br>
+<img alt="Grab Pixel Material" decoding="async" height="1012" loading="lazy" src="grab-pixel-material.png" width="552"></p>
+<p>接著就可以移動 Quad 來對特定區域做馬賽克效果處理<br>
+<img alt="Grab Pixelation Shader" decoding="async" height="256" loading="lazy" src="grab-pixelation-shader.gif" width="480"></p>

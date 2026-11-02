@@ -1,0 +1,58 @@
+<!--
+{
+  "title": "A* Algorithm Introduction – 演算法簡介",
+  "date": "2016-07-08",
+  "category": "Unity · Algorithm",
+  "excerpt": "A*(A-Star) 是一種知名的演算法，在遊戲中通常被應用在尋找最短路徑。",
+  "image": "cover-0a347bef88be0867a7489f860b9876b5.png",
+  "imageAlt": "A* Algorithm Introduction – 演算法簡介 封面",
+  "shortTitle": "A* Algorithm Introduction",
+  "heading": "A* Algorithm Introduction<br><span>演算法簡介</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/08/a-star-algorithm-introduction/"
+}
+-->
+<p>A*(A-Star) 是一種知名的演算法，在遊戲中通常被應用在尋找最短路徑。</p>
+<p>在介紹 A* 演算法之前，必須先稍微提一下另一個知名的演算法，Dijkstra 演算法。</p>
+<p>Dijkstra 演算法可以保證找到最短路徑，但在演算效能上卻沒有 A* 來的快速，A* 也就是因為考慮到 Dijkstra 的演算速度而進行改良的一種演算法。</p>
+<p>接下來先來看一下 Dijkstra 演算法與 A* 演算法兩者的差異：</p>
+<p><img alt="A* Algorithm Introduction – 演算法簡介 插圖" decoding="async" height="361" loading="lazy" src="0a347bef88be0867a7489f860b9876b5.png" width="531"></p>
+<p>( 圖片取自 <a href="http://truth.bahamut.com.tw/s01/201407/0a347bef88be0867a7489f860b9876b5.PNG" rel="noopener noreferrer" target="_blank">http://truth.bahamut.com.tw/s01/201407/0a347bef88be0867a7489f860b9876b5.PNG</a> )</p>
+<p>先不考慮兩者的演算方式，讀者們看到比較圖後會發現Dijkstra演算法的演算深度(有顏色的方格數)與A*演算法的演算深度兩者的差別，雖然A*的演算深度不如Dijkstra演算法，但其結果與效能是令人滿意的。</p>
+<p>A*演算法能達到這樣令人滿意的結果，是因為它採用了一套特殊評價公式（Heuristic Estimate），這個公式避免了一些不必要的路徑排除，所以能用較高的演算效率計算出一條最佳結果。</p>
+<p>Heuristic Estimate的公式如下：<br>
+F(n) = G(n) + H(n)<br>
+n：目前節點<br>
+G(n)：從起始點到目前節點實際移動的距離<br>
+H(n)：目前節點到終點的估算值<br>
+F(n)：目前節點的評價分數總和</p>
+<p>A*演算法的虛擬程式碼如下：</p>
+<pre aria-label="程式碼 1" tabindex="0"><code>Add StartNode to OpenList
+
+while OpenList is not empty
+
+	get the first node n form the OpenList
+	remove node n from the OpenList
+	add node to CloseList
+
+	if n is EndNode
+		return the path
+
+	get neighbors of node n and count cost
+
+	if neighbors is not in OpenList
+		add it to OpenList
+	else
+		if the cost of G is smaller than old one
+			update the cost value of G
+
+end while</code></pre>
+
+<p><b>A* 演算法系列文章連結</b><br>
+<a data-detail="development-a-star-algorithm-node-definition" href="#development-a-star-algorithm-node-definition">A* Algorithm Node Definition – 定義 Node</a><br>
+<a data-detail="development-a-star-algorithm-node-sort" href="#development-a-star-algorithm-node-sort">A* Algorithm Node Sort – Node 排序實作</a><br>
+<a data-detail="development-a-star-algorithm-node-generate" href="#development-a-star-algorithm-node-generate">A* Algorithm Node Generate – 生成 Node、Node 可視化</a><br>
+<a data-detail="development-a-star-algorithm-implement" href="#development-a-star-algorithm-implement">A* Algorithm Implement – 虛擬程式碼實例化</a><br>
+<a data-detail="development-a-star-algorithm-achievement" href="#development-a-star-algorithm-achievement">A* Algorithm Achievement – 演算法實作成果</a><br>
+<a data-detail="development-a-star-algorithm-obstacle-detection" href="#development-a-star-algorithm-obstacle-detection">A* Algorithm Obstacle Detection – 障礙物判定</a><br>
+<a data-detail="development-a-star-algorithm-eight-ways" href="#development-a-star-algorithm-eight-ways">A* Algorithm Eight Ways – 斜向方向優化</a><br>
+<a data-detail="development-a-start-algorithm-line-of-sight" href="#development-a-start-algorithm-line-of-sight">A* Algorithm Line of Sight – 可視點優化</a></p>

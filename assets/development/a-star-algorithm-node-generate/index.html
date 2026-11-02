@@ -1,0 +1,251 @@
+<!--
+{
+  "title": "A* Algorithm Node Generate – 生成 Node、Node 可視化",
+  "date": "2016-07-08",
+  "category": "Unity · Algorithm",
+  "excerpt": "新增一個 C# 腳本命名為 NodeManager.cs 用來管理所產生的 Node 並產生一個空物件命名為 NodeManager 將 NodeManag…",
+  "image": "cover-ffd2b03f94333aabfddb42e0d60d750a.png",
+  "imageAlt": "A* Algorithm Node Generate – 生成 Node、Node 可視化 封面",
+  "shortTitle": "A* Algorithm Node Generate",
+  "heading": "A* Algorithm Node Generate<br><span>生成 Node、Node 可視化</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/08/a-star-algorithm-node-generate/"
+}
+-->
+<p>新增一個 C# 腳本命名為 NodeManager.cs<br>
+用來管理所產生的 Node<br>
+並產生一個空物件命名為 NodeManager<br>
+將 NodeManager.cs 拖拉至 NodeManager 上<br>
+如下圖：<br>
+<img alt="A* Algorithm Node Generate – 生成 Node、Node 可視化 插圖" decoding="async" height="763" loading="lazy" src="8a59a784f4068120ddf5df686baeab34.png" width="512"></p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class NodeManager : MonoBehaviour
+{
+	//NodeManager Singleton
+	//Only create NodeManager once
+	private static NodeManager s_Instance = null;
+
+	public static NodeManager instance
+	{
+		get
+		{
+			if (s_Instance == null)
+			{
+				s_Instance = FindObjectOfType(typeof(NodeManager)) as NodeManager;
+
+				if (s_Instance == null)
+					Debug.Log("Could not locate a GridManager " +
+					          "object. \n You have to have exactly " +
+					          "one GridManager in the scene.");
+			}
+
+			return s_Instance;
+		}
+	}
+
+	//the number of row and column
+	public int numOfRows;
+	public int numOfColumns;
+
+	//the grid cell size
+	public float gridCellSize;
+
+	//display or not display the grid
+	public bool showGrid = true;
+
+	//Record nodes
+	public Node[,] nodes { get; set; }
+
+	void Awake()
+	{
+		CreateNodes();
+	}
+
+	//Create the node with it's position
+	void CreateNodes()
+	{
+		nodes = new Node[numOfColumns, numOfRows];
+
+		for (int col = 0; col &lt; numOfColumns; col++)
+		{
+			for (int row = 0; row &lt; numOfRows; row++)
+			{
+				Vector3 cellPos = GetNodePosition(col, row);
+				Node node = new Node(cellPos);
+				nodes[col, row] = node;
+
+				//Obstacle Update
+				cellPos -= new Vector3( 0, 100, 0 );
+				RaycastHit hit;
+				Ray ray = new Ray( cellPos, new Vector3( 0, 1, 0 ) );
+
+				if( Physics.Raycast( ray , out hit, 1000 ) )
+				{
+					if( hit.transform.tag == "Obstacle" )
+						nodes[col, row].MarkAsObstacle();
+				}
+			}
+		}
+	}
+
+	//Get the node center position with it's colomn and row
+	public Vector3 GetNodePosition(int col, int row)
+	{
+		Vector3 cellPosition = new Vector3();
+		cellPosition.x = col * gridCellSize + gridCellSize / 2.0f;
+		cellPosition.z = row * gridCellSize + gridCellSize / 2.0f;
+		return cellPosition;
+	}
+
+	//Get the current node's row with it's position
+	public int GetNodeRow( Vector3 position )
+	{
+		return (int)( ( 2 * position.z - gridCellSize ) / ( 2 * gridCellSize ) );
+	}
+
+	//Get the current node's column with it's position
+	public int GetNodeColumn( Vector3 position )
+	{
+		return (int)( ( 2 * position.x - gridCellSize ) / ( 2 * gridCellSize ) );
+	}
+
+	//Input one position and return a closest node position
+	public Vector3 GetNodeCenter( Vector3 position )
+	{
+		for (int col = 0; col &lt; numOfColumns; col++)
+		{
+			for (int row = 0; row &lt; numOfRows; row++)
+			{
+				if( col * gridCellSize &lt;= position.x &amp;&amp;
+				   position.x &lt; ( col + 1 ) * gridCellSize &amp;&amp;
+				   row * gridCellSize &lt;= position.z &amp;&amp;
+				   position.z &lt; ( row + 1 ) * gridCellSize )
+				{
+					return GetNodePosition( col, row );
+				}
+			}
+		}
+
+		return Vector3.zero;
+	}
+
+	//Get the current node's neighbors
+	public void GetNeighbours( Node node, ArrayList neighbors )
+	{
+		Vector3 neighborPos = node.position;
+		int row = GetNodeRow( neighborPos );
+		int column = GetNodeColumn( neighborPos );
+
+		//Bottom
+		int leftNodeRow = row - 1;
+		int leftNodeColumn = column;
+		AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+		//Top
+		leftNodeRow = row + 1;
+		leftNodeColumn = column;
+		AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+		//Right
+		leftNodeRow = row;
+		leftNodeColumn = column + 1;
+		AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+		//Left
+		leftNodeRow = row;
+		leftNodeColumn = column - 1;
+		AssignNeighbour(leftNodeRow, leftNodeColumn, neighbors);
+	}
+
+	//Put neighbors to an ArralyList
+	void AssignNeighbour(int row, int column, ArrayList neighbors)
+	{
+		if (row != -1 &amp;&amp; column != -1 &amp;&amp;
+		    row &lt; numOfRows &amp;&amp; column &lt; numOfColumns)
+		{
+			Node nodeToAdd = nodes[column, row];
+			if (!nodeToAdd.isObstacle )
+			{
+				neighbors.Add(nodeToAdd);
+			}
+		}
+	}
+
+	//Show the Grid
+	void OnDrawGizmos()
+	{
+		if (showGrid)
+		{
+			DebugDrawGrid( transform.position, numOfRows, numOfColumns, gridCellSize, Color.blue );
+		}
+	}
+
+	public void DebugDrawGrid(Vector3 origin, int numRows, int numCols,float cellSize, Color color)
+	{
+		float width = (numCols * cellSize);
+		float height = (numRows * cellSize);
+
+		// Draw the horizontal grid lines
+		for (int i = 0; i &lt; numRows + 1; i++)
+		{
+			Vector3 startPos = origin + i * cellSize * new Vector3(0.0f, 0.0f, 1.0f);
+			Vector3 endPos = startPos + width * new Vector3(1.0f, 0.0f, 0.0f);
+			Debug.DrawLine(startPos, endPos, color);
+		}
+
+		// Draw the vertial grid lines
+		for (int i = 0; i &lt; numCols + 1; i++)
+		{
+			Vector3 startPos = origin + i * cellSize * new Vector3(1.0f, 0.0f, 0.0f);
+			Vector3 endPos = startPos + height * new Vector3(0.0f, 0.0f, 1.0f);
+			Debug.DrawLine(startPos, endPos, color);
+		}
+	}
+}</code></pre>
+<p>
+這邊較為複雜<br>
+所以將程式分段講解<br>
+ <br>
+6~26<br>
+實作 NodeManager 獨立模式<br>
+如果有興趣可以上網搜尋 Singleton Design Pattern<br>
+ <br>
+28~39<br>
+建立腳本內所需參數<br>
+ <br>
+41~44 Awake<br>
+初始化、呼叫 CreateNode 函式<br>
+ <br>
+46~71 CreateNode<br>
+初始化 Node 二維陣列<br>
+利用二次迴圈逐一產生 Node<br>
+並將之記錄在nodes[ , ]裡<br>
+ <br>
+73~80  GetNodePosition<br>
+回傳該行列 Node 的位置<br>
+ <br>
+82~86 GetNodeRow<br>
+回傳該位置上的 Node 列<br>
+ <br>
+88~92 GetNodeColumn<br>
+回傳該位置上的 Node 行<br>
+ <br>
+94~112 GetNodeCenter<br>
+回傳最接近輸入位置所對應的 Node 位置<br>
+ <br>
+114~137 GetNeighbours<br>
+取得鄰邊四方向上的 Node<br>
+ <br>
+139~151 AssignNeighbour<br>
+取得 Node 並回傳至 ArrayList<br>
+ <br>
+170~177 OnDrawGizmos<br>
+MonoBehaviour API<br>
+<a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDrawGizmos.html" rel="noopener noreferrer" target="_blank">OnDrawGizmos</a><br>
+ <br>
+179~199 DebugDrawGrid<br>
+在 Scene 裡面畫出對應的格線<br>
+ <br>
+將程式儲存後<br>
+在 NodeManager 中填入想要的數值<br>
+就會在 Scene 視窗中顯示出一個方格陣列<br>
+( 如果沒有顯示請注意 showGrid 有沒有打勾! )<br>
+<img alt="A* Algorithm Node Generate – 生成 Node、Node 可視化 插圖" decoding="async" height="772" loading="lazy" src="ffd2b03f94333aabfddb42e0d60d750a.png" width="1434"></p>

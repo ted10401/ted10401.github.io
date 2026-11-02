@@ -1,0 +1,69 @@
+<!--
+{
+  "title": "A* Algorithm Obstacle Detection – 障礙物判定",
+  "date": "2016-07-10",
+  "category": "Unity · Algorithm",
+  "excerpt": "在上一篇中我們已經完成了 A* 尋路的功能了 但是缺少了障礙物判定的方法 如果有認真看每一篇教學的讀者會發現 在一開始定義 Node 時，有一個 isObs…",
+  "image": "cover-e434d741f80f2987737cc847dc6ae1b7.png",
+  "imageAlt": "A* Algorithm Obstacle Detection – 障礙物判定 封面",
+  "shortTitle": "A* Algorithm Obstacle Detection",
+  "heading": "A* Algorithm Obstacle Detection<br><span>障礙物判定</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/a-star-algorithm-obstacle-detection/"
+}
+-->
+<p>在上一篇中我們已經完成了 A* 尋路的功能了<br>
+但是缺少了障礙物判定的方法<br>
+如果有認真看每一篇教學的讀者會發現<br>
+在一開始定義 Node 時，有一個 isObstacle 參數用來判斷該 Node 是不是障礙物<br>
+在這一篇我們就是要將它實現出來<br>
+ <br>
+找到 NodeManager.cs 腳本<br>
+找到其中的 CreateNode 方法</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">void CreateNodes()
+{
+	nodes = new Node[numOfColumns, numOfRows];
+
+	for (int col = 0; col &lt; numOfColumns; col++)
+	{
+		for (int row = 0; row &lt; numOfRows; row++)
+		{
+			Vector3 cellPos = GetNodePosition(col, row);
+			Node node = new Node(cellPos);
+			nodes[col, row] = node;
+		}
+	}
+}</code></pre>
+<p>將它改寫成</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">void CreateNodes()
+{
+	nodes = new Node[numOfColumns, numOfRows];
+
+	for (int col = 0; col &lt; numOfColumns; col++)
+	{
+		for (int row = 0; row &lt; numOfRows; row++)
+		{
+			Vector3 cellPos = GetNodePosition(col, row);
+			Node node = new Node(cellPos);
+			nodes[col, row] = node;
+
+			//Obstacle Update
+			cellPos -= new Vector3( 0, 100, 0 );
+			RaycastHit hit;
+			Ray ray = new Ray( cellPos, new Vector3( 0, 1, 0 ) );
+
+			if( Physics.Raycast( ray , out hit, 1000 ) )
+			{
+				if( hit.transform.tag == "Obstacle" )
+					nodes[col, row].MarkAsObstacle();
+			}
+		}
+	}
+}</code></pre>
+<p>
+接著在場景中加入任一包含 Collider 的物件<br>
+並將其 Tag 設定為 Obstacle<br>
+<img alt="A* Algorithm Obstacle Detection – 障礙物判定 插圖" decoding="async" height="105" loading="lazy" src="49d62d32d6ade829c580cc07e0cf51c0.png" width="276"><br>
+ <br>
+執行 Unity<br>
+得到以下成果<br>
+<img alt="A* Algorithm Obstacle Detection – 障礙物判定 插圖" decoding="async" height="833" loading="lazy" src="e434d741f80f2987737cc847dc6ae1b7.png" width="1162"></p>

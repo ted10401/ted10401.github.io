@@ -1,0 +1,47 @@
+<!--
+{
+  "title": "Setup Unity Environment – Unity 環境設定",
+  "date": "2016-07-11",
+  "category": "Git",
+  "excerpt": "所以需要更改一些 Unity 裡的環境設定",
+  "image": "201057ac59d966a29390faea43ea6c65.png",
+  "imageAlt": "Setup Unity Environment – Unity 環境設定 封面",
+  "shortTitle": "Setup Unity Environment",
+  "heading": "Setup Unity Environment<br><span>Unity 環境設定</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/git-tutorial-setup-unity-environment/"
+}
+-->
+<p>然而再使用 Git 時</p>
+<p>為了更方便的比對資料修改的內容</p>
+<p>所以需要更改一些 Unity 裡的環境設定</p>
+
+<p><b>1.修改 Version Control Mode</b></p>
+<p>點選 Editor/Project Settings/Editor</p>
+<p><img alt="Setup Unity Environment – Unity 環境設定 插圖" decoding="async" height="797" loading="lazy" src="201057ac59d966a29390faea43ea6c65.png" width="1274"></p>
+
+<p>將 Version Control Mode 改為 Visible Meta Files</p>
+<p><img alt="Setup Unity Environment – Unity 環境設定 插圖" decoding="async" height="850" loading="lazy" src="75995a3530d00c5b6c06cc3b2c8c79fc.png" width="984"></p>
+
+<p><b>2.修改 Asset Serialization Mode</b></p>
+<p>將 Asset Serialization Mode 改為 Force Text</p>
+<p><img alt="Setup Unity Environment – Unity 環境設定 插圖" decoding="async" height="844" loading="lazy" src="d5e13704ecd9a97b488792a14aafdefa.png" width="984"></p>
+
+<p><b>3.Ignore 資料夾 Temp、Library</b></p>
+<p>一個 Unity 專案會有四個資料夾</p>
+<p>Assets、PlayerSettings、Temp、Library</p>
+<p>而我們並不需要上傳 Temp 以及 Library 資料夾</p>
+
+<p>在 SourceTree 中分別對 Temp、Library 點選右鍵</p>
+<p>接著點選 Ignore…</p>
+<p><img alt="Setup Unity Environment – Unity 環境設定 插圖" decoding="async" height="821" loading="lazy" src="df7bdd87371a58f6de3ee3ac27797b8d.png" width="1531"></p>
+
+<p>Add this ignore entry to：</p>
+<p>This repository only：對當前專案下的資料做忽略</p>
+<p>Global ignore list：對所有專案下的資料做忽略</p>
+<p>這裡我選擇使用 Global ignore list</p>
+<p><img alt="Setup Unity Environment – Unity 環境設定 插圖" decoding="async" height="498" loading="lazy" src="9470b9bd52b831193d6827a9069869b6.png" width="1074"></p>
+
+<p>另外也可以在 SourceTree/Preferences…/Git/Global Ignore List 做以下設定</p>
+<p><img alt="Setup Unity Environment – Unity 環境設定 插圖" decoding="async" height="178" loading="lazy" src="34e1144c7bf60472060650795e2d1513.png" width="1278"></p>
+
+<p>到這邊完成了 Unity 在 Git 上的環境設定</p>

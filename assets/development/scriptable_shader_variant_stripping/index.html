@@ -1,0 +1,208 @@
+<!--
+{
+  "title": "Scriptable Shader Variant Stripping：Reduce 80% Build Time – 可編程著色器變體剔除：減少 80% 建置時間",
+  "date": "2019-09-18",
+  "category": "Shader",
+  "excerpt": "只要是使用 Unity 一段時間的開發者都會發現 隨著專案進入後期、複雜度增加、素材變多…等因素 建置時間會成正比成長",
+  "image": "cover-scriptable_shader_variant_stripping_profile.png",
+  "imageAlt": "Scriptable Shader Variant Stripping：Reduce 80% Build Time – 可編程著色器變體剔除：減少 80% 建置時間 封面",
+  "shortTitle": "Scriptable Shader Variant Stripping：Reduce 80% Build Time",
+  "heading": "Scriptable Shader Variant Stripping：Reduce 80% Build Time<br><span>可編程著色器變體剔除：減少 80% 建置時間</span>",
+  "source": "https://tedsieblog.wordpress.com/2019/09/18/scriptable_shader_variant_stripping/"
+}
+-->
+<p>只要是使用 Unity 一段時間的開發者都會發現<br>
+隨著專案進入後期、複雜度增加、素材變多…等因素<br>
+建置時間會成正比成長</p>
+<p>在過往的版本中<br>
+開發者無法針對 Compiling Shader Variant 這個建置步驟進行任何處理<br>
+<a href="https://unity3d.com/unity/beta" rel="noopener noreferrer" target="_blank">2018.2 beta</a> 新增了 Scriptable Shader Variant Stripping 功能<br>
+能夠讓開發者在建置過程中控管 Shader Variant<br>
+減少建置時間與檔案大小</p>
+<hr>
+<h2>Shader Variant 概念</h2>
+<p>Shader Asset：常見的 Shader 資源，包含 Property、SubShader、Pass<br>
+Shader Snippet：Shader 片段<br>
+Shader Stage：渲染管線的特定階段，一般指 Vertex Shader 及 Fragment Shader<br>
+Shader Keyword：共有兩種 Keyword 用法，multi_compile 及 shader_feature<br>
+Shader Keyword Set：Keyword Set 是關鍵字的特定集合，用於識別 Shader 啟用哪些關鍵字<br>
+Shader Variant：根據關鍵字所形成的 Shader Variant<br>
+Uber Shader/Mega Shader：可生成多個 Shader Variant 的 Shader</p>
+<p><b>如何計算 Shader Variant 數量</b><br>
+<img alt="Scriptable Shader Variant Stripping：Reduce 80% Build Time – 可編程著色器變體剔除：減少 80% 建置時間 插圖" decoding="async" height="192" loading="lazy" src="scriptable_shader_variant_stripping_format.png" width="1999"><br>
+<img alt="Scriptable Shader Variant Stripping：Reduce 80% Build Time – 可編程著色器變體剔除：減少 80% 建置時間 插圖" decoding="async" height="244" loading="lazy" src="scriptable_shader_variant_stripping_format2.png" width="1999"><br>
+<img alt="Scriptable Shader Variant Stripping：Reduce 80% Build Time – 可編程著色器變體剔除：減少 80% 建置時間 插圖" decoding="async" height="315" loading="lazy" src="scriptable_shader_variant_stripping_format3.png" width="1999"></p>
+<p><b>範例</b><br>
+#pragma multi_compile A1 A2 A3 //第一種 Directive，有三個不同 Keyword<br>
+#pragma multi_compile B1 B2 B3 B4 //第二種 Directive，有四個不同 Keyword<br>
+ShaderVariants 數量 = 3 x 4 = 12</p>
+<hr>
+<h2>如何定義 Keyword</h2>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<th>定義方式</th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+<tr>
+<td>定義類型</td>
+<td>定義語句</td>
+<td>作用範圍</td>
+<td>變體生成</td>
+</tr>
+<tr>
+<td>shader_feature</td>
+<td>#pragma shader_feature</td>
+<td>shader 本身</td>
+<td>開發者自定義</td>
+</tr>
+<tr>
+<td>multi_compile</td>
+<td>#pragma multi_compile</td>
+<td>大多數 Shader</td>
+<td>自動生成所有變體</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<th>定義語句對照表</th>
+<th></th>
+<th></th>
+</tr>
+<tr>
+<td>定義語句</td>
+<td>預設 Keyword</td>
+<td>生成 Shader Variants</td>
+</tr>
+<tr>
+<td>#pragma shader_feature A</td>
+<td>no keyword</td>
+<td>開發者自定義</td>
+</tr>
+<tr>
+<td>#pragma shader_feature _ A</td>
+<td>no keyword</td>
+<td>開發者自定義</td>
+</tr>
+<tr>
+<td>#pragma shader_feature A B C</td>
+<td>A</td>
+<td>開發者自定義</td>
+</tr>
+<tr>
+<td>#pragma shader_feature _ A B C</td>
+<td>no keyword</td>
+<td>開發者自定義</td>
+</tr>
+<tr>
+<td>#pragma multi_compile A</td>
+<td>A</td>
+<td>A</td>
+</tr>
+<tr>
+<td>#pragma multi_compile __ A</td>
+<td>no keyword</td>
+<td>no keyword、A</td>
+</tr>
+<tr>
+<td>#pragma multi_compile A B C</td>
+<td>A</td>
+<td>A、B、C</td>
+</tr>
+<tr>
+<td>#pragma multi_compile __ A B C</td>
+<td>no keyword</td>
+<td>no keyword、A、B、C</td>
+</tr>
+</tbody>
+</table></div>
+<p><b>重點整理</b><br>
+shader_feature 只有在 Keyword Enable 的狀況下才會生成 Shader Variant<br>
+multi_compile 會自動生成所有 Shader Variant<br>
+所以大部分情況下會建議少用 multi_compile 改用 shader_feature<br>
+減少 multi_compile 過多導致 Shader Variant 暴漲的情形發生</p>
+<hr>
+<h2>可編程著色器變體剔除工作流程</h2>
+<p>1. 實作 <a href="https://docs.unity3d.com/ScriptReference/Build.IPreprocessShaders.OnProcessShader.html" rel="noopener noreferrer" target="_blank">IPreprocessShaders</a><br>
+2. 載入特殊 Shader 清單<br>
+3. 收集並載入專案中所有 Material<br>
+<a href="https://docs.unity3d.com/ScriptReference/AssetDatabase.FindAssets.html" rel="noopener noreferrer" target="_blank">AssetDatabase.FindAssets</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/AssetDatabase.LoadAssetAtPath.html" rel="noopener noreferrer" target="_blank">AssetDatabase.LoadAssetAtPath</a></p>
+<p>4. 將每個 Material 所對應的 Shader 及 Keyword Set 紀錄下來<br>
+<a href="https://docs.unity3d.com/ScriptReference/Material-shader.html" rel="noopener noreferrer" target="_blank">Material.shader</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/Material-shaderKeywords.html" rel="noopener noreferrer" target="_blank">Material.shaderKeywords</a></p>
+<p>5. 執行 OnProcessShader<br>
+6. 判斷 Shader Variant 是否合法<br>
+7. 判斷通過則保留，不通過則捨棄</p>
+<p><b>重點紀錄</b><br>
+由於這個流程只能確保專案中所有的 Material 在打包後能正常使用<br>
+任何專案中非 Material 的 Shader，如：UI、Hidden、Legacy Shaders…等<br>
+需要額外進行處理<br>
+且在執行過程中若是使用 <a href="https://docs.unity3d.com/ScriptReference/Material.EnableKeyword.html" rel="noopener noreferrer" target="_blank">Material.EnableKeyword</a>、<a href="https://docs.unity3d.com/ScriptReference/Material.DisableKeyword.html" rel="noopener noreferrer" target="_blank">Material.DisableKeyword</a>、<a href="https://docs.unity3d.com/ScriptReference/Shader.EnableKeyword.html" rel="noopener noreferrer" target="_blank">Shader.EnableKeyword</a>、<a href="https://docs.unity3d.com/ScriptReference/Shader.DisableKeyword.html" rel="noopener noreferrer" target="_blank">Shader.DisableKeyword</a> 動態改變 Shader Keyword 也需要額外進行處理</p>
+<p><img alt="Scriptable Shader Variant Stripping：Reduce 80% Build Time – 可編程著色器變體剔除：減少 80% 建置時間 插圖" decoding="async" height="387" loading="lazy" src="scriptable_shader_variant_stripping_settings.jpg" width="411"></p>
+<p>因此簡單的製作了一個 ScriptableObject 用來讓開發者能夠自行定義特殊 Shader 清單<br>
+用來記錄需要特別處理的 Shader<br>
+基本包含 Hidden、UI、Sprites、Skybox、Legacy Shaders 這些常用的 Shader 列表<br>
+以及專案中有使用到的一些較為特殊的 Shader</p>
+<hr>
+<h2>數據分享</h2>
+<div class="table-scroll"><table>
+<tbody>
+<tr>
+<th>Optimized Mesh Data</th>
+<th>Scriptable Shader Variants Stripping</th>
+<th>建置大小 (MB)</th>
+<th>建置時間 (s)</th>
+<th>節省時間</th>
+</tr>
+<tr>
+<td>O</td>
+<td>X</td>
+<td>4980</td>
+<td>1080.89</td>
+<td>0%</td>
+</tr>
+<tr>
+<td>O</td>
+<td>O</td>
+<td>4971</td>
+<td>922.39</td>
+<td>14.68%</td>
+</tr>
+<tr>
+<td>X</td>
+<td>X</td>
+<td>5099</td>
+<td>237.88</td>
+<td>77.99%</td>
+</tr>
+<tr>
+<td>X</td>
+<td>O</td>
+<td>5094</td>
+<td>180.55</td>
+<td>82.30%</td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h2>Optimized Mesh Data 的影響</h2>
+<p>在交叉測試後的數據中發現<br>
+影響建置時間最多的是 Player Settings 中的 Optimized Mesh Data 選項<br>
+此選項會在建置過程中解析所有 Shader Variant 中未使用的 Vertex Channel 並進行優化處理<br>
+使得同一個 Shader Variant 會在整個建置過程中不斷的被反覆檢查<br>
+如果專案有使用到這個參數的話<br>
+建議可以比較看看勾選前後是否對建置時間有明顯的改變<br>
+（測試版本為 Unity 2018.3，此問題已在 Unity 2019.3 中修正）<br>
+<a href="https://issuetracker.unity3d.com/issues/building-project-gets-stuck-on-compiling-shader-variants-dialog-when-lightweight-render-pipeline-slash-lit-shader-is-compiling" rel="noopener noreferrer" target="_blank">Unity Issue Tracker – Building project gets stuck on “Compiling shader variants” dialog when Lightweight Render Pipeline/Lit shader is compiling</a></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://blogs.unity3d.com/2018/05/14/stripping-scriptable-shader-variants/" rel="noopener noreferrer" target="_blank">Stripping scriptable shader variants – Unity Blog</a><br>
+<a href="https://mp.weixin.qq.com/s/Ap3bd3_Ockage_77mokmUg" rel="noopener noreferrer" target="_blank">Unity 2018.2新功能：可编程着色器变体移除</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/Build.IPreprocessShaders.OnProcessShader.html" rel="noopener noreferrer" target="_blank">IPreprocessShaders.OnProcessShader</a><br>
+<a href="https://zhuanlan.zhihu.com/p/68888831" rel="noopener noreferrer" target="_blank">Shader变体收集与打包</a><br>
+<a href="https://blog.csdn.net/RandomXM/article/details/88642534" rel="noopener noreferrer" target="_blank">对Shader Variant的研究(概念介绍、生成方式、打包策略)</a></p>

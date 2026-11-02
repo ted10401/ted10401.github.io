@@ -1,0 +1,198 @@
+<!--
+{
+  "title": "Voronoi Diagram – A Case Study of Fortune’s Algorithm",
+  "date": "2018-11-29",
+  "category": "Unity · Algorithm",
+  "excerpt": "Voronoi Diagram 是由俄國數學家 Georgy Voronoy 所定義的空間分割圖，在許多領域都有廣泛的應用。",
+  "image": "cover.jpg",
+  "imageAlt": "Voronoi Diagram – A Case Study of Fortune’s Algorithm 封面",
+  "shortTitle": "Voronoi Diagram",
+  "heading": "Voronoi Diagram<br><span>A Case Study of Fortune’s Algorithm</span>",
+  "source": "https://tedsieblog.wordpress.com/2018/11/29/voronoi-diagram-a-case-study-of-fortunes-algorithm/"
+}
+-->
+<p><a href="https://en.wikipedia.org/wiki/Voronoi_diagram" rel="noopener noreferrer" target="_blank">Voronoi Diagram</a> 是由俄國數學家 <a href="https://en.wikipedia.org/wiki/Georgy_Voronoy" rel="noopener noreferrer" target="_blank">Georgy Voronoy</a> 所定義的空間分割圖，在許多領域都有廣泛的應用。</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Voronoi Diagram" decoding="async" loading="lazy" src="Euclidean_Voronoi_diagram.svg">Voronoi Diagram</p>
+<p>日常生活及大自然中遍及了 Voronoi Diagram，如細胞分佈、葉脈紋路、長頸鹿和龜甲斑紋、商家勢力範圍、消防車負責區域…等。</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：細胞分佈" decoding="async" height="453" loading="lazy" src="voronoi_cell.jpg" width="564">細胞分佈</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：葉脈紋路" decoding="async" height="480" loading="lazy" src="voronoi_leaf.jpg" width="640">葉脈紋路</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：長頸鹿斑紋" decoding="async" height="2304" loading="lazy" src="voronoi_giraffe.jpg" width="3456">長頸鹿斑紋</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：龜甲斑紋" decoding="async" height="900" loading="lazy" src="voronoi_turtle.jpg" width="1370">龜甲斑紋</p>
+<hr>
+<h2>拋物線 Parabola</h2>
+<p>拋物線的構成要素有準線、焦點、對稱軸、頂點及焦距。</p>
+<p><b>定義</b><br>
+設平面上有一線段 L、定點 F，其中定點 F 不再線段 L 上，則平面上所有到線段 L 的距離與到定點 F 的距離相等的點集合所形成的圖形即為拋物線。<br>
+線段 L 即為準線。<br>
+定點 F 即為焦點。</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm 插圖" decoding="async" loading="lazy" src="Parts_of_Parabola.svg"></p>
+<p><b>準線 Directrix</b><br>
+平面上的一直線</p>
+<p><b>焦點 Focus</b><br>
+平面上一點</p>
+<p><b>對稱軸 Axis of Symmetry</b><br>
+過焦點並與準線垂直的直線</p>
+<p><b>頂點 Vertex</b><br>
+對稱軸與拋物線的交點</p>
+<p><b>焦距 Focal Length</b><br>
+為焦點到頂點的距離</p>
+<p><b>標準方程式（開口向上）</b><br>
+焦點 <img alt="F = (x_{f}, y_{f})" class="math" height="19" src="math-001.png" width="86"><br>
+準線 <img alt="y = l" class="math" height="16" src="math-002.png" width="35"><br>
+焦距 <img alt="FL = (y_{f} - l) / 2" class="math" height="19" src="math-003.png" width="115"><br>
+拋物線方程式 <img alt="(y - y_{f}) = 4 * FL * (x - x_{f})^2" class="math" height="20" src="math-004.png" width="206"></p>
+<hr>
+<h2>Bisector 垂直平分線、中垂線</h2>
+<p>空間中任兩點即可形成一垂直平分線。</p>
+<p><b>定義</b><br>
+設空間中有兩點形成線段 L，經過線段 L 中點且垂直線段 L 的直線即為此兩點的垂直平分線。<br>
+垂直平分線上的任一點到線段 L 兩端點的距離皆相等。</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm 插圖" decoding="async" height="300" loading="lazy" src="Perpendicular_Bisector.gif" width="300"></p>
+<hr>
+<h2>Voronoi Diagram</h2>
+<p>在任意數量的點集所組成的空間中，空間中的任意位置被歸類於最接近的點並形成 Voronoi Cell，由於 Voronoi Cell 的分界線是由每兩個點的垂直平分線組成，固 Voronoi Diagram 可用於解決最靠近、最短距離、路徑搜尋相關問題。</p>
+<p><b>定義</b><br>
+<img alt="X" class="math" height="12" src="math-005.png" width="14"> 為一有限空間<br>
+<img alt="x" class="math" height="8" src="math-006.png" width="9"> 為空間中一任意點<br>
+<img alt="K" class="math" height="12" src="math-007.png" width="15"> 為一指數集合<br>
+<img alt="(P_{k})_{k\in K}" class="math" height="17" src="math-008.png" width="55"> 為空間中的一個非空子集的有序元組<br>
+<img alt="R_{k}" class="math" height="15" src="math-009.png" width="18"> 即 <img alt="P_{k}" class="math" height="15" src="math-010.png" width="16"> 對應的 Voronoi Cell，空間中任意點到 <img alt="P_{k}" class="math" height="15" src="math-011.png" width="16"> 的距離不大於到 <img alt="P_{j}(j \neq k)" class="math" height="19" src="math-012.png" width="66"> 的距離<br>
+<img alt="R_{k}=\{x\in X\,\,|\,\,d(x,P_{k})\leq d(x,P_{j})\,\,{\text{for all}}\,\,j\neq k\}" class="math" height="19" src="math-013.png" width="341"><br>
+而 Voronoi Diagram 即所有 Voronoi Cell 的集合</p>
+<hr>
+<h2>Fortune’s Algorithm</h2>
+<p>Fortune’s Algorithm 是建立 Voronoi Diagram 時可使用的演算法之一，最初由 Steven Fortune 在 1986 年的論文 <a href="http://www.wias-berlin.de/people/si/course/files/Fortune87-SweepLine-Voronoi.pdf" rel="noopener noreferrer" target="_blank">A Sweepline Algorithm for Voronoi Diagrams</a> 中發表，是一種掃描線演算法，其時間複雜度為 <img alt="O(n\log n)" class="math" height="17" src="math-014.png" width="70">、空間複雜度為 <img alt="O(n)" class="math" height="17" src="math-015.png" width="34">。<br>
+演算法使用了兩條掃描線作為計算依據，Sweep Line 及 Beach Line，這兩條掃描線會隨著演算過程而移動。<br>
+掃描過程中需要不斷的追蹤 Beach Line，有拋物線段新增時會產生 Voronoi Cell 邊界，有拋物線段消失時則產生 Voronoi Cel 頂點。</p>
+<p><b>Sweep Line</b><br>
+Sweep Line 是一條垂直或水平直線，在這次的實作中選擇使用水平直線，並由上到下進行移動。<br>
+在 Sweep Line 的移動過程中，每經過一輸入點，會將該輸入點納入 Beach Line 的計算，形成一開口向上的拋物線段，而其他尚未經過的點則不會干涉已產生的 Voronoi Diagram。</p>
+<p><b>Beach Line</b><br>
+每個被 Sweep Line 經過的輸入點，會形成拋物線的焦點，而 Sweep Line 則被當作此焦點的準線，形成拋物線。<br>
+Beach Line 則由所有被納入計算的輸入點形成的拋物線組成。</p>
+<p><b>Site Event (Edge Event)</b><br>
+當 Sweep Line 經過任一輸入點時發生，經過的輸入點會納入計算並改變 Beach Line，形成 Voronoi Cell 邊界。</p>
+<p><b>Circle Event (Vertex Event)</b><br>
+當 Beach Line 上任一拋物線段消失時發生，形成 Voronoi Cell 頂點。</p>
+<p><b>演算法圖像化過程 Algorithm Image Processing</b></p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Site Event，加入拋物線 P0，P0 為第一個拋物線所以沒有 Edge 產生，當前 Beach Line 變為 P0" decoding="async" height="838" loading="lazy" src="voronoi_diagram_fortunes_algorithm_1.png" width="842">Site Event，加入拋物線 P0，P0 為第一個拋物線所以沒有 Edge 產生，當前 Beach Line 變為 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Site Event，加入拋物線 P1，產生 Edge，當前 Beach Line 變為 P0 P1 P0" decoding="async" height="836" loading="lazy" src="voronoi_diagram_fortunes_algorithm_2.png" width="836">Site Event，加入拋物線 P1，產生 Edge，當前 Beach Line 變為 P0 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Site Event，加入拋物線 P2，產生 Edge，當前 Beach Line 變為 P0 P2 P0 P1 P0" decoding="async" height="836" loading="lazy" src="voronoi_diagram_fortunes_algorithm_3.png" width="838">Site Event，加入拋物線 P2，產生 Edge，當前 Beach Line 變為 P0 P2 P0 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Circle Event，P2 P1 間的拋物線 P0 消失，產生 Vertex，當前 Beach Line 變為 P0 P2 P1 P0" decoding="async" height="836" loading="lazy" src="voronoi_diagram_fortunes_algorithm_4.png" width="836">Circle Event，P2 P1 間的拋物線 P0 消失，產生 Vertex，當前 Beach Line 變為 P0 P2 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Site Event，加入拋物線 P3，產生 Edge，當前 當前 Beach Line 變為 P0 P2 P1 P3 P1 P0" decoding="async" height="836" loading="lazy" src="voronoi_diagram_fortunes_algorithm_5.png" width="836">Site Event，加入拋物線 P3，產生 Edge，當前 當前 Beach Line 變為 P0 P2 P1 P3 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Circle Event，P2 P3 間的拋物線 P1 消失，產生 Vertex，當前 Beach Line 變為 P0 P2 P3 P1 P0" decoding="async" height="836" loading="lazy" src="voronoi_diagram_fortunes_algorithm_6.png" width="836">Circle Event，P2 P3 間的拋物線 P1 消失，產生 Vertex，當前 Beach Line 變為 P0 P2 P3 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Site Event，加入拋物線 P4，產生 Edge，當前 Beach Line 變為 P0 P2 P4 P2 P3 P1 P0" decoding="async" height="834" loading="lazy" src="voronoi_diagram_fortunes_algorithm_7.png" width="838">Site Event，加入拋物線 P4，產生 Edge，當前 Beach Line 變為 P0 P2 P4 P2 P3 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Circle Event，P0 P4 間的拋物線 P2 消失，產生 Vertex，當前 Beach Line 變為 P0 P4 P2 P3 P1 P0" decoding="async" height="836" loading="lazy" src="voronoi_diagram_fortunes_algorithm_8.png" width="836">Circle Event，P0 P4 間的拋物線 P2 消失，產生 Vertex，當前 Beach Line 變為 P0 P4 P2 P3 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Site Event，加入拋物線 P5，產生 Edge，當前 Beach Line 變為 P0 P4 P2 P3 P5 P3 P1 P0" decoding="async" height="836" loading="lazy" src="voronoi_diagram_fortunes_algorithm_9.png" width="838">Site Event，加入拋物線 P5，產生 Edge，當前 Beach Line 變為 P0 P4 P2 P3 P5 P3 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Circle Event，P4 P3 間拋物線 P2 消失，產生 Vertex，當前 Beach Line 變為 P0 P4 P3 P5 P3 P1 P0" decoding="async" height="834" loading="lazy" src="voronoi_diagram_fortunes_algorithm_10.png" width="834">Circle Event，P4 P3 間拋物線 P2 消失，產生 Vertex，當前 Beach Line 變為 P0 P4 P3 P5 P3 P1 P0</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Voronoi Diagram 完成" decoding="async" height="836" loading="lazy" src="voronoi_diagram_fortunes_algorithm_11.png" width="836">Voronoi Diagram 完成</p>
+<p><video aria-label="Voronoi Diagram – A Case Study of Fortune’s Algorithm：Voronoi Diagram 動態完整過程" autoplay height="640" loop muted playsinline poster="voronoi_diagram_fortunes_algorithm1-poster.jpg" preload="metadata" src="voronoi_diagram_fortunes_algorithm1.mp4" width="640"></video>Voronoi Diagram 動態完整過程</p>
+<p><b>高階虛擬碼 High-Level Pseudo Code</b></p>
+<pre aria-label="程式碼 1" tabindex="0"><code>create the event queue with site events for each input points
+
+while the event queue is not empty
+
+	if the first event in the event queue is a site event
+		add the new parabola to the beach line
+
+	if the first event in the event queue is a circle event
+		add the new vertex and squeeze the parabola
+
+finish any remaining edges</code></pre>
+<p><b>低階虛擬碼 Low-Level Pseudo Code</b></p>
+<pre aria-label="程式碼 2" tabindex="0"><code>VoronoiDiagram(Input Points)
+{
+	let E be the event queue
+	create E with site events for each input points
+	sort E by y-coordinate (depends on the direction of the sweep line)
+
+	while E is not empty
+	{
+		let e be the first event in E
+
+		if e is Site Event
+			AddSiteEvent(e.site)
+
+		if e is Circle Event
+			AddCircleEvent(e)
+	}
+
+	finish the remaining edges
+}
+
+AddSiteEvent(Site site)
+{
+	let p be the parabola above the site
+
+	create parabolas p0, p1, and p2
+	p0.focus = p2.focus = p.focus
+	p1.focus = site
+
+	create new edges el, and er
+	el is the edge between p0 and p1
+	er is the edge between p1 and p2
+
+	replace p by the sequence p0, p1, p2
+
+	CheckCircleEvent(p0)
+	CheckCircleEvent(p2)
+}
+
+AddCircleEvent(Event e)
+{
+	remove e.parabola
+	create new vertex e.vertex
+	create new edge between e.parabola.leftParabola and e.parabola.rightParabola
+
+	CheckCircleEvent(e.parabola.leftParabola)
+	CheckCircleEvent(e.parabola.rightParabola)
+}
+
+CheckCircleEvent(Parabola p)
+{
+	let el and er be the edges of p
+
+	if there is intersect point between el and er
+		let e be the new circle event
+		e.parabola = p
+		e.vertex = intersect point
+		e.y = target sweep line value
+		add e to the event queue E
+}</code></pre>
+<hr>
+<h2>VoronoiDiagramGizmos.cs</h2>
+<p>此腳本用於在 Unity 中使用 <a href="https://docs.unity3d.com/ScriptReference/Gizmos.html" rel="noopener noreferrer" target="_blank">Gizmos</a> 表現 Voronoi Diagram 的演算過程</p>
+<p><b>Gizmos</b><br>
+Show Border：顯示邊界<br>
+Show Input Points：顯示輸入座標<br>
+Show Sweep Line：顯示 Sweep Line<br>
+Show Beach Line：顯示 Beach Line<br>
+Show Edges：顯示 Voronoi Diagram Edge<br>
+Show Vertices：顯示 Voronoi Diagram Vertex</p>
+<p><b>Voronoi Diagram Parameters</b><br>
+Width：Voronoi Diagram 寬度<br>
+Height：Voronoi Diagram 高度<br>
+Sweep Line：Sweep Line 位置<br>
+Input Points：Voronoi Diagram 輸入座標</p>
+<p><b>Inspector Buttons</b><br>
+Input Point Numbers：隨機輸入座標數量<br>
+Reset Sweep Line Animation：重設 Sweep Line 至圖像頂端<br>
+Play Sweep Line Animation：在 Play Mode 下播放演算過程動畫<br>
+Generate Random Input Points：依據 Input Point Numbers 產生隨機輸入座標<br>
+Generate Voronoi Diagram：依據現有輸入座標產生 Voronoi Diagram<br>
+Generate Random Voronoi Diagram：產生隨機 Voronoi Diagram</p>
+<p><img alt="Voronoi Diagram – A Case Study of Fortune’s Algorithm 插圖" decoding="async" height="548" loading="lazy" src="voronoidiagramgizmos.png" width="378"></p>
+<p><b>Source Code</b><br>
+<a href="https://github.com/ted10401/VoronoiDiagram" rel="noopener noreferrer" target="_blank">ted10401/VoronoiDiagram</a></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://en.wikipedia.org/wiki/Voronoi_diagram" rel="noopener noreferrer" target="_blank">Voronoi diagram – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Georgy_Voronoy" rel="noopener noreferrer" target="_blank">Georgy Voronoy – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Parabola" rel="noopener noreferrer" target="_blank">Parabola – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Bisection#Line_segment_bisector" rel="noopener noreferrer" target="_blank">Bisection – Wikipedia</a><br>
+<a href="https://en.wikipedia.org/wiki/Fortune%27s_algorithm" rel="noopener noreferrer" target="_blank">Fortune’s algorithm – Wikipedia</a><br>
+<a href="http://blog.ivank.net/fortunes-algorithm-and-implementation.html" rel="noopener noreferrer" target="_blank">Fortune’s algorithm and implementation</a><br>
+<a href="https://jacquesh.github.io/post/fortunes-algorithm/" rel="noopener noreferrer" target="_blank">Fortunes Algorithm: An intuitive explanation</a><br>
+<a href="http://www.ams.org/publicoutreach/feature-column/fcarc-voronoi" rel="noopener noreferrer" target="_blank">AMS :: Feature Column from the AMS</a><br>
+<a href="https://www.desmos.com/calculator/ejatebvup4" rel="noopener noreferrer" target="_blank">Fortune’s Algorithm (for Voronoi diagrams)</a><br>
+<a href="http://www.cs.sfu.ca/~binay/813.2011/Fortune.pdf" rel="noopener noreferrer" target="_blank">Fortune.pdf</a></p>

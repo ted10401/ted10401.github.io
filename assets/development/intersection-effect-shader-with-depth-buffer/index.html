@@ -1,0 +1,40 @@
+<!--
+{
+  "title": "Intersection Effect Shader with Depth Buffer",
+  "date": "2016-10-28",
+  "category": "Unity · Shader",
+  "excerpt": "Recently, I saw my friend shared the presentation from Unity Blog by Kuba Cupi…",
+  "image": "cover-depthtexture2.png",
+  "imageAlt": "Intersection Effect Shader with Depth Buffer 封面",
+  "source": "https://tedsieblog.wordpress.com/2016/10/28/intersection-effect-shader-with-depth-buffer/"
+}
+-->
+<p>Recently, I saw my friend shared <a href="https://blogs.unity3d.com/2011/09/08/special-effects-with-depth-talk-at-siggraph/" rel="noopener noreferrer" target="_blank">the presentation</a> from Unity Blog by <a href="https://twitter.com/kubacupisz" rel="noopener noreferrer" target="_blank">Kuba Cupisz</a> and <a href="https://twitter.com/rsxole" rel="noopener noreferrer" target="_blank">Ole Ciliox</a>.<br>
+<a href="https://blogs.unity3d.com/2011/09/08/special-effects-with-depth-talk-at-siggraph/" rel="noopener noreferrer" target="_blank">“SPECIAL EFFECTS WITH DEPTH” TALK AT SIGGRAPH</a><br>
+I have started reading it and made some practices until today.</p>
+<p>The presentation contains several features with Depth Buffer which are intersection highlights, force field effect, object outlines and fog.<br>
+And I implemented the intersection highlights effect in this practice.</p>
+<p>Below are the result and implement steps I have tried to test the intersection effect.</p>
+<p><b>Depth Buffer</b><br>
+In order to read Depth Buffer, we had to switch the camera to Depth mode.</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+
+public class DepthMode : MonoBehaviour
+{
+	private void Awake()
+	{
+		GetComponent&lt;Camera&gt;().depthTextureMode = DepthTextureMode.Depth;
+	}
+}</code></pre>
+<p>And implemented a simple post effect to verify the Depth Buffer is correct.<br>
+<img alt="depthtexture" decoding="async" height="774" loading="lazy" src="depthtexture2.png" width="1382"></p>
+<p><b>Intersection Highlights Plane</b><br>
+Then, we could start to compare the depth value with the world position of the pixel.<br>
+Once the depth value approximated the world position z of the pixel, instead the final color with the intersection color.<br>
+And we would have the result like this.<br>
+<video aria-label="simpleintersection" autoplay height="356" loop muted playsinline poster="simpleintersection-poster.jpg" preload="metadata" src="simpleintersection.mp4" width="640"></video></p>
+<p><b>Intersection with glancing and UVs animation effect</b><br>
+Finally I added the glacing effect and the UVs animation with simple tween animation.<br>
+Below are the final results.<br>
+<video aria-label="positionanimation" autoplay height="356" loop muted playsinline poster="positionanimation-poster.jpg" preload="metadata" src="positionanimation.mp4" width="640"></video><br>
+<video aria-label="scaleanimation" autoplay height="267" loop muted playsinline poster="scaleanimation-poster.jpg" preload="metadata" src="scaleanimation.mp4" width="480"></video></p>

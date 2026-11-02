@@ -1,0 +1,50 @@
+<!--
+{
+  "title": "Resolution with Anchor- Anchor 不同解析度下的調整方式",
+  "date": "2016-07-10",
+  "category": "Unity · NGUI",
+  "excerpt": "往往在調整UI時，最頭痛的就是要適應各種解析度",
+  "image": "cover-uianchor.jpg",
+  "imageAlt": "Resolution with Anchor- Anchor 不同解析度下的調整方式 封面",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/ngui-tutorial-resolution-with-anchor/"
+}
+-->
+<p>往往在調整UI時，最頭痛的就是要適應各種解析度</p>
+<p>而NGUI中當然也處理了這部分的問題</p>
+
+<p>首先產生出一個 UI Sprite</p>
+<p>將其位置設定為 -120, 410, 0</p>
+<p><img alt="Resolution with Anchor- Anchor 不同解析度下的調整方式 插圖" decoding="async" height="942" loading="lazy" src="e1a7efe14578790a8bfb9918c9aac523.jpg" width="1373"></p>
+
+<p>這個UI我希望他可以對齊左上角</p>
+<p>但如果在預設的情況下去對Game面板做縮放</p>
+<p>會有這種情況發生</p>
+<p><img alt="Resolution with Anchor- Anchor 不同解析度下的調整方式 插圖" decoding="async" height="943" loading="lazy" src="6bc94c1c0451e96b60bcac9cd333dd9f.jpg" width="1300"></p>
+
+<p>這裡先不討論導致這種情況的原因</p>
+<p>直接提供解決方法</p>
+<p>點選UI Sprite → Anchors</p>
+<p>將Type切換至Unified</p>
+<p><img alt="Resolution with Anchor- Anchor 不同解析度下的調整方式 插圖" decoding="async" height="487" loading="lazy" src="60cd9fca94adb9fa69a149c34fcb3357.jpg" width="452"></p>
+
+<p>這時會發現到雖然圖片已經對你希望的位置做對齊</p>
+<p>但會有被拉扯的情況</p>
+<p><img alt="Resolution with Anchor- Anchor 不同解析度下的調整方式 插圖" decoding="async" height="944" loading="lazy" src="fa2e07576ad9d352d3bf9d6432fcb532.jpg" width="1000"></p>
+
+<p>如果有發生圖片被拉扯的情況</p>
+<p>點選 UI Root 看看裡面的設置</p>
+<p><img alt="Resolution with Anchor- Anchor 不同解析度下的調整方式 插圖" decoding="async" height="944" loading="lazy" src="dc4686adebf3c44506135999c8493364.jpg" width="455"></p>
+
+<p>由於NGUI預設的ScalingStyle是PixelPerfect<br>
+預設的情況下NGUI會自動針對Minimum Height以及Maximum Height去對圖片做縮放<br>
+在此先不討論詳細情況</p>
+<p>將Scaling Style切換至Fixed Size</p>
+<p>則可以讓圖片不會失真</p>
+<p><img alt="Resolution with Anchor- Anchor 不同解析度下的調整方式 插圖" decoding="async" height="946" loading="lazy" src="e4e1e534482bb85f53a418ebd4fef180.jpg" width="456"></p>
+
+<p>完成這兩個設置後</p>
+<p>不管Game面板如何變動</p>
+<p>甚至切換解析度</p>
+<p>都不會導致圖片無法對齊或失真</p>
+<p><img alt="Resolution with Anchor- Anchor 不同解析度下的調整方式 插圖" decoding="async" height="942" loading="lazy" src="48eefacd893af585dba7721f1cc575f2.jpg" width="598"></p>
+<p><img alt="Resolution with Anchor- Anchor 不同解析度下的調整方式 插圖" decoding="async" height="633" loading="lazy" src="bd378b78eb37e65fe2bcf4c9e1045bd0.jpg" width="1059"></p>

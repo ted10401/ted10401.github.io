@@ -1,0 +1,89 @@
+<!--
+{
+  "title": "The Solution of Camera is Outside the Wall – 相機穿牆避免",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "很久沒有寫些東西了 這次分享一個簡單的相機穿牆解決方法",
+  "image": "cb45cea8940180efd2f79646e7bbdc20.png",
+  "imageAlt": "The Solution of Camera is Outside the Wall – 相機穿牆避免 封面",
+  "shortTitle": "The Solution of Camera is Outside the Wall",
+  "heading": "The Solution of Camera is Outside the Wall<br><span>相機穿牆避免</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/the-solution-of-camera-is-outside-the-wall/"
+}
+-->
+<p>很久沒有寫些東西了<br>
+這次分享一個簡單的相機穿牆解決方法</p>
+<p>有時候我們在寫第三人稱的遊戲時<br>
+會發現相機會有穿牆問題發生<br>
+如下圖的情況，相機被牆壁擋住所以無法照到腳色<br>
+<img alt="The Solution of Camera is Outside the Wall – 相機穿牆避免 插圖" decoding="async" height="537" loading="lazy" src="cb45cea8940180efd2f79646e7bbdc20.png" width="944"></p>
+<p>為了避免這個問題<br>
+提供以下 Script</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class SimpleCamera : MonoBehaviour
+{
+	public float rotateSpeed = 50;
+	public float scaleSpeed = 200;
+
+	public Transform parentX;
+	public Transform parentY;
+
+	public Transform target;
+
+	public float curDistance = 15;
+	public float minDistance = 5;
+	public float maxDistance = 20;
+
+	private Transform m_transform;
+	private Vector3 m_rayDirection;
+	private RaycastHit m_hit;
+	private Ray m_ray;
+
+	void Awake()
+	{
+		m_transform = transform;
+		curDistance = Vector3.Distance(m_transform.position, target.position);
+	}
+
+	void Update()
+	{
+		CameraRotateUpdate();
+		CameraCollisionUpdate();
+	}
+
+	private void CameraRotateUpdate()
+	{
+		parentX.Rotate(Input.GetAxis("Mouse Y") * rotateSpeed * Time.deltaTime, 0, 0);
+		parentY.Rotate(0, Input.GetAxis("Mouse X") * rotateSpeed * Time.deltaTime, 0);
+	}
+
+	private void CameraCollisionUpdate()
+	{
+		m_rayDirection = m_transform.position - target.position;
+		m_rayDirection.Normalize();
+
+		m_ray = new Ray(target.position, m_rayDirection * curDistance);
+
+		if(Physics.Raycast(m_ray, out m_hit) &amp;&amp; m_hit.collider.name.Contains("Cube"))
+		{
+			m_transform.localPosition = Vector3.Lerp(m_transform.localPosition, Vector3.back * Vector3.Distance(m_hit.point, target.position), Time.deltaTime * 20);
+		}
+		else
+		{
+			curDistance -= Input.GetAxis("Mouse ScrollWheel") * scaleSpeed * Time.deltaTime;
+			curDistance = Mathf.Clamp(curDistance, minDistance, maxDistance);
+			m_transform.localPosition = Vector3.back * curDistance;
+		}
+	}
+
+	private void OnDrawGizmos()
+	{
+		Gizmos.color = Color.red;
+		Gizmos.DrawLine(m_transform.position, target.position);
+	}
+}</code></pre>
+<p>完成後設置如圖<br>
+<img alt="The Solution of Camera is Outside the Wall – 相機穿牆避免 插圖" decoding="async" height="1017" loading="lazy" src="d8c613aa435f3720081d044cf038bd7e.png" width="1920"></p>
+<p>簡易的穿牆避免到這就完成了</p>

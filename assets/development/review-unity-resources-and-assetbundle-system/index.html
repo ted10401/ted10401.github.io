@@ -1,0 +1,135 @@
+<!--
+{
+  "title": "Review Unity Resources & AssetBundle System – 解析 Unity 資源讀取系統",
+  "date": "2018-10-29",
+  "category": "Unity",
+  "excerpt": "資源讀取是軟體開發過程中的必備系統，在 Unity 中支持兩種資源讀取方式，Resources 及 AssetBundle。 本篇文章會分別解析這兩種讀取方…",
+  "image": "cover-review-unity-resources-n-assetbundle-profile2.png",
+  "imageAlt": "Review Unity Resources & AssetBundle System – 解析 Unity 資源讀取系統 封面",
+  "shortTitle": "Review Unity Resources & AssetBundle System",
+  "heading": "Review Unity Resources &amp; AssetBundle System<br><span>解析 Unity 資源讀取系統</span>",
+  "source": "https://tedsieblog.wordpress.com/2018/10/29/review-unity-resources-and-assetbundle-system/"
+}
+-->
+<p>資源讀取是軟體開發過程中的必備系統，在 Unity 中支持兩種資源讀取方式，Resources 及 AssetBundle。<br>
+本篇文章會分別解析這兩種讀取方式，分析其讀取流程及詳細過程。</p>
+<p>關鍵字快搜：Resources Workflow、Resources API、AssetBundle Workflow、AssetBundle API、DLC、AssetBundle Patch</p>
+<h2>Resources 讀取系統</h2>
+<p>由於 Resources 讀取方式相當容易理解，且過程簡單，所以絕大多數的開發者在初次接觸 Unity 時，都會使用這種讀取方式。<br>
+只需要將資源存放至 Resources 目錄下，即可完成前置作業。<br>
+PS. 任何在專案內 Resources 目錄下的資源都支援這種讀取方式。</p>
+
+<h2>Resources 讀取流程</h2>
+<p>步驟1. 將資源存放至 Resources 目錄下<br>
+步驟2. 將資源讀取至記憶體中<br>
+步驟3. 使用資源<br>
+步驟4. 卸載資源<br>
+<img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="201" loading="lazy" src="review-unity-resources-n-assetbundle-resources-pipeline-1.jpg" width="461"></p>
+<p>步驟1. 將資源存放至 Resources 目錄下</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="201" loading="lazy" src="review-unity-resources-n-assetbundle-resources-pipeline-2.jpg" width="461"></p>
+<p>步驟2. 將資源讀取至記憶體中</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="201" loading="lazy" src="review-unity-resources-n-assetbundle-resources-pipeline-3.jpg" width="279"></p>
+<p>步驟3. 使用資源（GameObject.Instantiate）</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="201" loading="lazy" src="review-unity-resources-n-assetbundle-resources-pipeline-4.jpg" width="461"></p>
+<p>步驟4. 卸載資源</p>
+<h2>AssetBundle 讀取系統</h2>
+<p>使用 Resources 讀取系統一段時間後，開發者會察覺到一個需要解決的問題。<br>
+常常會希望玩家可以不重新下載遊戲安裝包，只針對需要的資源進行下載更新，也就是透過 DLC（Downloadable Content）的方式動態更新遊戲資源。DLC 往往會應用在許多地方，遊戲營運過程中遇到節慶，開發者可以直接透過動態更新的方式讓玩家取得對應的節慶資源包。然而 Resources 讀取系統並不支援這種更新方式。</p>
+
+<h2>什麼是 AssetBundle？</h2>
+<p>AssetBundle 是 Unity 提供的一種壓縮檔案。<br>
+每個 AssetBundle 都是一個容器，或者可以將其理解為資料夾，負責將各種資源（Prefab、材質、貼圖、音效、文字檔、場景…等）收集起來，最後將其壓縮打包即為 AssetBundle。</p>
+
+<h2>AssetBundle 壓縮格式</h2>
+<p>Unity 提供了三種壓縮格式，分別為無壓縮、標準壓縮、Chunk Based 壓縮</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="352" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-compression.png" width="1212"></p>
+<p>AssetBundle 壓縮格式</p>
+
+<h2>AssetBundle 建置選項</h2>
+<p>在建置 AssetBundle 時，Unity 提供了許多的建置選項，方便開發者進行客製化配置。<br>
+<a href="https://docs.unity3d.com/ScriptReference/BuildAssetBundleOptions.html" rel="noopener noreferrer" target="_blank">Unity – Scripting API: BuildAssetBundleOptions</a></p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="574" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-build-optio.png" width="1720"></p>
+<p>AssetBundle 建置選項</p>
+
+<h2>AssetBundle 建置流程</h2>
+<p>步驟1. 設定 AssetBundle Name<br>
+步驟2. 設定建置選項<br>
+步驟3. 打包 AssetBundle <a href="https://docs.unity3d.com/ScriptReference/BuildPipeline.BuildAssetBundles.html" rel="noopener noreferrer" target="_blank">BuildPipeline.BuildAssetBundles</a></p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="1438" loading="lazy" src="review-unity-resources-n-assetbundle-setup-assetbundle-name.png" width="954"></p>
+<p>設定 AssetBundle Name</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="192" loading="lazy" src="review-unity-resources-n-assetbundle-setup-build-options.png" width="1628"></p>
+<p>設定建置選項並打包</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="344" loading="lazy" src="assetbundles-browser-1.png" width="850"></p>
+<p>亦可使用 AssetBundle Browser 來設定</p>
+
+<h2>AssetBundle 建置後檔案</h2>
+<p>完成 AssetBundle 建置後，一共會產生 2*(N+1) 個檔案（N = 設定的 AssetBundle Name 數量），包含兩種檔案類型。</p>
+<p>1. AssetBundle 檔案<br>
+AssetBundle 壓縮檔，解壓縮後可讀取資源</p>
+<p>2. Manifest 檔案<br>
+每一個 AssetBundle 檔案都會有一個對應的 Manifest 檔案，並依據 AssetBundle File 的不同會衍生出兩種不同類型。</p>
+<p>2a. AssetBundleManifest Manifest 檔案<br>
+紀錄建置時產生的所有 AssetBundle 名稱、Hash128、以及 AssetBundle 之間的相依性</p>
+<p>2b. AssetBundle Manifest 檔案<br>
+紀錄該 AssetBundle 所包含的資源、CRC、Hash128 以及資源與 AssetBundle 的相依性</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="440" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundlemanifest-man.png" width="1010"></p>
+<p>AssetBundleManifest Manifest File</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="808" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-manifest1.png" width="1018"></p>
+<p>AssetBundle Manifest File</p>
+
+<h2>AssetBundle 讀取流程</h2>
+<p>步驟1. 從外部下載 AssetBundle 至快取<br>
+步驟2a. 從快取中將 AssetBundle 讀取至記憶體<br>
+步驟2b. 從 StreamingAssets 目錄中將 AssetBundle 讀取至記憶體<br>
+步驟3. 從 AssetBundle 中將資源讀取至記憶體<br>
+步驟4. 使用資源（GameObject.Instantiate）<br>
+步驟5. 卸載資源<br>
+步驟6a. 卸載 AssetBundle 並保留相關鏡像資源<br>
+步驟6b. 卸載 AssetBundle 及相關鏡像資源</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="201" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-pipeline-1.jpg" width="461"></p>
+<p>步驟1. 從外部下載 AssetBundle 至快取</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="201" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-pipeline-2.jpg" width="461"></p>
+<p>步驟2a. 從快取中將 AssetBundle 讀取至記憶體</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="201" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-pipeline-3.jpg" width="461"></p>
+<p>步驟2b. 從 StreamingAssets 目錄中將 AssetBundle 讀取至記憶體</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="261" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-pipeline-4.jpg" width="451"></p>
+<p>步驟3. 從 AssetBundle 中將資源讀取至記憶體</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="262" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-pipeline-5.jpg" width="279"></p>
+<p>步驟4. 使用資源（GameObject.Instantiate）</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="261" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-pipeline-6.jpg" width="461"></p>
+<p>步驟5. 卸載資源</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="261" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-pipeline-7.jpg" width="461"></p>
+<p>步驟6a. 卸載 AssetBundle 並保留相關鏡像資源</p>
+<p><img alt="Review Unity Resources &amp; AssetBundle System – 解析 Unity 資源讀取系統 插圖" decoding="async" height="261" loading="lazy" src="review-unity-resources-n-assetbundle-assetbundle-pipeline-8.jpg" width="461"></p>
+<p>步驟6b. 卸載 AssetBundle 及相關鏡像資源</p>
+
+<h2>AssetBundle 快取機制</h2>
+<p>理解完如何建置 AssetBundle 及載入流程之後，接下來可以針對 DLC 功能的部分來做解析。<br>
+讀取 AssetBundle 時，可以透過 FTP Server 下載後從快取讀取或從 StreamingAssets 目錄中讀取，然而 StreamingAssets 目錄中的 AssetBundle 無法採用快取機制，只能夠以初始包的方式來使用。<br>
+PS. StreamingAssets 中的 AssetBundle 與快取 AssetBundle 兩者是獨立的檔案，一但利用快取機制下載 AssetBundle，則會產生兩倍的記憶體使用量。</p>
+<p>目前支持快取機制的方式有三種：<br>
+1. <a href="https://docs.unity3d.com/ScriptReference/WWW.LoadFromCacheOrDownload.html" rel="noopener noreferrer" target="_blank">WWW.LoadFromCacheOrDownload</a><br>
+2. <a href="https://docs.unity3d.com/ScriptReference/Networking.UnityWebRequest.GetAssetBundle.html" rel="noopener noreferrer" target="_blank">UnityWebRequest.GetAssetBundle (Removed in version 2018.2.3)</a><br>
+3. <a href="https://docs.unity3d.com/ScriptReference/Networking.UnityWebRequestAssetBundle.GetAssetBundle.html" rel="noopener noreferrer" target="_blank">UnityWebRequestAssetBundle.GetAssetBundle</a></p>
+<p>其中會需要這些資料作為快取依據：<br>
+1. URL<br>
+2. Hash128<br>
+3. CRC</p>
+<p><b>URL</b><br>
+AssetBundle 下載路徑，只需要配合專案的 FTP Server 路徑即可。</p>
+<p><b>Hash128</b><br>
+可以透過 <a href="https://docs.unity3d.com/ScriptReference/AssetBundleManifest.GetAssetBundleHash.html" rel="noopener noreferrer" target="_blank">AssetBundleManifest.GetAssetBundleHash</a> 來取得 AssetBundle 對應的 Hash128</p>
+<p><b>CRC</b><br>
+AssetBundleManifest 中並沒有包含 CRC 資訊所以需要另外處理。<br>
+在建置過程中可以利用 <a href="https://docs.unity3d.com/ScriptReference/BuildPipeline.GetCRCForAssetBundle.html" rel="noopener noreferrer" target="_blank">BuildPipeline.GetCRCForAssetBundle</a>、<a href="https://docs.unity3d.com/ScriptReference/BuildPipeline.GetHashForAssetBundle.html" rel="noopener noreferrer" target="_blank">BuildPipeline.GetHashForAssetBundle</a> 這兩個方法來收集 AssetBundle 的 CRC 及 Hash，並將這些資料記錄起來，作爲快取機制的依據。</p>
+
+<h2>參考資料</h2>
+<p><a href="https://docs.unity3d.com/ScriptReference/Resources.html" rel="noopener noreferrer" target="_blank">Unity – Scripting API: Resources</a><br>
+<a href="https://docs.unity3d.com/Manual/AssetBundlesIntro.html" rel="noopener noreferrer" target="_blank">Unity – Manual:  AssetBundles</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/BuildAssetBundleOptions.html" rel="noopener noreferrer" target="_blank">Unity – Scripting API: BuildAssetBundleOptions</a><br>
+<a href="https://docs.unity3d.com/Manual/AssetBundles-Browser.html" rel="noopener noreferrer" target="_blank">Unity – Manual:  Unity Asset Bundle Browser tool</a><br>
+<a href="https://docs.unity3d.com/Manual/AssetBundles-Building.html" rel="noopener noreferrer" target="_blank">Unity – Manual:  Building AssetBundles</a><br>
+<a href="https://docs.unity3d.com/ScriptReference/BuildPipeline.html" rel="noopener noreferrer" target="_blank">Unity – Scripting API: BuildPipeline</a><br>
+<a href="https://docs.unity3d.com/Manual/AssetBundles-Patching.html" rel="noopener noreferrer" target="_blank">Unity – Manual:  Patching with AssetBundles</a></p>
+<h2>推薦閱讀</h2>
+<p><a href="https://unity3d.com/learn/tutorials/topics/best-practices/guide-assetbundles-and-resources" rel="noopener noreferrer" target="_blank">A guide to AssetBundles and Resources – Unity</a></p>

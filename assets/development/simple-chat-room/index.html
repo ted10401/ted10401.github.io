@@ -1,0 +1,164 @@
+<!--
+{
+  "title": "Simple Chat Room – 簡易聊天室",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "由於有人問到如何建立聊天室 所以利用 Unity 中內建的 Network 來簡易說明",
+  "image": "cover-chatroom.jpg",
+  "imageAlt": "Simple Chat Room – 簡易聊天室 封面",
+  "shortTitle": "Simple Chat Room",
+  "heading": "Simple Chat Room<br><span>簡易聊天室</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/simple-chat-room/"
+}
+-->
+<p>由於有人問到如何建立聊天室<br>
+所以利用 Unity 中內建的 Network 來簡易說明</p>
+<p>首先新增一個 Server.cs</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class Server : MonoBehaviour
+{
+	//The number of allowed incoming connections
+	public int connections = 4;
+	//The port number we want to listen to
+	public int port = 25000;
+
+	void OnGUI()
+	{
+		//Network state
+		switch (Network.peerType)
+		{
+		//Disconnected
+		case NetworkPeerType.Disconnected:
+			CreateServer();
+			break;
+		//In server
+		case NetworkPeerType.Server:
+			OnServer();
+			break;
+		}
+	}
+
+	//Create server button
+	void CreateServer()
+	{
+		if (GUILayout.Button ("Create Server"))
+		{
+			//Initialize the server
+			//Network.InitializeServer(int connections, int listenPort, bool useNat);
+			Network.InitializeServer( connections, port, false );
+		}
+	}
+
+	//Wait for client and display the client information
+	void OnServer()
+	{
+		GUILayout.Label ( "The Server is startting now, waiting for client connecting." );
+		int length = Network.connections.Length;
+
+		for (int cnt = 0; cnt &lt; length; cnt++)
+		{
+			GUILayout.Label( "-------------------------" );
+			GUILayout.Label( "Client " + cnt );
+			GUILayout.Label( "Client IP : " + Network.connections[cnt].ipAddress );
+			GUILayout.Label( "Client Port : " + Network.connections[cnt].port );
+		}
+	}
+}</code></pre>
+<p>Server.cs 腳本主要是用來初始化伺服器<br>
+這裡所使用的方法都是 Unity API<br>
+這個腳本是用來初始化伺服器提供客戶端連線</p>
+<p>接下來新增 Client.cs</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System.Collections;
+
+public class Client : MonoBehaviour
+{
+	public string IP = "127.0.0.1";
+
+	//The port number we want to listen to
+	public int port = 25000;
+
+	//The total message
+	private string message;
+	//The send message
+	private string sendMessage = "";
+
+	//The client name
+	private string name = "";
+
+	void OnGUI()
+	{
+		switch (Network.peerType)
+		{
+		case NetworkPeerType.Disconnected:
+			StartConnect();
+			break;
+		case NetworkPeerType.Client:
+			OnClient();
+			break;
+		}
+	}
+
+	void StartConnect()
+	{
+		if (GUILayout.Button ("Connect to server"))
+		{
+			Network.Connect( IP, port );
+		}
+	}
+
+	void OnClient()
+	{
+		name = GUILayout.TextField( name, 10 );
+		sendMessage = GUILayout.TextField(sendMessage, 25);
+
+		if (GUILayout.Button ("Send Message"))
+		{
+			//Network send function
+			//networkView.RPC(string name, RPCMode mode, params object[] args);
+			GetComponent&lt;NetworkView&gt;().RPC( "ReceiveMessage", RPCMode.All, name, sendMessage );
+			sendMessage = "";
+		}
+
+		GUILayout.Label ( "Message : " );
+		GUILayout.Label ( message );
+	}
+
+	//Network receive function
+	[RPC]
+	void ReceiveMessage(string n, string msg, NetworkMessageInfo info)
+	{
+		message += n + " : " + msg + "\n";
+	}
+
+}</code></pre>
+<p>用來傳遞訊息至其他客戶端<br>
+並且接受從其他客戶端傳來的訊息</p>
+<p>接下來創建兩個新場景並分別命名為 Server 及 Client<br>
+分別將兩個腳本賦予場景中的 Main Camera<br>
+並新增 Component → Miscellaneous → Network View 至 Camera 上<br>
+<img alt="Simple Chat Room – 簡易聊天室 插圖" decoding="async" height="992" loading="lazy" src="d6c7ca410d8db888d2cad8c7557efd18.jpg" width="1920"></p>
+
+<p>接著分別輸出兩個場景檔<br>
+<img alt="Simple Chat Room – 簡易聊天室 插圖" decoding="async" height="619" loading="lazy" src="b503ebc9ae829fbf92fdd9a44de67837.jpg" width="639"><br>
+<img alt="Simple Chat Room – 簡易聊天室 插圖" decoding="async" height="609" loading="lazy" src="af8aad1fffb0640286d87c43c5154312.jpg" width="638"></p>
+
+<p>產生出 Server 及 Client 執行檔後<br>
+分別執行一次 Server、兩次 Client<br>
+<img alt="Simple Chat Room – 簡易聊天室 插圖" decoding="async" height="416" loading="lazy" src="8798c9ff8f76904a8071b164aad125da.jpg" width="1579"></p>
+
+<p>按下 Create Server 按鈕後<br>
+至 Client 端按下 Connect to server 按鈕<br>
+<img alt="Simple Chat Room – 簡易聊天室 插圖" decoding="async" height="419" loading="lazy" src="b901cdd8dd1c03ac8b8c87875feed3cb.jpg" width="1580"></p>
+
+<p>若伺服端接收成功後<br>
+即可開始進行聊天功能測試</p>
+<p>測試結果<br>
+<img alt="Simple Chat Room – 簡易聊天室 插圖" decoding="async" height="419" loading="lazy" src="c0e012ca56fa2047bb943ddaa5e57a62.jpg" width="1580"></p>
+<p>此範例所用到的 Unity API 彙整<br>
+<a href="http://docs.unity3d.com/ScriptReference/NetworkPeerType.html" rel="noopener noreferrer" target="_blank">NetworkPeerType</a><br>
+<a href="http://docs.unity3d.com/ScriptReference/Network.InitializeServer.html" rel="noopener noreferrer" target="_blank">Network.InitializeServer</a><br>
+<a href="http://docs.unity3d.com/ScriptReference/Network.Connect.html" rel="noopener noreferrer" target="_blank">Network.Connect</a><br>
+<a href="http://docs.unity3d.com/ScriptReference/NetworkView.RPC.html" rel="noopener noreferrer" target="_blank">NetworkView.RPC</a></p>

@@ -1,0 +1,113 @@
+<!--
+{
+  "title": "Unity Geometry Shader Cookbook – Unity 幾何著色器簡介",
+  "date": "2019-04-09",
+  "category": "Shader",
+  "excerpt": "常見的可編程 Shader 有 Vertex Shader 及 Fragment Shader，而 Shader Model 4.0 及 OpenGL 3.…",
+  "image": "cover.jpg",
+  "imageAlt": "Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 封面",
+  "shortTitle": "Unity Geometry Shader Cookbook",
+  "heading": "Unity Geometry Shader Cookbook<br><span>Unity 幾何著色器簡介</span>",
+  "source": "https://tedsieblog.wordpress.com/2019/04/09/unity-geometry-shader-cookbook/"
+}
+-->
+<p>常見的可編程 Shader 有 Vertex Shader 及 Fragment Shader，而 Shader Model 4.0 及 OpenGL 3.2 開始引入了 Geometry Shader 幾何著色器。<br>
+用這篇文章來記錄如何在 Unity 中實作 Geometry Shader。</p>
+<p><video aria-label="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" autoplay height="520" loop muted playsinline poster="custom_geometry_trianglestream_extrudetriangleanimation-poster.jpg" preload="metadata" src="custom_geometry_trianglestream_extrudetriangleanimation.mp4" width="522"></video></p>
+<hr>
+<h2>執行順序</h2>
+<p>Rendering Pipeline 中執行順序依次為 Vertex Shader、Geometry Shader 及 Fragment Shader。</p>
+<p><b>Vertex Shader</b><br>
+負責逐頂點處理，由於數入的單位是單一頂點，所以無法取得鄰近點、線、面的資料，而 Geometry Shader 就是用來處理這些資料之間的關係。</p>
+<p><b>Geometry Shader</b><br>
+負責圖元 (Primitive) 處理，不但能夠取得點、線、面之間的關係，還能進行新增及刪減的動作。</p>
+<p><b>Fragment Shader</b><br>
+負責逐像素處理，將經過 Rasterisation 後的像素進行計算。</p>
+<hr>
+<h2>定義 Geometry Shader 方法</h2>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">#pragma geometry geom</code></pre>
+<hr>
+<h2>定義資料結構</h2>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">//由應用階段到 Vertex Shader 的資料結構
+struct a2v
+{
+    float4 vertex : POSITION;
+    float2 uv : TEXCOORD0;
+};
+
+//由 Vertex Shader 到 Geometry Shader 的資料結構
+struct v2g
+{
+    float4 vertex : POSITION;
+    float2 uv : TEXCOORD0;
+};
+
+//由 Geometry Shader 到 Fragment Shader 的資料結構
+struct g2f
+{
+    float4 vertex : SV_POSITION;
+    float2 uv : TEXCOORD0;
+};</code></pre>
+<hr>
+<h2>撰寫 Geometry Shader</h2>
+<pre aria-label="C# 程式碼 3" tabindex="0"><code class="language-csharp">[maxvertexcount(3)]
+void geom(triangle v2g input[3], inout TriangleStream&lt;g2f&gt; outStream)
+{
+      g2f o;
+
+      for(int i = 0; i &lt; 3; i++)
+      {
+            o.vertex = UnityObjectToClipPos(input[i].vertex);
+            o.uv = input[i].uv;
+            outStream.Append(o);
+      }
+
+      outStream.RestartStrip();
+}</code></pre>
+<hr>
+<p><b>屬性</b></p>
+<pre aria-label="C# 程式碼 4" tabindex="0"><code class="language-csharp">maxvertexcount(number)    //設定 Geometry Shader 的最大輸出頂點數</code></pre>
+<hr>
+<p><b>輸入</b></p>
+<pre aria-label="C# 程式碼 5" tabindex="0"><code class="language-csharp">point          //點圖元資料
+line           //線圖元資料
+lineadj        //線圖元資料，包含鄰近線圖元資料
+triangle       //面圖元資料
+triangleadj    //面圖元資料，包含鄰近面圖元資料</code></pre>
+<hr>
+<p><b>輸出</b></p>
+<pre aria-label="C# 程式碼 6" tabindex="0"><code class="language-csharp">PointStream       //點 Stream 資料
+LineStream        //線 Stream 資料
+TriangleStream    //面 Stream 資料</code></pre>
+<hr>
+<p><b>Stream 方法</b></p>
+<pre aria-label="C# 程式碼 7" tabindex="0"><code class="language-csharp">Append(struct)    //新增 Stream 資料
+RestartStrip()    //使用 TriangleStream 時，需要使用這個方法形成面圖元資料（三點為一面）</code></pre>
+<hr>
+<h2>實作範例</h2>
+<p>PointStream/Vertex<br>
+<img alt="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" decoding="async" height="865" loading="lazy" src="custom_geometry_pointstream_vertex.jpg" width="1546"></p>
+<p>LineStream/Line<br>
+<img alt="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" decoding="async" height="866" loading="lazy" src="custom_geometry_linestream_line.jpg" width="1544"></p>
+<p>TriangleStream/DoNothing<br>
+<img alt="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" decoding="async" height="864" loading="lazy" src="custom_geometry_trianglestream_donothing.jpg" width="1545"></p>
+<p>TriangleStream/ExtrudeVertex<br>
+<img alt="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" decoding="async" height="863" loading="lazy" src="custom_geometry_trianglestream_extrudevertex.jpg" width="1544"></p>
+<p>TriangleStream/TriangleAnimation<br>
+<img alt="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" decoding="async" height="520" loading="lazy" src="custom_geometry_trianglestream_triangleanimation.gif" width="522"></p>
+<p>TriangleStream/ExtrudePyramid<br>
+<img alt="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" decoding="async" height="863" loading="lazy" src="custom_geometry_trianglestream_extrudepyramid.jpg" width="1545"></p>
+<p>TriangleStream/ExtrudePyramidAnimation<br>
+<video aria-label="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" autoplay height="523" loop muted playsinline poster="custom_geometry_trianglestream_extrudepyramidanimation-poster.jpg" preload="metadata" src="custom_geometry_trianglestream_extrudepyramidanimation.mp4" width="523"></video></p>
+<p>TriangleStream/ExtrudeTriangle<br>
+<img alt="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" decoding="async" height="863" loading="lazy" src="custom_geometry_trianglestream_extrudetriangle.jpg" width="1545"></p>
+<p>TriangleStream/ExtrudeTriangleAnimation<br>
+<video aria-label="Unity Geometry Shader Cookbook – Unity 幾何著色器簡介 插圖" autoplay height="520" loop muted playsinline poster="custom_geometry_trianglestream_extrudetriangleanimation-poster.jpg" preload="metadata" src="custom_geometry_trianglestream_extrudetriangleanimation.mp4" width="522"></video></p>
+<hr>
+<h2>Repository</h2>
+<p><a href="https://github.com/ted10401/GeometryShaderCookbook" rel="noopener noreferrer" target="_blank">ted10401/GeometryShaderCookbook</a></p>
+<hr>
+<h2>參考資料</h2>
+<p><a href="https://github.com/keijiro/StandardGeometryShader" rel="noopener noreferrer" target="_blank">keijiro/StandardGeometryShader</a><br>
+<a href="https://cg2010studio.com/2011/06/30/geometry-shader/" rel="noopener noreferrer" target="_blank">幾何著色器 (Geometry Shader) | 逍遙文工作室</a><br>
+<a href="http://www.dreamfairy.cn/blog/2016/06/05/unity3d-geomerty-shader/" rel="noopener noreferrer" target="_blank">Unity3D Geomerty Shader – 苍白的茧</a></p>

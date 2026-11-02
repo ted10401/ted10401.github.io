@@ -1,0 +1,71 @@
+<!--
+{
+  "title": "MD5 Encryption – MD5 加密",
+  "date": "2016-07-11",
+  "category": "Unity",
+  "excerpt": "在實際專案中 如果需要用到資料傳遞 可以利用 MD5 來為資料進行加密 實際利用如下",
+  "image": "4d6c2e24b4fc5c343c80034f013615c6.jpg",
+  "imageAlt": "MD5 Encryption – MD5 加密 封面",
+  "shortTitle": "MD5 Encryption",
+  "heading": "MD5 Encryption<br><span>MD5 加密</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/11/md5-encryption/"
+}
+-->
+<p>在實際專案中<br>
+如果需要用到資料傳遞<br>
+可以利用 MD5 來為資料進行加密<br>
+實際利用如下</p>
+<p>先建立 CreateMD5.cs 腳本</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">using UnityEngine;
+using System;
+using System.Collections;
+using System.Security.Cryptography;
+using System.Text;
+
+public class CreateMD5 : MonoBehaviour
+{
+	public string inputString;
+	public string hashString;
+
+	void Awake()
+	{
+		MD5 md5Hash = MD5.Create();
+		hashString = GetMD5Hash(md5Hash, inputString);
+		hashString = hashString.ToUpper();
+	}
+
+	private string GetMD5Hash(MD5 md5Hash, string input)
+	{
+		//Convert the input string to a byte array and compute the hash.
+		byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+		//Create a new StringBuilder to collect the bytes and create a string.
+		StringBuilder builder = new StringBuilder();
+
+		//Loop through each byte of the hashed data and format each one as a hexadecimal strings.
+		for(int cnt = 0; cnt &lt; data.Length; cnt++)
+		{
+			builder.Append(data[cnt].ToString("x2"));
+		}
+
+		//Return the hexadecimal string
+		return builder.ToString();
+	}
+
+	private bool VerifyMD5Hash(MD5 md5Hash, string input, string hash)
+	{
+		//Hash the input
+		string hashOfInput = GetMD5Hash(md5Hash, input);
+
+		//Create a StringComparer to compare the hashes.
+		StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+
+		return 0 == comparer.Compare(hashOfInput, hash);
+	}
+}</code></pre>
+
+<p>接著將腳本賦予場上物件並隨意輸入字串<br>
+開始遊戲後即可獲得由輸入字串所產生的加密字串<br>
+<img alt="MD5 Encryption – MD5 加密 插圖" decoding="async" height="945" loading="lazy" src="4d6c2e24b4fc5c343c80034f013615c6.jpg" width="644"></p>
+<p>若需要對加密字串進行驗證<br>
+只需要呼叫 VerifyMd5Hash 方法即可以對字串驗證</p>

@@ -1,0 +1,97 @@
+<!--
+{
+  "title": "A* Algorithm Line of Sight – 可視點優化",
+  "date": "2016-07-10",
+  "category": "Unity · Algorithm",
+  "excerpt": "偶然和同好聊到 A* 時 得知了一種優化方法 可以得到更高效能的運算結果 先來看一張沒有用這種方法優化所算出來的路徑 可以看出雖然原來的方法所算出來的路徑的…",
+  "image": "cover-7b4588165d167366c74722e8c3d7d307.jpg",
+  "imageAlt": "A* Algorithm Line of Sight – 可視點優化 封面",
+  "shortTitle": "A* Algorithm Line of Sight",
+  "heading": "A* Algorithm Line of Sight<br><span>可視點優化</span>",
+  "source": "https://tedsieblog.wordpress.com/2016/07/10/a-start-algorithm-line-of-sight/"
+}
+-->
+<p>偶然和同好聊到 A* 時<br>
+得知了一種優化方法<br>
+可以得到更高效能的運算結果<br>
+ <br>
+先來看一張沒有用這種方法優化所算出來的路徑<br>
+<img alt="A* Algorithm Line of Sight – 可視點優化 插圖" decoding="async" height="300" loading="lazy" src="bbec8634fba05afb61c1e3f958a95c00.jpg" width="624"><br>
+ <br>
+可以看出雖然原來的方法所算出來的路徑的確正確<br>
+但卻又不能算是最佳路徑<br>
+原因在於一定要經過我們所定義出可行走的點<br>
+但如果將算出來的路徑再重製一次後會不會得到更好的結果呢?<br>
+ <br>
+可視點優化(Line of sight)：<br>
+原理相當簡單，我們人在行走時如果遇到上面這種狀況<br>
+一定會以我們 “看” 到的最佳點前進<br>
+以上圖為例<br>
+我們在左下角的起點要向右上角的終點移動時<br>
+一定會直接以紅框為下一個目標點<br>
+因為我們可以 “看” 見紅框點<br>
+ <br>
+找到專案中的 AStar.cs<br>
+並新增 Function 如下</p>
+<pre aria-label="C# 程式碼 1" tabindex="0"><code class="language-csharp">private static ArrayList LineOfSight( ArrayList path )
+{
+	ArrayList list = new ArrayList();
+	list.Add( (Node)path[0] );
+
+	Node startNode = (Node)path[0];
+	Node nextNode;
+
+	int checkIndex = 1;
+
+	while( checkIndex &lt; path.Count )
+	{
+		nextNode = ( (Node)path[checkIndex] );
+
+		if( !Physics.Linecast( startNode.position, nextNode.position ) )
+		{
+			checkIndex++;
+		}
+		else
+		{
+			if( checkIndex == path.Count - 1 )
+			{
+				list.Add( (Node)path[checkIndex - 1] );
+				list.Add( (Node)path[checkIndex] );
+			}
+			else
+			{
+				list.Add( (Node)path[checkIndex - 1] );
+				startNode = (Node)path[checkIndex - 1];
+				nextNode = (Node)path[checkIndex];
+			}
+
+			checkIndex++;
+		}
+	}
+
+	return list;
+}</code></pre>
+<p>
+接著找到原來的 CalculatePath 方法<br>
+並修改成</p>
+<pre aria-label="C# 程式碼 2" tabindex="0"><code class="language-csharp">private static ArrayList CalculatePath(Node node)
+{
+	ArrayList list = new ArrayList();
+
+	while (node != null)
+	{
+		list.Add( node );
+		node = node.parent;
+	}
+
+	list.Reverse();
+	return LineOfSight( list );
+}</code></pre>
+<p>
+這樣一來就可算出 Line of sight 優化過後的路徑<br>
+<img alt="A* Algorithm Line of Sight – 可視點優化 插圖" decoding="async" height="285" loading="lazy" src="45f75eeb7af5cd1d67a9cfc3fecf0fdf.jpg" width="612"><br>
+ <br>
+和沒有優化的路徑相比<br>
+是不是又更簡單明瞭<br>
+附上一張多障礙物模擬<br>
+<img alt="A* Algorithm Line of Sight – 可視點優化 插圖" decoding="async" height="708" loading="lazy" src="7b4588165d167366c74722e8c3d7d307.jpg" width="711"></p>
